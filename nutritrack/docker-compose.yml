@@ -12,6 +12,11 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    # Airflow StatsD metrics -> Prometheus
+    AIRFLOW__METRICS__STATSD_ON: "True"
+    AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+    AIRFLOW__METRICS__STATSD_PORT: "9125"
+    AIRFLOW__METRICS__STATSD_PREFIX: airflow
     # NutriTrack connections
     NUTRITRACK_DB_HOST: postgres
     NUTRITRACK_DB_PORT: "5432"
@@ -191,6 +196,37 @@ services:
       - ./scripts:/app/scripts
 
   # ============================================
+  # Monitoring - Prometheus + StatsD Exporter
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - statsd-exporter
+    restart: unless-stopped
+
+  statsd-exporter:
+    image: prom/statsd-exporter:latest
+    command:
+      - "--statsd.listen-udp=:9125"
+      - "--web.listen-address=:9102"
+      - "--statsd.mapping-config=/tmp/statsd_mapping.yml"
+    volumes:
+      - ./monitoring/statsd/mappings.yml:/tmp/statsd_mapping.yml:ro
+    ports:
+      - "9102:9102"
+      - "9125:9125/udp"
+    restart: unless-stopped
+
+  # ============================================
   # Streamlit - NutriTrack Frontend
   # ============================================
   streamlit:
@@ -210,3 +246,4 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
+  prometheus_data:
