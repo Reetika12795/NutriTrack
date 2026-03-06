@@ -91,7 +91,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(count(container_last_seen) by (name))",
+          "expr": "count(count(container_last_seen) by (id))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -191,7 +191,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".+\"}[10m])) by (name) * 100",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{id=~\"/docker/.*\"}[10m])) by (id) * 100",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -300,7 +300,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_memory_usage_bytes{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_memory_usage_bytes{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -397,7 +397,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_memory_cache{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_memory_cache{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -510,7 +510,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_fs_reads_bytes_total{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_fs_reads_bytes_total{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -610,7 +610,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_fs_writes_bytes_total{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_fs_writes_bytes_total{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -723,7 +723,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_network_receive_bytes_total{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_network_receive_bytes_total{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -823,7 +823,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".+\"}[10m])) by (name)",
+          "expr": "sum(rate(container_network_transmit_bytes_total{id=~\"/docker/.*\"}[10m])) by (id)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -916,7 +916,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count by(name) (count_over_time(container_last_seen{name=~\".+\"}[$__range]))",
+          "expr": "count by(id) (count_over_time(container_last_seen{id=~\"/docker/.*\"}[$__range]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
