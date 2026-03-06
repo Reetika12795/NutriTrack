@@ -35,10 +35,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -104,10 +101,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "container_state_status",
@@ -231,10 +225,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -285,10 +276,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "container_state_status",
@@ -412,10 +400,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -513,10 +498,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "node_load1",
           "interval": "",
           "intervalFactor": 2,
@@ -531,10 +513,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -631,10 +610,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum(irate(node_disk_read_bytes_total[5m]))",
           "interval": "2s",
           "intervalFactor": 4,
@@ -644,10 +620,7 @@
           "step": 8
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum(irate(node_disk_written_bytes_total[5m]))",
           "interval": "2s",
           "intervalFactor": 4,
@@ -657,10 +630,7 @@
           "step": 8
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum(irate(node_disk_io_time_seconds_total[5m]))",
           "interval": "2s",
           "intervalFactor": 4,
@@ -675,10 +645,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -766,10 +733,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "builder",
           "exemplar": false,
           "expr": "up",
@@ -880,10 +844,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -959,10 +920,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "container_state_status{name=~\".+\"}",
@@ -1102,10 +1060,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1383,10 +1338,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".+\"}[1m])) by (name) * 100",
@@ -1399,10 +1351,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(container_memory_usage_bytes{name=~\".+\"}) by (name)",
@@ -1414,10 +1363,7 @@
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_reads_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -1429,10 +1375,7 @@
           "refId": "C"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_writes_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -1444,10 +1387,7 @@
           "refId": "D"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_receive_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -1459,10 +1399,7 @@
           "refId": "E"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -1617,10 +1554,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1672,10 +1606,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "time() - container_start_time_seconds{image!=\"\"}",
@@ -1727,10 +1658,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1793,10 +1721,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "count by(name) (count_over_time(container_last_seen{name=~\".+\"}[$__range]))",
           "instant": false,
@@ -1810,10 +1735,7 @@
       "type": "heatmap"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1898,10 +1820,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".+\"}[15m])) by (name) * 100",
           "legendFormat": "__auto",
@@ -1914,10 +1833,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2006,10 +1922,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum by (name)(container_memory_usage_bytes{image!=\"\",container_label_org_label_schema_group=\"\"})",
           "intervalFactor": 1,
           "legendFormat": "{{ name }}",
@@ -2023,10 +1936,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2110,10 +2020,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum by (name) (container_memory_cache{image!=\"\",container_label_org_label_schema_group=\"\"})",
           "intervalFactor": 2,
           "legendFormat": "{{name}}",
@@ -2127,10 +2034,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2216,10 +2120,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum by (name) (rate(container_network_receive_bytes_total{image!=\"\",container_label_org_label_schema_group=\"\"}[1m]))",
           "intervalFactor": 10,
           "legendFormat": "{{ name }}",
@@ -2233,10 +2134,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2319,10 +2217,7 @@
       "pluginVersion": "10.2.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "sum by (name) (rate(container_network_transmit_bytes_total{image!=\"\",container_label_org_label_schema_group=\"\"}[1m]))",
           "intervalFactor": 10,
           "legendFormat": "{{ name }}",
@@ -2349,10 +2244,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2423,10 +2315,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(container_start_time_seconds) by (name)",
@@ -2462,10 +2351,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2536,10 +2422,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(container_start_time_seconds) by (name)",
@@ -2575,10 +2458,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2650,10 +2530,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "(time() - container_start_time_seconds{container_label_com_docker_compose_project=~\".*\"}) / 86400",
@@ -2684,10 +2561,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2786,10 +2660,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "(time() - container_start_time_seconds{instance=~\"192.168.0.196:4040\",name=~\".+\"})/86400",
           "format": "table",
@@ -2841,10 +2712,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2943,10 +2811,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "(time() - container_start_time_seconds{instance=~\"192.168.0.196:4040\",name=~\".+\"})/86400",
           "format": "table",
@@ -2957,10 +2822,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "container_state_status{instance=~\"192.168.0.196:8085\",name=~\".+\"}",
@@ -3060,10 +2922,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3111,10 +2970,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "count(count(container_last_seen) by (name))",
           "instant": false,
@@ -3128,10 +2984,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3533,10 +3386,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "count(container_last_seen{instance=~\"192.168.0.196:4040\",image!=\"\"}) by (instance)",
@@ -3548,10 +3398,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(machine_cpu_cores{instance=~\"192.168.0.196:4040\"}) by (instance)",
           "format": "table",
@@ -3562,10 +3409,7 @@
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(irate(container_cpu_user_seconds_total{instance=~\"192.168.0.196:4040\"}[5m]) * 100)by (instance) / sum(machine_cpu_cores{instance=~\"192.168.0.196:4040\"}) by (instance)",
           "format": "table",
@@ -3576,10 +3420,7 @@
           "refId": "C"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "((sum(container_memory_usage_bytes{instance=~\"192.168.0.196:4040\"}) by (instance) - sum(container_memory_cache{instance=~\"192.168.0.196:4040\"}) by (instance)) / sum(machine_memory_bytes{instance=~\"192.168.0.196:4040\"}) by (instance)) * 100",
@@ -3592,10 +3433,7 @@
           "refId": "D"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(container_memory_usage_bytes{instance=~\"192.168.0.196:4040\"}) by (instance) - sum(container_memory_cache{instance=~\"192.168.0.196:4040\"}) by (instance)",
           "format": "table",
@@ -3606,10 +3444,7 @@
           "refId": "E"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(machine_memory_bytes{instance=~\"192.168.0.196:4040\"}) by (instance)",
           "format": "table",
@@ -3620,10 +3455,7 @@
           "refId": "F"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(irate(container_fs_reads_bytes_total{instance=~\"192.168.0.196:4040\"}[5m]))by (instance)",
           "format": "table",
@@ -3634,10 +3466,7 @@
           "refId": "G"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(irate(container_fs_writes_bytes_total{instance=~\"192.168.0.196:4040\"}[5m]))by (instance)",
           "format": "table",
@@ -3648,10 +3477,7 @@
           "refId": "H"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(irate(container_network_transmit_bytes_total{instance=~\"192.168.0.196:4040\"}[5m]))by (instance)",
           "format": "table",
@@ -3662,10 +3488,7 @@
           "refId": "I"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(irate(container_network_receive_bytes_total{instance=~\"192.168.0.196:4040\"}[5m]))by (instance)",
           "format": "table",
@@ -3714,10 +3537,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3778,10 +3598,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "machine_cpu_cores",
           "interval": "",
           "intervalFactor": 2,
@@ -3796,10 +3613,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3860,10 +3674,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum (container_memory_working_set_bytes{id=\"/\",kubernetes_io_hostname=~\"^.*\"})",
           "interval": "10s",
@@ -3878,10 +3689,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3939,10 +3747,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(container_fs_usage_bytes) by (name)",
           "instant": false,
@@ -3965,10 +3770,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4035,10 +3837,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum (container_memory_working_set_bytes{id=\"/\",kubernetes_io_hostname=~\"^.*\"}) / sum (machine_memory_bytes{kubernetes_io_hostname=~\"^.*\"}) * 100",
           "interval": "10s",
@@ -4054,10 +3853,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4118,10 +3914,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum (machine_memory_bytes{kubernetes_io_hostname=~\"^.*\"})",
           "interval": "10s",
@@ -4136,10 +3929,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4206,10 +3996,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(rate(container_cpu_user_seconds_total{image!=\"\"}[1m])) / count(node_cpu_seconds_total{mode=\"user\"}) * 100",
           "interval": "10s",
@@ -4226,10 +4013,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4281,10 +4065,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "sum(container_fs_usage_bytes) by (name)",
           "instant": false,
@@ -4307,10 +4088,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4542,10 +4320,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".+\"}[1m])) by (name) * 100",
@@ -4558,10 +4333,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(container_memory_usage_bytes{name=~\".+\"}) by (name)",
@@ -4573,10 +4345,7 @@
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_reads_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -4588,10 +4357,7 @@
           "refId": "C"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_writes_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -4603,10 +4369,7 @@
           "refId": "D"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_receive_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -4618,10 +4381,7 @@
           "refId": "E"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -4712,10 +4472,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4956,10 +4713,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".+\"}[1m])) by (name) * 100",
@@ -4972,10 +4726,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(container_memory_usage_bytes{name=~\".+\"}) by (name)",
@@ -4987,10 +4738,7 @@
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_reads_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -5002,10 +4750,7 @@
           "refId": "C"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_fs_writes_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -5017,10 +4762,7 @@
           "refId": "D"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_receive_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -5032,10 +4774,7 @@
           "refId": "E"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".+\"}[1m])) by (name)\r\n",
@@ -5179,10 +4918,7 @@
       },
       {
         "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "Prometheus"
-        },
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
         "definition": "label_values(container_cpu_user_seconds_total,instance)",
         "hide": 0,
         "includeAll": false,

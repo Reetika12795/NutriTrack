@@ -3,10 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "Prometheus"
-        },
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -26,10 +23,7 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -40,10 +34,7 @@
       "panels": [],
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "refId": "A"
         }
       ],
@@ -51,10 +42,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -97,10 +85,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_scheduler_heartbeat{container=\"statsd\"}",
           "interval": "",
@@ -113,10 +98,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "links": [],
@@ -160,10 +142,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dagbag_size",
           "interval": "",
@@ -176,10 +155,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Seconds taken to scan and import all DAG files once",
       "fieldConfig": {
         "defaults": {
@@ -227,10 +203,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "af_agg_dag_processing_total_parse_time{}",
           "interval": "",
@@ -243,10 +216,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Number of errors from trying to parse DAG files",
       "fieldConfig": {
         "defaults": {
@@ -291,10 +261,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dag_processing_import_errors",
           "interval": "",
@@ -307,10 +274,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -353,10 +317,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_ti_failures{airflow_id=~\"$airflow_id\", cluster=\"$cluster\"}",
           "interval": "",
@@ -369,10 +330,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Overall task instances successes",
       "fieldConfig": {
         "defaults": {
@@ -416,10 +374,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_ti_successes{}",
           "interval": "",
@@ -432,10 +387,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -515,10 +467,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "rate(airflow_operator_successes[1m]) * 60",
           "interval": "",
@@ -531,10 +480,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Total failures of given operator",
       "fieldConfig": {
         "defaults": {
@@ -614,10 +560,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_ti_finish_test_bash_operator_bash_task_upstream_failed{}",
           "interval": "",
@@ -630,10 +573,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -676,10 +616,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "af_agg_executor_queued_tasks{airflow_id=~\"$airflow_id\", cluster=\"$cluster\"}",
           "interval": "",
           "legendFormat": "",
@@ -691,10 +628,7 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -705,10 +639,7 @@
       "panels": [],
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "refId": "A"
         }
       ],
@@ -716,10 +647,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -798,10 +726,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "rate(airflow_job_start{}[1m]) * 60",
           "instant": false,
@@ -814,10 +739,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -860,10 +782,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_executor_open_slots{}",
           "instant": false,
@@ -877,10 +796,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -923,10 +839,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "expr": "af_agg_executor_running_tasks{airflow_id=~\"$airflow_id\", cluster=\"$cluster\"}",
           "interval": "",
           "legendFormat": "",
@@ -937,10 +850,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1019,10 +929,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "rate(airflow_job_end{}[1m]) * 60",
           "interval": "",
@@ -1036,10 +943,7 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1050,10 +954,7 @@
       "panels": [],
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "refId": "A"
         }
       ],
@@ -1061,10 +962,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Seconds taken for a DagRun to reach success state",
       "fieldConfig": {
         "defaults": {
@@ -1143,10 +1041,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dagrun_duration_success{}",
           "format": "time_series",
@@ -1160,10 +1055,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Sum of seconds taken to finish a tasks aggregated by DAG",
       "fieldConfig": {
         "defaults": {
@@ -1243,10 +1135,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dagrun_duration{}",
           "format": "time_series",
@@ -1260,10 +1149,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Seconds taken to check DAG dependencies",
       "fieldConfig": {
         "defaults": {
@@ -1343,10 +1229,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dagrun_dependency_check_test_bash_operator{}",
           "interval": "",
@@ -1359,10 +1242,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "description": "Seconds of delay between the scheduled DagRun start date and the actual DagRun start date",
       "fieldConfig": {
         "defaults": {
@@ -1442,10 +1322,7 @@
       "pluginVersion": "10.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
           "editorMode": "code",
           "expr": "airflow_dagrun_schedule_delay{} * 1000",
           "interval": "",
