@@ -19,13 +19,14 @@
 9. [Python Data Libraries — Extraction and Processing](#9-python-data-libraries--extraction-and-processing)
 10. [Security, RGPD, and Governance Choices](#10-security-rgpd-and-governance-choices)
 11. [Eco-Responsibility and Resource Optimization](#11-eco-responsibility-and-resource-optimization)
-12. [Summary — Technology-to-Competency Mapping](#12-summary--technology-to-competency-mapping)
+12. [Monitoring Stack — Prometheus, Grafana, and Exporters](#12-monitoring-stack--prometheus-grafana-and-exporters)
+13. [Summary — Technology-to-Competency Mapping](#13-summary--technology-to-competency-mapping)
 
 ---
 
 ## 1. Architecture Overview
 
-NutriTrack is built as a 10-service Docker Compose stack that covers the full data engineering lifecycle: ingestion, storage, transformation, warehousing, data lake archival, API exposure, and visualization.
+NutriTrack is built as a 16-service Docker Compose stack that covers the full data engineering lifecycle: ingestion, storage, transformation, warehousing, data lake archival, API exposure, visualization, and infrastructure monitoring.
 
 ```
     External Sources                    User-Facing Layer
@@ -45,6 +46,17 @@ NutriTrack is built as a 10-service Docker Compose stack that covers the full da
          ▼                              │
     MinIO :9000/9001           Redis 7 :6379
     (Data Lake)                (Cache + Broker)
+
+  ┌─── Monitoring Layer ──────────────────────────┐
+  │                                               │
+  │  Prometheus :9090  ◄── statsd-exporter :9102  │
+  │       │            ◄── postgres-exporter :9187│
+  │       │            ◄── cAdvisor :8081         │
+  │       │            ◄── node-exporter :9100    │
+  │       │            ◄── MinIO /metrics         │
+  │       ▼                                       │
+  │  Grafana :3000 (5 dashboards, auto-provisioned│
+  └───────────────────────────────────────────────┘
 ```
 
 **Design principle**: Every component is independently replaceable. PostgreSQL could be swapped for MySQL, MinIO for AWS S3, Airflow for Prefect — without rewriting the entire system. This modularity is intentional and reflects production-grade architecture practices.
@@ -53,7 +65,7 @@ NutriTrack is built as a 10-service Docker Compose stack that covers the full da
 
 ## 2. Docker Compose — Containerized Infrastructure
 
-**Choice**: Docker Compose with 10 services
+**Choice**: Docker Compose with 16 services
 **Competencies**: C3 (Technical framework), C14 (DW creation), C19 (Infrastructure components)
 
 ### Why Docker Compose?
@@ -281,7 +293,7 @@ Redis serves two purposes in NutriTrack:
 | **Operational simplicity** | Single container, no config | Requires management UI, exchanges, queues |
 | **Memory footprint** | ~10 MB | ~100 MB |
 
-Redis was chosen because it eliminates an additional service. Instead of running RabbitMQ (broker) + Redis (cache), we run Redis alone for both roles. This reduces the Docker Compose footprint from 11 services to 10 and simplifies monitoring.
+Redis was chosen because it eliminates an additional service. Instead of running RabbitMQ (broker) + Redis (cache), we run Redis alone for both roles. This keeps the core application footprint lean and simplifies the architecture.
 
 ### Why not Memcached for caching?
 
@@ -360,9 +372,9 @@ The certification is for Data Engineering, not web development. Streamlit allows
 
 Streamlit communicates with FastAPI over HTTP, demonstrating the API-as-interface pattern (C12) without introducing frontend complexity that is not evaluated.
 
-### Why not Grafana?
+### Why Streamlit for the frontend and Grafana for monitoring?
 
-Grafana excels at monitoring dashboards with time-series data. NutriTrack's frontend is an interactive application (user registration, meal logging, product search), not a monitoring dashboard. Grafana cannot handle form submissions or user authentication flows.
+Streamlit and Grafana serve different audiences with different interaction models. Streamlit powers the **user-facing application** (registration, meal logging, product search) — it handles forms, authentication flows, and custom business logic that Grafana cannot support. Grafana powers the **infrastructure monitoring layer** (see Section 12) — it excels at time-series dashboards for Prometheus metrics, alerting, and operational visibility into Airflow, PostgreSQL, MinIO, and Docker containers. Using both tools follows the principle of choosing the right tool for each job rather than forcing one tool to cover both use cases.
 
 ---
 
@@ -471,7 +483,123 @@ All ETL pipelines run on daily/weekly/monthly schedules rather than continuous s
 
 ---
 
-## 12. Summary — Technology-to-Competency Mapping
+## 12. Monitoring Stack — Prometheus, Grafana, and Exporters
+
+**Choice**: Prometheus + Grafana + 5 exporters (StatsD, postgres, cAdvisor, node-exporter, MinIO native)
+**Competencies**: C3 (Technical framework — operational representation), C16 (DW maintenance — SLA dashboard, alerts), C20 (Data catalog monitoring — storage and service health)
+
+### Why a dedicated monitoring stack?
+
+The certification requires demonstrating **operational maintenance tooling** (C16: "SLA-based service indicators on dashboard", "alert system on errors") and **storage system monitoring** (C20: "monitoring tracks material and application conditions", "monitoring generates alerts on service disruption"). Application-level logging (Python `logging` module, Airflow task logs) is necessary but insufficient — it does not provide infrastructure-level metrics like CPU usage, memory consumption, disk I/O, query latency, or container health.
+
+### Why Prometheus + Grafana?
+
+| Criterion | Prometheus + Grafana | ELK Stack (Elastic) | Datadog | Zabbix |
+|---|---|---|---|---|
+| **Cost** | Free, open-source | Free (self-hosted) but resource-heavy | Paid SaaS | Free but complex |
+| **Pull-based model** | Prometheus scrapes targets at intervals | Push-based (Logstash/Beats → Elastic) | Agent pushes to cloud | Agent-based |
+| **Time-series focus** | Native — designed for metrics | Designed for logs, metrics are secondary | Both logs and metrics | Infrastructure monitoring |
+| **Dashboard quality** | Grafana is the industry standard | Kibana — powerful but different paradigm | Excellent but proprietary | Functional but dated |
+| **Memory footprint** | ~200 MB (Prometheus) + ~100 MB (Grafana) | ~2-4 GB (Elasticsearch alone) | N/A (cloud) | ~500 MB |
+| **Docker integration** | cAdvisor exporter, native Docker metrics | Filebeat + custom config | Docker agent | Docker module |
+| **Airflow integration** | Native StatsD support → Prometheus | Custom log parsing required | Custom integration | No native support |
+
+### Why not ELK (Elasticsearch + Logstash + Kibana)?
+
+ELK is designed primarily for **log aggregation** — collecting, indexing, and searching text logs. NutriTrack already has structured application logs via Python's `logging` module and Airflow's built-in task log viewer. What was missing was **metrics** — numeric time-series data about infrastructure health. Prometheus is purpose-built for this. Additionally, Elasticsearch requires 2-4 GB of RAM minimum, which is prohibitive when already running 10 application services on a single machine.
+
+### Why not Datadog?
+
+Datadog is a commercial SaaS monitoring platform. While it provides excellent dashboards and alerting, it requires sending infrastructure data to an external cloud service. For a self-hosted project demonstrating infrastructure mastery (C19), a fully self-contained monitoring stack better demonstrates the competency of "installing and configuring infrastructure components."
+
+### Monitoring architecture
+
+```
+Airflow services ──► StatsD (UDP :9125) ──► statsd-exporter ──► Prometheus
+                                              (counter/gauge/    (scrape
+                                               histogram          every 15s)
+                                               mapping)
+
+PostgreSQL ──────────────────► postgres-exporter ──────────────► Prometheus
+                                 (SQL metric queries)
+
+Docker containers ───────────► cAdvisor ───────────────────────► Prometheus
+                                 (CPU, memory, network, I/O)
+
+Host system ─────────────────► node-exporter ──────────────────► Prometheus
+                                 (CPU, RAM, disk, network)
+
+MinIO ───────────────────────► /minio/v2/metrics/cluster ──────► Prometheus
+                                 (native metrics endpoint)
+
+Prometheus ──────────────────► Grafana :3000
+                                 (5 auto-provisioned dashboards)
+```
+
+### Exporter design decisions
+
+| Exporter | Port | Why this one? | What it monitors |
+|---|---|---|---|
+| **statsd-exporter** | 9102 (HTTP), 9125 (UDP) | Airflow natively emits StatsD metrics — this is the official bridge to Prometheus | DAG run durations, task success/failure counts, scheduler heartbeats, executor slot usage, pool utilization |
+| **postgres-exporter** | 9187 | Official Prometheus community exporter for PostgreSQL | Active connections, transaction rates, cache hit ratios, table sizes, replication lag |
+| **cAdvisor** | 8081 | Google's container advisor — the standard for Docker container metrics | Per-container CPU, memory, network I/O, filesystem usage |
+| **node-exporter** | 9100 | Official Prometheus exporter for hardware/OS metrics | Host CPU load, RAM usage, disk space, network bandwidth |
+| **MinIO native** | 9000 (path: `/minio/v2/metrics/cluster`) | MinIO exposes Prometheus metrics natively — no exporter needed | Bucket sizes, object counts, API request rates, disk usage |
+
+### StatsD metric mapping
+
+Airflow emits metrics in StatsD dot-notation format (e.g., `airflow.dag.task_name.duration`). The statsd-exporter converts these into labeled Prometheus metrics using a 267-line mapping configuration:
+
+```yaml
+# Example mappings (from monitoring/statsd/mappings.yml)
+- match: "airflow.dag.*.*.duration"
+  name: "af_agg_dag_task_duration"
+  labels:
+    dag_id: "$1"
+    task_id: "$2"
+
+- match: "airflow.dagrun.duration.success.*"
+  name: "af_agg_dagrun_duration_success"
+  labels:
+    dag_id: "$1"
+```
+
+The `af_agg_*` prefix avoids collisions with raw Airflow metric names. Labels enable Grafana dashboards to filter and group by `dag_id`, `task_id`, `operator`, and `pool`.
+
+### Grafana dashboard provisioning
+
+Dashboards are **auto-provisioned** from JSON files on container startup — no manual configuration required. This ensures reproducibility: `docker compose up` deploys the full monitoring stack with all dashboards pre-loaded.
+
+| Dashboard | Source | Panels | Key metrics |
+|---|---|---|---|
+| **Airflow Overview** | data-burst community repo | 12 | Scheduler heartbeat, DAG run counts, task durations, executor slots |
+| **Airflow DAGs** | data-burst community repo | 8 | Per-DAG success/failure rates, run duration trends |
+| **PostgreSQL** | Grafana ID 9628 | 15 | Connections, transactions/sec, cache hit ratio, table sizes |
+| **MinIO** | Grafana ID 13502 | 20+ | Bucket usage, API request rates, disk I/O, object counts |
+| **Docker & System** | Grafana ID 19908 | 9 | Per-container CPU, memory, network I/O |
+
+The provisioning configuration (`monitoring/grafana/provisioning/`) follows Grafana's official pattern:
+
+- `datasources/prometheus.yml` — configures Prometheus as the default datasource with a fixed UID (`prometheus`) for dashboard portability
+- `dashboards/dashboards.yml` — auto-loads all JSON files from the dashboards directory into a "NutriTrack" folder
+
+### Prometheus retention and resource usage
+
+- **Retention**: 15 days (`--storage.tsdb.retention.time=15d`) — sufficient for operational monitoring without unbounded disk growth. Historical trends beyond 15 days are not required for this project's scale.
+- **Scrape interval**: 15 seconds (default) — balances metric resolution with resource consumption.
+- **Hot reload**: Enabled via `--web.enable-lifecycle` flag — allows `POST /-/reload` to apply config changes without restarting the container.
+
+### Certification relevance
+
+| Competency | How monitoring satisfies it |
+|---|---|
+| **C3** (E2) — Technical framework | Operational representation includes monitoring architecture diagram, port mapping, data flow from services through exporters to dashboards |
+| **C16** (E6) — DW maintenance | "SLA-based service indicators on dashboard" — PostgreSQL dashboard shows connections, cache hit ratio, transaction rates. Alert system available via Grafana alerting rules. Activity logging with categorized errors via Prometheus metric labels |
+| **C20** (E7) — Data catalog monitoring | "Monitoring tracks material and application conditions" — MinIO dashboard tracks storage usage, object counts, API health. "Monitoring generates alerts on service disruption" — Prometheus detects target down events, Grafana can trigger notifications |
+
+---
+
+## 13. Summary — Technology-to-Competency Mapping
 
 | Technology | Version | Competencies Covered | Key Justification |
 |---|---|---|---|
@@ -487,6 +615,12 @@ All ETL pipelines run on daily/weekly/monthly schedules rather than continuous s
 | **BeautifulSoup** | 4.12 | C8 | Web scraping for nutritional guidelines |
 | **SQLAlchemy** | 2.0 / 1.4 | C9, C11, C14 | ORM for both async API and sync ETL access patterns |
 | **python-jose + bcrypt** | — | C12, C21 | JWT authentication, secure password hashing |
+| **Prometheus** | latest | C3, C16, C20 | Pull-based metrics collection, 15-day retention, 6 scrape targets |
+| **Grafana** | latest | C16, C20 | 5 auto-provisioned dashboards for infrastructure visibility |
+| **statsd-exporter** | latest | C16 | Airflow StatsD → Prometheus bridge with 267-line metric mapping |
+| **postgres-exporter** | latest | C16 | PostgreSQL metrics: connections, cache hit ratio, transactions |
+| **cAdvisor** | latest | C20 | Docker container metrics: CPU, memory, network, I/O |
+| **node-exporter** | latest | C20 | Host system metrics: CPU, RAM, disk, network |
 
 ### Technologies explicitly NOT chosen (and why)
 
@@ -499,9 +633,10 @@ All ETL pipelines run on daily/weekly/monthly schedules rather than continuous s
 | RabbitMQ | Redis | Redis covers both broker and cache roles |
 | MongoDB | PostgreSQL | Relational modeling required for star schema |
 | React/Vue | Streamlit | Frontend development outside certification scope |
-| Grafana | Streamlit | Need interactive app, not monitoring dashboard |
+| ELK Stack | Prometheus + Grafana | Log-focused, 2-4 GB RAM minimum, metrics are secondary |
+| Datadog | Prometheus + Grafana | Commercial SaaS — self-hosted stack better demonstrates C19 |
 | Kafka | Airflow batch scheduling | Real-time streaming unnecessary for nutrition data |
 
 ---
 
-*This document serves as the technical study component required by competency C3 and supports the architecture decisions presentation for evaluations E2 and E4.*
+*This document serves as the technical study component required by competency C3, supports the architecture decisions presentation for evaluations E2 and E4, and documents the monitoring infrastructure required by C16 (E6) and C20 (E7).*
