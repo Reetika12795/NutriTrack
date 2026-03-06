@@ -1,0 +1,10 @@
+# Root-level data files (raw extractions, large binaries)
+*.json
+*.pdf
+*.pptx
+
+# Claude Code local config
+.claude/
+
+# OS
+.DS_Store

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+
+# Environment
+.env.local
+.env.production
+
+# Data files (large)
+data/source/
+data/raw/
+data/cleaned/
+data/backups/
+*.parquet
+*.csv.gz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker volumes
+postgres_data/
+redis_data/
+minio_data/
+
+# Airflow
+airflow/logs/
+airflow/plugins/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
