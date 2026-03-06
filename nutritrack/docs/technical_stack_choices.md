@@ -154,9 +154,9 @@ Six DAGs with clear separation of concerns:
 
 | DAG | Schedule (UTC) | Purpose | Competency | Upstream Dependency |
 |---|---|---|---|---|
-| `etl_extract_off_api` | `0 2 * * *` | REST API extraction | C8 | — |
-| `etl_extract_parquet` | `0 2 * * 0` | Bulk Parquet/DuckDB extraction | C8 | — |
-| `etl_extract_scraping` | `0 2 1 * *` | Web scraping (BeautifulSoup) | C8 | — |
+| `etl_extract_parquet` | `0 1 * * 0` | Bulk Parquet/DuckDB extraction (Sundays) | C8 | — |
+| `etl_extract_off_api` | `0 2 * * *` | REST API extraction (daily) | C8 | — |
+| `etl_extract_scraping` | `0 3 * * 1` | Web scraping — BeautifulSoup (Mondays) | C8 | — |
 | `etl_aggregate_clean` | `0 4 * * *` | Merge, deduplicate, validate, load to DB | C10, C15 | Extraction DAGs |
 | `etl_load_warehouse` | `0 5 * * *` | Star schema ETL with SCD procedures | C13, C15, C17 | `etl_aggregate_clean.load_to_database` |
 | `etl_datalake_ingest` | `0 5 * * *` | Medallion pipeline: bronze → silver → gold | C18, C20 | `etl_aggregate_clean.clean_data` |
@@ -164,7 +164,7 @@ Six DAGs with clear separation of concerns:
 After `etl_aggregate_clean` completes at 04:00, two independent paths fork at 05:00:
 
 ```
-Extract DAGs (02:00)
+Extract DAGs (01:00–03:00)
        ↓
 etl_aggregate_clean (04:00):
   aggregate → clean → load to PostgreSQL app

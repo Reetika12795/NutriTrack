@@ -290,6 +290,7 @@ with DAG(
         task_id="wait_for_aggregate_clean",
         external_dag_id="etl_aggregate_clean",
         external_task_id="load_to_database",
+        execution_delta=timedelta(hours=1),  # this DAG runs at 05:00, aggregate_clean at 04:00
         timeout=3600,
         poke_interval=60,
         mode="reschedule",
