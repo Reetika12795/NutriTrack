@@ -5,11 +5,13 @@ Creates datasets, charts, and 3 dashboards via the Superset REST API.
 Issues: #12 (Product Market), #13 (Nutrition Trends), #14 (DW Health)
 """
 import json
+import os
+import subprocess
 import sys
 import time
 import requests
 
-BASE_URL = "http://localhost:8088"
+BASE_URL = os.environ.get("SUPERSET_URL", "http://localhost:8088")
 ADMIN_USER = "admin"
 ADMIN_PASS = "admin"
 
@@ -156,7 +158,31 @@ def create_dashboard(headers, title, slug, chart_ids):
     r.raise_for_status()
     dash_id = r.json()["id"]
     print(f"  Created dashboard: {title} (id={dash_id})")
+
+    # Link charts to dashboard via metadata DB
+    # (Superset REST API doesn't create dashboard_slices associations)
+    link_charts_to_dashboard(dash_id, chart_ids)
+
     return dash_id
+
+
+def link_charts_to_dashboard(dashboard_id, chart_ids):
+    """Insert dashboard_slices rows to associate charts with a dashboard.
+
+    Uses docker compose exec to run SQL against the superset metadata DB,
+    because the Superset REST API does not create these associations.
+    """
+    values = ", ".join(f"({dashboard_id}, {cid})" for cid in chart_ids)
+    sql = (
+        f"INSERT INTO dashboard_slices (dashboard_id, slice_id) "
+        f"VALUES {values} ON CONFLICT DO NOTHING;"
+    )
+    subprocess.run(
+        ["docker", "compose", "exec", "-T", "postgres",
+         "psql", "-U", "superset", "-d", "superset", "-c", sql],
+        capture_output=True, text=True,
+    )
+    print(f"  Linked {len(chart_ids)} charts to dashboard {dashboard_id}")
 
 
 def build_product_market_dashboard(headers, db_id):
