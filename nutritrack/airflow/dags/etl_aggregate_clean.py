@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.sensors.external_task import ExternalTaskSensor
 
 default_args = {
     "owner": "nutritrack",
@@ -27,7 +26,6 @@ default_args = {
 def aggregate_all_sources(**context):
     """Load and merge data from all raw extraction outputs."""
     import json
-    import re
     from pathlib import Path
 
     import pandas as pd
@@ -71,7 +69,6 @@ def aggregate_all_sources(**context):
 def clean_data(**context):
     """Apply cleaning rules: dedup, format homogenization, corruption removal."""
     import json
-    import re
     from pathlib import Path
 
     import pandas as pd
@@ -80,23 +77,31 @@ def clean_data(**context):
     cleaned_dir = Path("/opt/airflow/data/cleaned")
     cleaned_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load latest merged data
+    # Load latest merged data, tagging each source
     dfs = []
     for subdir in ["api", "parquet", "duckdb"]:
         dir_path = raw_dir / subdir
         if not dir_path.exists():
             continue
         for f in sorted(dir_path.glob("*.parquet"), reverse=True)[:1]:
-            dfs.append(pd.read_parquet(f))
+            tmp = pd.read_parquet(f)
+            tmp["data_source"] = subdir
+            dfs.append(tmp)
         for f in sorted(dir_path.glob("*.csv"), reverse=True)[:1]:
-            dfs.append(pd.read_csv(f, low_memory=False))
+            tmp = pd.read_csv(f, low_memory=False)
+            tmp["data_source"] = subdir
+            dfs.append(tmp)
         for f in sorted(dir_path.glob("*.json"), reverse=True)[:1]:
             with open(f) as fh:
                 data = json.load(fh)
             if isinstance(data, dict) and data.get("products"):
-                dfs.append(pd.DataFrame(data["products"]))
+                tmp = pd.DataFrame(data["products"])
             elif isinstance(data, list):
-                dfs.append(pd.DataFrame(data))
+                tmp = pd.DataFrame(data)
+            else:
+                continue
+            tmp["data_source"] = subdir
+            dfs.append(tmp)
 
     if not dfs:
         print("No data to clean")

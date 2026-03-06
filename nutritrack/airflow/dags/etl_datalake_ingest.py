@@ -309,7 +309,6 @@ def publish_to_gold(**context):
     4. daily_snapshot — full product catalog as one dated file (time-travel)
     5. ml_nutrition_features — scaled/encoded feature matrix for model training
     """
-    import json
     from io import BytesIO
 
     import numpy as np
