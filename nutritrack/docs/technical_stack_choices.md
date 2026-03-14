@@ -20,13 +20,14 @@
 10. [Security, RGPD, and Governance Choices](#10-security-rgpd-and-governance-choices)
 11. [Eco-Responsibility and Resource Optimization](#11-eco-responsibility-and-resource-optimization)
 12. [Monitoring Stack — Prometheus, Grafana, and Exporters](#12-monitoring-stack--prometheus-grafana-and-exporters)
-13. [Summary — Technology-to-Competency Mapping](#13-summary--technology-to-competency-mapping)
+13. [Apache Superset — Analytics BI Dashboards](#13-apache-superset--analytics-bi-dashboards)
+14. [Summary — Technology-to-Competency Mapping](#14-summary--technology-to-competency-mapping)
 
 ---
 
 ## 1. Architecture Overview
 
-NutriTrack is built as a 16-service Docker Compose stack that covers the full data engineering lifecycle: ingestion, storage, transformation, warehousing, data lake archival, API exposure, visualization, and infrastructure monitoring.
+NutriTrack is built as a 17-service Docker Compose stack that covers the full data engineering lifecycle: ingestion, storage, transformation, warehousing, data lake archival, API exposure, visualization, analytics, and infrastructure monitoring.
 
 ```
     External Sources                    User-Facing Layer
@@ -47,6 +48,11 @@ NutriTrack is built as a 16-service Docker Compose stack that covers the full da
     MinIO :9000/9001           Redis 7 :6379
     (Data Lake)                (Cache + Broker)
 
+  ┌─── Analytics Layer ────────────────────────────┐
+  │  Superset :8088 ◄── PostgreSQL dw.dm_* views  │
+  │  (3 dashboards, RBAC: Admin/Analyst/Nutri)    │
+  └────────────────────────────────────────────────┘
+
   ┌─── Monitoring Layer ──────────────────────────┐
   │                                               │
   │  Prometheus :9090  ◄── statsd-exporter :9102  │
@@ -65,7 +71,7 @@ NutriTrack is built as a 16-service Docker Compose stack that covers the full da
 
 ## 2. Docker Compose — Containerized Infrastructure
 
-**Choice**: Docker Compose with 16 services
+**Choice**: Docker Compose with 17 services
 **Competencies**: C3 (Technical framework), C14 (DW creation), C19 (Infrastructure components)
 
 ### Why Docker Compose?
@@ -599,7 +605,78 @@ The provisioning configuration (`monitoring/grafana/provisioning/`) follows Graf
 
 ---
 
-## 13. Summary — Technology-to-Competency Mapping
+## 13. Apache Superset — Analytics BI Dashboards
+
+**Choice**: Apache Superset (latest) with PostgreSQL metadata backend
+**Competencies**: C7 (Communication supports), C13 (Analytical query optimization), C14 (Analyst access to DW), C16 (SLA dashboard), C21 (Role-based access)
+
+### Why Superset?
+
+| Criterion | Apache Superset | Metabase | Power BI | Tableau |
+|---|---|---|---|---|
+| **Cost** | Free, open-source (Apache 2.0) | Free (open-source) + paid cloud | Paid (Microsoft license) | Paid (Salesforce) |
+| **SQL Lab** | Built-in SQL IDE for analysts | Basic SQL mode | Power Query (different paradigm) | Prep (separate tool) |
+| **Docker deployment** | Official Docker image | Official Docker image | Windows-only desktop | Desktop + Server |
+| **RBAC** | Fine-grained role/permission model | Basic groups | AD/Azure integration | Server-based |
+| **REST API** | Full CRUD API for automation | API available | Limited API | REST API |
+| **Self-hosted** | Yes — full control | Yes | Server edition only | Server edition only |
+| **Dashboard embedding** | Native | Paid feature | Paid | Paid |
+
+### Why Superset over Metabase?
+
+Both are open-source BI tools. Superset was chosen because:
+
+1. **SQL Lab** — provides a full SQL IDE where analysts can write ad-hoc queries against the DW. Metabase's SQL mode is more limited.
+2. **Fine-grained RBAC** — Superset's role/permission model maps directly to the certification requirement (C21: "rights applied to groups, access limited to necessary resources"). Custom roles (Analyst, Nutritionist) can have different permission sets.
+3. **API-driven dashboard creation** — The REST API enables programmatic dashboard bootstrapping (`bootstrap_dashboards.py`), making the setup fully reproducible with `docker compose up`.
+4. **Industry adoption** — Superset is an Apache top-level project used by Airbnb, Dropbox, and Lyft. It demonstrates enterprise-grade analytics tooling.
+
+### Architecture
+
+```
+PostgreSQL :5432
+  └── nutritrack database
+       └── dw schema (read-only via superset role)
+            ├── dm_product_market_by_category
+            ├── dm_brand_quality_ranking
+            ├── dm_nutriscore_distribution
+            ├── dm_nutrition_trends
+            ├── dm_dw_health
+            └── dm_user_daily_nutrition
+                    │
+                    ▼
+            Superset :8088
+            ├── Dashboard: Product Market Analysis (4 charts)
+            ├── Dashboard: Nutrition Trends (4 charts)
+            └── Dashboard: DW Health & Data Quality (3 charts)
+
+            RBAC Roles:
+            ├── Admin      → Full access + SQL Lab + dataset mgmt
+            ├── Analyst    → All dashboards + SQL Lab (read-only)
+            └── Nutritionist → Dashboards only (no SQL Lab)
+```
+
+### Dashboards
+
+| Dashboard | Charts | Datamarts Used | Audience |
+|---|---|---|---|
+| **Product Market Analysis** | Nutri-Score distribution, brand ranking, category comparison, grade pie chart | `dm_product_market_by_category`, `dm_brand_quality_ranking`, `dm_nutriscore_distribution`, `fact_product_market` | Analysts, Nutritionists |
+| **Nutrition Trends** | Calorie trends with 7-day MA, macro distribution, meal type breakdown, users by dietary goal | `dm_nutrition_trends`, `dm_user_daily_nutrition` | Analysts, Nutritionists |
+| **DW Health & Data Quality** | Record counts, completeness scores, SCD active vs total rows | `dm_dw_health` | Admins, Data Engineers |
+
+### Certification relevance
+
+| Competency | How Superset satisfies it |
+|---|---|
+| **C7** (E3) — Communication supports | 3 dashboards with accessible visualizations adapted to different audiences (analysts, nutritionists, admins). End-user onboarding via role-based login |
+| **C13** (E5) — DW modeling for analytics | 6 datamart views optimized for analytical queries with pre-computed aggregates, window functions, and UNION ALL health metrics |
+| **C14** (E5) — Analyst access to DW | Superset connected to `dw.*` datamarts via read-only `superset` PostgreSQL role. SQL Lab available for ad-hoc analysis |
+| **C16** (E6) — SLA dashboard | DW Health dashboard shows record counts, completeness metrics, and last ETL timestamps per table |
+| **C21** (E7) — Data governance | RBAC with 3 roles (Admin, Analyst, Nutritionist) — access limited to necessary resources per group |
+
+---
+
+## 14. Summary — Technology-to-Competency Mapping
 
 | Technology | Version | Competencies Covered | Key Justification |
 |---|---|---|---|
@@ -621,6 +698,7 @@ The provisioning configuration (`monitoring/grafana/provisioning/`) follows Graf
 | **postgres-exporter** | latest | C16 | PostgreSQL metrics: connections, cache hit ratio, transactions |
 | **cAdvisor** | latest | C20 | Docker container metrics: CPU, memory, network, I/O |
 | **node-exporter** | latest | C20 | Host system metrics: CPU, RAM, disk, network |
+| **Apache Superset** | latest | C7, C13, C14, C16, C21 | Analytics BI dashboards, RBAC, SQL Lab, 3 dashboards |
 
 ### Technologies explicitly NOT chosen (and why)
 
@@ -635,8 +713,10 @@ The provisioning configuration (`monitoring/grafana/provisioning/`) follows Graf
 | React/Vue | Streamlit | Frontend development outside certification scope |
 | ELK Stack | Prometheus + Grafana | Log-focused, 2-4 GB RAM minimum, metrics are secondary |
 | Datadog | Prometheus + Grafana | Commercial SaaS — self-hosted stack better demonstrates C19 |
+| Metabase | Apache Superset | Superset has full SQL Lab, finer RBAC, API-driven dashboard creation |
+| Power BI / Tableau | Apache Superset | Commercial licenses, not self-hosted, outside open-source philosophy |
 | Kafka | Airflow batch scheduling | Real-time streaming unnecessary for nutrition data |
 
 ---
 
-*This document serves as the technical study component required by competency C3, supports the architecture decisions presentation for evaluations E2 and E4, and documents the monitoring infrastructure required by C16 (E6) and C20 (E7).*
+*This document serves as the technical study component required by competency C3, supports the architecture decisions presentation for evaluations E2 and E4, documents the monitoring infrastructure required by C16 (E6) and C20 (E7), and the analytics BI layer required by C7 (E3), C14 (E5), and C21 (E7).*
