@@ -34,9 +34,7 @@ async def create_meal(
 
     for item_data in meal_data.items:
         # Verify product exists
-        result = await db.execute(
-            select(Product).where(Product.product_id == item_data.product_id)
-        )
+        result = await db.execute(select(Product).where(Product.product_id == item_data.product_id))
         product = result.scalar_one_or_none()
         if not product:
             raise HTTPException(status_code=404, detail=f"Product {item_data.product_id} not found")
@@ -61,8 +59,10 @@ async def create_meal(
     # Reload with relationships
     result = await db.execute(
         select(Meal)
-        .options(selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
-            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category))
+        .options(
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category),
+        )
         .where(Meal.meal_id == meal.meal_id)
     )
     return result.scalar_one()
@@ -80,8 +80,10 @@ async def list_meals(
     """List user's meals with optional filters."""
     query = (
         select(Meal)
-        .options(selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
-            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category))
+        .options(
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category),
+        )
         .where(Meal.user_id == current_user.user_id)
     )
 
@@ -109,8 +111,10 @@ async def get_daily_nutrition(
     # Get meals for the day
     result = await db.execute(
         select(Meal)
-        .options(selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
-            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category))
+        .options(
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.brand),
+            selectinload(Meal.items).selectinload(MealItem.product).selectinload(Product.category),
+        )
         .where(Meal.user_id == current_user.user_id, Meal.meal_date == target)
         .order_by(Meal.meal_type)
     )
@@ -208,7 +212,7 @@ async def get_weekly_trends(
     # Compute 7-day moving average
     moving_avg = []
     for i in range(len(daily_kcal)):
-        window = daily_kcal[max(0, i - 6): i + 1]
+        window = daily_kcal[max(0, i - 6) : i + 1]
         moving_avg.append(round(sum(window) / len(window), 0))
 
     return WeeklyTrend(

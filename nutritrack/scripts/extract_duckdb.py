@@ -211,9 +211,7 @@ ANALYTICAL_QUERIES = {
 }
 
 
-def run_query(
-    con: duckdb.DuckDBPyConnection, name: str, info: dict, source: str
-) -> pd.DataFrame:
+def run_query(con: duckdb.DuckDBPyConnection, name: str, info: dict, source: str) -> pd.DataFrame:
     """Execute an analytical query and return results."""
     logger.info("Running query '%s': %s", name, info["description"])
 
@@ -241,9 +239,7 @@ def save_results(results: dict[str, pd.DataFrame]) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Big data analytics on OFF dataset using DuckDB"
-    )
+    parser = argparse.ArgumentParser(description="Big data analytics on OFF dataset using DuckDB")
     parser.add_argument(
         "--queries",
         nargs="+",
@@ -251,9 +247,7 @@ def main():
         default=["all"],
         help="Queries to run",
     )
-    parser.add_argument(
-        "--list-queries", action="store_true", help="List available queries"
-    )
+    parser.add_argument("--list-queries", action="store_true", help="List available queries")
 
     args = parser.parse_args()
 
@@ -263,9 +257,7 @@ def main():
         return
 
     parquet_path = get_parquet_path()
-    query_names = (
-        list(ANALYTICAL_QUERIES.keys()) if "all" in args.queries else args.queries
-    )
+    query_names = list(ANALYTICAL_QUERIES.keys()) if "all" in args.queries else args.queries
 
     logger.info(
         "Starting DuckDB big data extraction (%d queries on %s)",

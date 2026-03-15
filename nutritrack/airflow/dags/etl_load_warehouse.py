@@ -25,6 +25,7 @@ def _get_db_engine():
     import os
 
     from sqlalchemy import create_engine
+
     db_url = (
         f"postgresql+psycopg2://"
         f"{os.getenv('NUTRITRACK_DB_USER', 'nutritrack')}:"
@@ -39,21 +40,25 @@ def _get_db_engine():
 def load_dim_brands(**context):
     """Load brand dimension with SCD Type 1 (overwrite on correction)."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
         # Insert new brands
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.dim_brand (brand_name, parent_company)
             SELECT DISTINCT b.brand_name, b.parent_company
             FROM app.brands b
             LEFT JOIN dw.dim_brand db ON b.brand_name = db.brand_name
             WHERE db.brand_key IS NULL
-        """))
+        """)
+        )
         print(f"Inserted {result.rowcount} new brands")
 
         # SCD Type 1: update brand names that changed
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             UPDATE dw.dim_brand db
             SET brand_name = b.brand_name,
                 parent_company = b.parent_company,
@@ -61,17 +66,20 @@ def load_dim_brands(**context):
             FROM app.brands b
             WHERE db.brand_name = b.brand_name
               AND (db.parent_company IS DISTINCT FROM b.parent_company)
-        """))
+        """)
+        )
         print(f"Updated {result.rowcount} brands (SCD Type 1)")
 
 
 def load_dim_categories(**context):
     """Load category dimension."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.dim_category (category_name, parent_category, category_level)
             SELECT DISTINCT
                 c.category_name,
@@ -81,18 +89,21 @@ def load_dim_categories(**context):
             LEFT JOIN app.categories pc ON c.parent_category_id = pc.category_id
             LEFT JOIN dw.dim_category dc ON c.category_name = dc.category_name
             WHERE dc.category_key IS NULL
-        """))
+        """)
+        )
         print(f"Inserted {result.rowcount} new categories")
 
 
 def load_dim_products(**context):
     """Load product dimension with SCD Type 2 (historical tracking)."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
         # Insert new products (not yet in dimension)
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.dim_product (
                 barcode, product_name, generic_name, quantity, packaging,
                 ingredients_text, completeness_score, source_product_id
@@ -103,12 +114,14 @@ def load_dim_products(**context):
             FROM app.products p
             LEFT JOIN dw.dim_product dp ON p.barcode = dp.barcode AND dp.is_current = TRUE
             WHERE dp.product_key IS NULL
-        """))
+        """)
+        )
         new_count = result.rowcount
         print(f"Inserted {new_count} new products")
 
         # SCD Type 2: detect changes and create historical records
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             WITH changed_products AS (
                 SELECT p.barcode, p.product_name, p.generic_name, p.quantity,
                        p.packaging, p.ingredients_text, p.completeness_score, p.product_id
@@ -123,13 +136,15 @@ def load_dim_products(**context):
             FROM changed_products cp
             WHERE dp.barcode = cp.barcode AND dp.is_current = TRUE
             RETURNING dp.barcode
-        """))
+        """)
+        )
         changed_barcodes = result.fetchall()
         print(f"Closed {len(changed_barcodes)} product records (SCD Type 2)")
 
         # Insert new current versions for changed products
         if changed_barcodes:
-            result = conn.execute(text("""
+            result = conn.execute(
+                text("""
                 INSERT INTO dw.dim_product (
                     barcode, product_name, generic_name, quantity, packaging,
                     ingredients_text, completeness_score, effective_date,
@@ -149,17 +164,20 @@ def load_dim_products(**context):
                     SELECT 1 FROM dw.dim_product dp2
                     WHERE dp2.barcode = p.barcode AND dp2.is_current = TRUE
                 )
-            """))
+            """)
+            )
             print(f"Inserted {result.rowcount} updated product records (SCD Type 2)")
 
 
 def load_dim_users(**context):
     """Load user dimension (anonymized) with SCD Type 2."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.dim_user (user_hash, age_group, activity_level, dietary_goal, registration_date)
             SELECT
                 encode(digest(u.user_id::text, 'sha256'), 'hex') AS user_hash,
@@ -171,19 +189,22 @@ def load_dim_users(**context):
                 AND du.is_current = TRUE
             WHERE du.user_key IS NULL
               AND u.is_active = TRUE
-        """))
+        """)
+        )
         print(f"Inserted {result.rowcount} new users into dimension")
 
 
 def load_fact_product_market(**context):
     """Load product market analysis fact table."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
         today_key = datetime.now().strftime("%Y%m%d")
 
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.fact_product_market (
                 product_key, brand_key, category_key, country_key, time_key,
                 nutriscore_grade, nutriscore_score, nova_group, ecoscore_grade,
@@ -219,17 +240,21 @@ def load_fact_product_market(**context):
                 WHERE fpm.product_key = dp.product_key
                   AND fpm.time_key = CAST(:time_key AS INTEGER)
             )
-        """), {"time_key": today_key})
+        """),
+            {"time_key": today_key},
+        )
         print(f"Loaded {result.rowcount} product market facts")
 
 
 def load_fact_daily_nutrition(**context):
     """Load daily nutrition fact table from meal tracking data."""
     from sqlalchemy import text
+
     engine = _get_db_engine()
 
     with engine.begin() as conn:
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             INSERT INTO dw.fact_daily_nutrition (
                 user_key, time_key, product_key, category_key, brand_key,
                 meal_type, quantity_g, energy_kcal, fat_g, saturated_fat_g,
@@ -273,7 +298,8 @@ def load_fact_daily_nutrition(**context):
                     AND fdn.product_key = dp.product_key
                     AND fdn.meal_type = m.meal_type
               )
-        """))
+        """)
+        )
         print(f"Loaded {result.rowcount} daily nutrition facts")
 
 
@@ -286,7 +312,6 @@ with DAG(
     catchup=False,
     tags=["warehouse", "etl", "star-schema", "scd"],
 ) as dag:
-
     # Wait for etl_aggregate_clean to finish loading data into PostgreSQL app schema
     wait_for_app_load = ExternalTaskSensor(
         task_id="wait_for_aggregate_clean",

@@ -4,6 +4,7 @@ Creates datasets, charts, and 3 dashboards via the Superset REST API.
 
 Issues: #12 (Product Market), #13 (Nutrition Trends), #14 (DW Health)
 """
+
 import json
 import os
 import subprocess
@@ -34,10 +35,12 @@ def get_auth_tokens():
     r.raise_for_status()
     csrf_token = r.json()["result"]
 
-    SESSION.headers.update({
-        "X-CSRFToken": csrf_token,
-        "Referer": BASE_URL,
-    })
+    SESSION.headers.update(
+        {
+            "X-CSRFToken": csrf_token,
+            "Referer": BASE_URL,
+        }
+    )
     return SESSION.headers
 
 
@@ -174,14 +177,11 @@ def link_charts_to_dashboard(dashboard_id, chart_ids):
     because the Superset REST API does not create these associations.
     """
     values = ", ".join(f"({dashboard_id}, {cid})" for cid in chart_ids)
-    sql = (
-        f"INSERT INTO dashboard_slices (dashboard_id, slice_id) "
-        f"VALUES {values} ON CONFLICT DO NOTHING;"
-    )
+    sql = f"INSERT INTO dashboard_slices (dashboard_id, slice_id) VALUES {values} ON CONFLICT DO NOTHING;"
     subprocess.run(
-        ["docker", "compose", "exec", "-T", "postgres",
-         "psql", "-U", "superset", "-d", "superset", "-c", sql],
-        capture_output=True, text=True,
+        ["docker", "compose", "exec", "-T", "postgres", "psql", "-U", "superset", "-d", "superset", "-c", sql],
+        capture_output=True,
+        text=True,
     )
     print(f"  Linked {len(chart_ids)} charts to dashboard {dashboard_id}")
 
@@ -200,41 +200,97 @@ def build_product_market_dashboard(headers, db_id):
     charts = []
 
     # 1. Nutri-Score distribution bar chart
-    charts.append(create_chart(headers, "Nutri-Score Distribution by Category", "echarts_bar", ds_nutriscore, {
-        "x_axis": "nutriscore_grade",
-        "metrics": [{"expressionType": "SIMPLE", "column": {"column_name": "product_count"}, "aggregate": "SUM", "label": "Product Count"}],
-        "groupby": ["category_name"],
-        "row_limit": 1000,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Nutri-Score Distribution by Category",
+            "echarts_bar",
+            ds_nutriscore,
+            {
+                "x_axis": "nutriscore_grade",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "product_count"},
+                        "aggregate": "SUM",
+                        "label": "Product Count",
+                    }
+                ],
+                "groupby": ["category_name"],
+                "row_limit": 1000,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 2. Brand quality ranking
-    charts.append(create_chart(headers, "Top Brands by Nutrition Quality", "echarts_bar", ds_brand, {
-        "x_axis": "brand_name",
-        "metrics": [{"expressionType": "SIMPLE", "column": {"column_name": "avg_nutriscore_score"}, "aggregate": "AVG", "label": "Avg Nutri-Score"}],
-        "row_limit": 20,
-        "order_desc": True,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Top Brands by Nutrition Quality",
+            "echarts_bar",
+            ds_brand,
+            {
+                "x_axis": "brand_name",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "avg_nutriscore_score"},
+                        "aggregate": "AVG",
+                        "label": "Avg Nutri-Score",
+                    }
+                ],
+                "row_limit": 20,
+                "order_desc": True,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 3. Category nutrition comparison
-    charts.append(create_chart(headers, "Category Nutrition Comparison", "echarts_bar", ds_market, {
-        "x_axis": "category_name",
-        "metrics": [
-            {"expressionType": "SIMPLE", "column": {"column_name": "avg_kcal"}, "aggregate": "AVG", "label": "Avg Kcal"},
-            {"expressionType": "SIMPLE", "column": {"column_name": "avg_proteins"}, "aggregate": "AVG", "label": "Avg Proteins"},
-        ],
-        "row_limit": 50,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Category Nutrition Comparison",
+            "echarts_bar",
+            ds_market,
+            {
+                "x_axis": "category_name",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "avg_kcal"},
+                        "aggregate": "AVG",
+                        "label": "Avg Kcal",
+                    },
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "avg_proteins"},
+                        "aggregate": "AVG",
+                        "label": "Avg Proteins",
+                    },
+                ],
+                "row_limit": 50,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 4. Product count by Nutri-Score grade (pie)
-    charts.append(create_chart(headers, "Products by Nutri-Score Grade", "pie", ds_fact, {
-        "groupby": ["nutriscore_grade"],
-        "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(*)", "label": "Count"},
-        "row_limit": 10,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Products by Nutri-Score Grade",
+            "pie",
+            ds_fact,
+            {
+                "groupby": ["nutriscore_grade"],
+                "metric": {"expressionType": "SQL", "sqlExpression": "COUNT(*)", "label": "Count"},
+                "row_limit": 10,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     return create_dashboard(headers, "Product Market Analysis", "product-market", charts)
 
@@ -249,44 +305,113 @@ def build_nutrition_trends_dashboard(headers, db_id):
     charts = []
 
     # 1. Daily calorie trends with moving average
-    charts.append(create_chart(headers, "Daily Calorie Intake Trend", "echarts_timeseries_line", ds_trends, {
-        "x_axis": "full_date",
-        "metrics": [
-            {"expressionType": "SIMPLE", "column": {"column_name": "total_kcal"}, "aggregate": "SUM", "label": "Total Kcal"},
-            {"expressionType": "SIMPLE", "column": {"column_name": "kcal_7day_moving_avg"}, "aggregate": "AVG", "label": "7-Day Moving Avg"},
-        ],
-        "row_limit": 365,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Daily Calorie Intake Trend",
+            "echarts_timeseries_line",
+            ds_trends,
+            {
+                "x_axis": "full_date",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_kcal"},
+                        "aggregate": "SUM",
+                        "label": "Total Kcal",
+                    },
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "kcal_7day_moving_avg"},
+                        "aggregate": "AVG",
+                        "label": "7-Day Moving Avg",
+                    },
+                ],
+                "row_limit": 365,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 2. Macro distribution (stacked area)
-    charts.append(create_chart(headers, "Macro Nutrient Distribution", "echarts_area", ds_trends, {
-        "x_axis": "full_date",
-        "metrics": [
-            {"expressionType": "SIMPLE", "column": {"column_name": "total_proteins_g"}, "aggregate": "SUM", "label": "Proteins (g)"},
-            {"expressionType": "SIMPLE", "column": {"column_name": "total_fat_g"}, "aggregate": "SUM", "label": "Fat (g)"},
-            {"expressionType": "SIMPLE", "column": {"column_name": "total_carbs_g"}, "aggregate": "SUM", "label": "Carbs (g)"},
-        ],
-        "row_limit": 365,
-        "stack": True,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Macro Nutrient Distribution",
+            "echarts_area",
+            ds_trends,
+            {
+                "x_axis": "full_date",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_proteins_g"},
+                        "aggregate": "SUM",
+                        "label": "Proteins (g)",
+                    },
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_fat_g"},
+                        "aggregate": "SUM",
+                        "label": "Fat (g)",
+                    },
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_carbs_g"},
+                        "aggregate": "SUM",
+                        "label": "Carbs (g)",
+                    },
+                ],
+                "row_limit": 365,
+                "stack": True,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 3. Meal type breakdown (pie)
-    charts.append(create_chart(headers, "Meal Type Breakdown", "pie", ds_daily, {
-        "groupby": ["meal_type"],
-        "metric": {"expressionType": "SIMPLE", "column": {"column_name": "items_count"}, "aggregate": "SUM", "label": "Items"},
-        "row_limit": 10,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Meal Type Breakdown",
+            "pie",
+            ds_daily,
+            {
+                "groupby": ["meal_type"],
+                "metric": {
+                    "expressionType": "SIMPLE",
+                    "column": {"column_name": "items_count"},
+                    "aggregate": "SUM",
+                    "label": "Items",
+                },
+                "row_limit": 10,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 4. Active users by dietary goal
-    charts.append(create_chart(headers, "Active Users by Dietary Goal", "echarts_bar", ds_trends, {
-        "x_axis": "dietary_goal",
-        "metrics": [{"expressionType": "SIMPLE", "column": {"column_name": "active_users"}, "aggregate": "SUM", "label": "Active Users"}],
-        "row_limit": 20,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Active Users by Dietary Goal",
+            "echarts_bar",
+            ds_trends,
+            {
+                "x_axis": "dietary_goal",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "active_users"},
+                        "aggregate": "SUM",
+                        "label": "Active Users",
+                    }
+                ],
+                "row_limit": 20,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     return create_dashboard(headers, "Nutrition Trends", "nutrition-trends", charts)
 
@@ -300,32 +425,80 @@ def build_dw_health_dashboard(headers, db_id):
     charts = []
 
     # 1. Record counts per table
-    charts.append(create_chart(headers, "DW Record Counts by Table", "echarts_bar", ds_health, {
-        "x_axis": "table_name",
-        "metrics": [{"expressionType": "SIMPLE", "column": {"column_name": "total_rows"}, "aggregate": "SUM", "label": "Total Rows"}],
-        "groupby": ["table_type"],
-        "row_limit": 50,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "DW Record Counts by Table",
+            "echarts_bar",
+            ds_health,
+            {
+                "x_axis": "table_name",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_rows"},
+                        "aggregate": "SUM",
+                        "label": "Total Rows",
+                    }
+                ],
+                "groupby": ["table_type"],
+                "row_limit": 50,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 2. Data completeness
-    charts.append(create_chart(headers, "Data Completeness by Table", "echarts_bar", ds_health, {
-        "x_axis": "table_name",
-        "metrics": [{"expressionType": "SIMPLE", "column": {"column_name": "name_completeness_pct"}, "aggregate": "AVG", "label": "Completeness %"}],
-        "row_limit": 50,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Data Completeness by Table",
+            "echarts_bar",
+            ds_health,
+            {
+                "x_axis": "table_name",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "name_completeness_pct"},
+                        "aggregate": "AVG",
+                        "label": "Completeness %",
+                    }
+                ],
+                "row_limit": 50,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     # 3. Active vs total rows (SCD tracking)
-    charts.append(create_chart(headers, "Active vs Total Records (SCD)", "echarts_bar", ds_health, {
-        "x_axis": "table_name",
-        "metrics": [
-            {"expressionType": "SIMPLE", "column": {"column_name": "total_rows"}, "aggregate": "SUM", "label": "Total Rows"},
-            {"expressionType": "SIMPLE", "column": {"column_name": "active_rows"}, "aggregate": "SUM", "label": "Active Rows"},
-        ],
-        "row_limit": 50,
-        "color_scheme": "supersetColors",
-    }))
+    charts.append(
+        create_chart(
+            headers,
+            "Active vs Total Records (SCD)",
+            "echarts_bar",
+            ds_health,
+            {
+                "x_axis": "table_name",
+                "metrics": [
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "total_rows"},
+                        "aggregate": "SUM",
+                        "label": "Total Rows",
+                    },
+                    {
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "active_rows"},
+                        "aggregate": "SUM",
+                        "label": "Active Rows",
+                    },
+                ],
+                "row_limit": 50,
+                "color_scheme": "supersetColors",
+            },
+        )
+    )
 
     return create_dashboard(headers, "DW Health & Data Quality", "dw-health", charts)
 

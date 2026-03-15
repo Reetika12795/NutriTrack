@@ -29,6 +29,7 @@ def _get_minio_client():
     import os
 
     from minio import Minio
+
     return Minio(
         os.getenv("MINIO_ENDPOINT", "minio:9000"),
         access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
@@ -90,8 +91,10 @@ def ingest_to_bronze(**context):
     }
     manifest_bytes = json.dumps(manifest, indent=2).encode()
     client.put_object(
-        "bronze", f"_manifests/{ds}.json",
-        BytesIO(manifest_bytes), len(manifest_bytes),
+        "bronze",
+        f"_manifests/{ds}.json",
+        BytesIO(manifest_bytes),
+        len(manifest_bytes),
         content_type="application/json",
     )
 
@@ -121,6 +124,7 @@ def ingest_to_bronze(**context):
                 if f.suffix == ".parquet":
                     try:
                         import pyarrow.parquet as pq
+
                         file_info["row_count"] = pq.read_metadata(str(f)).num_rows
                     except Exception:
                         pass
@@ -146,8 +150,10 @@ def ingest_to_bronze(**context):
 
     lineage_bytes = json.dumps(lineage, indent=2).encode()
     client.put_object(
-        "bronze", f"_lineage/{ds}.json",
-        BytesIO(lineage_bytes), len(lineage_bytes),
+        "bronze",
+        f"_lineage/{ds}.json",
+        BytesIO(lineage_bytes),
+        len(lineage_bytes),
         content_type="application/json",
     )
     print(f"Bronze: lineage metadata -> bronze/_lineage/{ds}.json")
@@ -205,6 +211,7 @@ def transform_to_silver(**context):
                 count += len(pd.read_parquet(f))
             for f in dir_path.glob("*.json"):
                 import json as json_mod
+
                 with open(f) as fh:
                     data = json_mod.load(fh)
                 if isinstance(data, dict) and data.get("products"):
@@ -244,8 +251,10 @@ def transform_to_silver(**context):
         quality_bytes = json.dumps(quality_report, indent=2, default=str).encode()
         quality_name = f"_quality/{ds}/data_quality_report.json"
         client.put_object(
-            "silver", quality_name,
-            BytesIO(quality_bytes), len(quality_bytes),
+            "silver",
+            quality_name,
+            BytesIO(quality_bytes),
+            len(quality_bytes),
             content_type="application/json",
         )
         print(f"Silver: quality report -> silver/{quality_name}")
@@ -396,8 +405,12 @@ def publish_to_gold(**context):
                     "data_source": source,
                     "product_count": len(group),
                     "unique_barcodes": unique_barcodes,
-                    "avg_completeness": round(group["completeness_score"].mean(), 2) if "completeness_score" in group.columns else None,
-                    "has_nutriscore": int(group["nutriscore_grade"].notna().sum()) if "nutriscore_grade" in group.columns else 0,
+                    "avg_completeness": round(group["completeness_score"].mean(), 2)
+                    if "completeness_score" in group.columns
+                    else None,
+                    "has_nutriscore": int(group["nutriscore_grade"].notna().sum())
+                    if "nutriscore_grade" in group.columns
+                    else 0,
                     "has_energy": int(group["energy_kcal"].notna().sum()) if "energy_kcal" in group.columns else 0,
                     "has_proteins": int(group["proteins_g"].notna().sum()) if "proteins_g" in group.columns else 0,
                     "total_unique_products": total_unique,
@@ -431,13 +444,24 @@ def publish_to_gold(**context):
     # that a data scientist can load directly into scikit-learn.
     try:
         feature_cols = [
-            "energy_kcal", "fat_g", "carbohydrates_g", "proteins_g",
-            "fiber_g", "salt_g", "sugars_g", "nutriscore_score",
-            "nova_group", "completeness_score",
+            "energy_kcal",
+            "fat_g",
+            "carbohydrates_g",
+            "proteins_g",
+            "fiber_g",
+            "salt_g",
+            "sugars_g",
+            "nutriscore_score",
+            "nova_group",
+            "completeness_score",
         ]
         available_cols = [c for c in feature_cols if c in df_wide.columns]
         if available_cols:
-            df_features = df_wide[["barcode"] + available_cols].copy() if "barcode" in df_wide.columns else df_wide[available_cols].copy()
+            df_features = (
+                df_wide[["barcode"] + available_cols].copy()
+                if "barcode" in df_wide.columns
+                else df_wide[available_cols].copy()
+            )
 
             # Drop rows where ALL numeric features are null
             df_features = df_features.dropna(subset=available_cols, how="all")
@@ -452,9 +476,7 @@ def publish_to_gold(**context):
                 col_min = df_features[col].min()
                 col_max = df_features[col].max()
                 if col_max > col_min:
-                    df_features[f"{col}_scaled"] = (
-                        (df_features[col] - col_min) / (col_max - col_min)
-                    ).round(4)
+                    df_features[f"{col}_scaled"] = ((df_features[col] - col_min) / (col_max - col_min)).round(4)
                 else:
                     df_features[f"{col}_scaled"] = 0.0
 
@@ -606,7 +628,11 @@ def update_catalog_metadata(**context):
             },
             "access_groups": {
                 "data_scientists": ["gold/* (read) — primary consumers of denormalized + ML datasets"],
-                "data_stewards": ["silver/_quality (read)", "gold/data_quality_report (read)", "bronze/_lineage (read)"],
+                "data_stewards": [
+                    "silver/_quality (read)",
+                    "gold/data_quality_report (read)",
+                    "bronze/_lineage (read)",
+                ],
                 "app_users": ["gold/product_wide_denormalized (read)"],
                 "nutritionists": ["silver/products (read)", "gold/product_wide_denormalized (read)"],
                 "admins": ["all buckets (full)"],
@@ -620,8 +646,10 @@ def update_catalog_metadata(**context):
     # Store in each bucket
     for bucket in ["bronze", "silver", "gold"]:
         client.put_object(
-            bucket, "_catalog/metadata.json",
-            BytesIO(catalog_bytes), len(catalog_bytes),
+            bucket,
+            "_catalog/metadata.json",
+            BytesIO(catalog_bytes),
+            len(catalog_bytes),
             content_type="application/json",
         )
 
@@ -637,7 +665,6 @@ with DAG(
     catchup=False,
     tags=["datalake", "minio", "medallion", "bronze", "silver", "gold"],
 ) as dag:
-
     # Wait for etl_aggregate_clean.clean_data before starting silver/gold
     # (bronze can run independently since it reads raw files)
     wait_for_clean = ExternalTaskSensor(

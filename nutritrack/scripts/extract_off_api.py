@@ -29,14 +29,34 @@ USER_AGENT = "NutriTrack/1.0 (https://github.com/nutritrack; contact@nutritrack.
 
 # Fields to extract
 PRODUCT_FIELDS = [
-    "code", "product_name", "generic_name", "quantity", "packaging",
-    "brands", "categories", "countries",
-    "energy-kcal_100g", "energy-kj_100g", "fat_100g", "saturated-fat_100g",
-    "carbohydrates_100g", "sugars_100g", "fiber_100g", "proteins_100g",
-    "salt_100g", "sodium_100g",
-    "nutriscore_grade", "nutriscore_score", "nova_group", "ecoscore_grade",
-    "ingredients_text", "allergens", "traces",
-    "image_url", "url", "completeness",
+    "code",
+    "product_name",
+    "generic_name",
+    "quantity",
+    "packaging",
+    "brands",
+    "categories",
+    "countries",
+    "energy-kcal_100g",
+    "energy-kj_100g",
+    "fat_100g",
+    "saturated-fat_100g",
+    "carbohydrates_100g",
+    "sugars_100g",
+    "fiber_100g",
+    "proteins_100g",
+    "salt_100g",
+    "sodium_100g",
+    "nutriscore_grade",
+    "nutriscore_score",
+    "nova_group",
+    "ecoscore_grade",
+    "ingredients_text",
+    "allergens",
+    "traces",
+    "image_url",
+    "url",
+    "completeness",
     "last_modified_t",
 ]
 
@@ -78,9 +98,7 @@ def search_products(query: str, page: int = 1, page_size: int = 50) -> list[dict
     headers = {"User-Agent": USER_AGENT}
 
     try:
-        response = requests.get(
-            OFF_API_SEARCH, params=params, headers=headers, timeout=60
-        )
+        response = requests.get(OFF_API_SEARCH, params=params, headers=headers, timeout=60)
         response.raise_for_status()
         data = response.json()
         return data.get("products", [])
@@ -90,16 +108,12 @@ def search_products(query: str, page: int = 1, page_size: int = 50) -> list[dict
         return []
 
 
-def extract_products_by_category(
-    category: str, max_pages: int = 10, page_size: int = 50
-) -> list[dict]:
+def extract_products_by_category(category: str, max_pages: int = 10, page_size: int = 50) -> list[dict]:
     """Extract all products in a category with pagination and rate limiting."""
     all_products = []
 
     for page in range(1, max_pages + 1):
-        logger.info(
-            "Fetching category '%s' - page %d/%d", category, page, max_pages
-        )
+        logger.info("Fetching category '%s' - page %d/%d", category, page, max_pages)
         products = search_products(category, page=page, page_size=page_size)
 
         if not products:
@@ -107,9 +121,7 @@ def extract_products_by_category(
             break
 
         all_products.extend(products)
-        logger.info(
-            "Retrieved %d products (total: %d)", len(products), len(all_products)
-        )
+        logger.info("Retrieved %d products (total: %d)", len(products), len(all_products))
 
         # Rate limiting: respect OFF API guidelines (max ~100 req/min)
         time.sleep(0.6)
@@ -140,9 +152,7 @@ def save_results(products: list[dict], filename: str) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Extract products from Open Food Facts API"
-    )
+    parser = argparse.ArgumentParser(description="Extract products from Open Food Facts API")
     parser.add_argument(
         "--mode",
         choices=["barcode", "search", "category"],
@@ -157,12 +167,8 @@ def main():
         help="Barcodes to extract (barcode mode)",
     )
     parser.add_argument("--max-pages", type=int, default=5, help="Max pages to fetch")
-    parser.add_argument(
-        "--page-size", type=int, default=50, help="Products per page"
-    )
-    parser.add_argument(
-        "--output", type=str, default="off_api_extract.json", help="Output filename"
-    )
+    parser.add_argument("--page-size", type=int, default=50, help="Products per page")
+    parser.add_argument("--output", type=str, default="off_api_extract.json", help="Output filename")
 
     args = parser.parse_args()
 

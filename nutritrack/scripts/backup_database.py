@@ -44,10 +44,14 @@ def run_pg_dump(backup_type: str = "full", schemas: list[str] | None = None) -> 
 
     cmd = [
         "pg_dump",
-        "-h", DB_HOST,
-        "-p", DB_PORT,
-        "-U", DB_USER,
-        "-d", DB_NAME,
+        "-h",
+        DB_HOST,
+        "-p",
+        DB_PORT,
+        "-U",
+        DB_USER,
+        "-d",
+        DB_NAME,
         "--format=custom",
         "--compress=6",
         f"--file={backup_path}",
@@ -86,6 +90,7 @@ def upload_to_minio(backup_path: Path) -> bool:
     """Upload backup to MinIO backups bucket."""
     try:
         from minio import Minio
+
         client = Minio(MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=False)
 
         date_prefix = datetime.now().strftime("%Y/%m/%d")

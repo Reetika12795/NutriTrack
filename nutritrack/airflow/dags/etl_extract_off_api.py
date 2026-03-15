@@ -79,7 +79,6 @@ with DAG(
     catchup=False,
     tags=["extraction", "api", "off"],
 ) as dag:
-
     extract_task = PythonOperator(
         task_id="extract_off_api",
         python_callable=extract_off_api,

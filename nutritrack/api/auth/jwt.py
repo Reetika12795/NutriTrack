@@ -27,9 +27,7 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (
-        expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
@@ -64,6 +62,7 @@ async def get_current_user(
 
 def require_role(*roles: str):
     """Dependency that checks if the current user has one of the required roles."""
+
     async def role_checker(current_user: User = Depends(get_current_user)):
         if current_user.role not in roles:
             raise HTTPException(
@@ -71,4 +70,5 @@ def require_role(*roles: str):
                 detail=f"Role '{current_user.role}' not authorized. Required: {', '.join(roles)}",
             )
         return current_user
+
     return role_checker

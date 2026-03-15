@@ -97,7 +97,8 @@ def check_storage_health(**context):
 
     # Check database sizes
     with engine.connect() as conn:
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             SELECT
                 schemaname,
                 COUNT(*) AS table_count,
@@ -105,7 +106,8 @@ def check_storage_health(**context):
             FROM pg_tables
             WHERE schemaname IN ('app', 'dw')
             GROUP BY schemaname
-        """))
+        """)
+        )
         for row in result:
             print(f"Schema {row[0]}: {row[1]} tables, {row[2]} total size")
 
@@ -128,7 +130,7 @@ def check_storage_health(**context):
         for bucket in ["bronze", "silver", "gold", "backups"]:
             objects = list(client.list_objects(bucket, recursive=True))
             total_size = sum(obj.size for obj in objects)
-            print(f"MinIO {bucket}: {len(objects)} objects, {total_size / (1024*1024):.2f} MB")
+            print(f"MinIO {bucket}: {len(objects)} objects, {total_size / (1024 * 1024):.2f} MB")
     except Exception as e:
         print(f"MinIO health check failed: {e}")
 

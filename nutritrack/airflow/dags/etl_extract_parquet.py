@@ -134,7 +134,6 @@ with DAG(
     catchup=False,
     tags=["extraction", "parquet", "duckdb", "bigdata"],
 ) as dag:
-
     extract = PythonOperator(
         task_id="extract_from_parquet",
         python_callable=extract_from_parquet,

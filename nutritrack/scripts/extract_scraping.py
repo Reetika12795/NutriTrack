@@ -23,10 +23,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-USER_AGENT = (
-    "Mozilla/5.0 (compatible; NutriTrack/1.0; "
-    "Educational project; contact@nutritrack.local)"
-)
+USER_AGENT = "Mozilla/5.0 (compatible; NutriTrack/1.0; Educational project; contact@nutritrack.local)"
 
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "data/raw/scraping"))
 
@@ -152,13 +149,15 @@ def scrape_efsa_drvs(url: str) -> list[dict]:
         for row in rows[1:]:  # Skip header
             cells = row.find_all(["th", "td"])
             if len(cells) >= 3:
-                guidelines.append({
-                    "nutrient": cells[0].get_text(strip=True),
-                    "daily_value": cells[1].get_text(strip=True),
-                    "unit": cells[2].get_text(strip=True),
-                    "source": "EFSA",
-                    "source_url": url,
-                })
+                guidelines.append(
+                    {
+                        "nutrient": cells[0].get_text(strip=True),
+                        "daily_value": cells[1].get_text(strip=True),
+                        "unit": cells[2].get_text(strip=True),
+                        "source": "EFSA",
+                        "source_url": url,
+                    }
+                )
 
     logger.info("Scraped %d entries from EFSA", len(guidelines))
     return guidelines
@@ -166,9 +165,7 @@ def scrape_efsa_drvs(url: str) -> list[dict]:
 
 def get_fallback_rda() -> list[dict]:
     """Return fallback RDA values from EU Regulation 1169/2011."""
-    logger.info(
-        "Using fallback EU RDA values (%d nutrients)", len(EU_RDA_VALUES)
-    )
+    logger.info("Using fallback EU RDA values (%d nutrients)", len(EU_RDA_VALUES))
     return EU_RDA_VALUES
 
 
@@ -227,9 +224,7 @@ def save_results(guidelines: list[dict], filename: str) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Scrape nutritional guidelines from health authority websites"
-    )
+    parser = argparse.ArgumentParser(description="Scrape nutritional guidelines from health authority websites")
     parser.add_argument(
         "--sources",
         nargs="+",

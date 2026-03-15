@@ -42,9 +42,7 @@ def get_data_path() -> Path:
         return csv_path
 
     logger.warning(
-        "No local OFF data file found. Download from:\n"
-        "  Parquet: %s\n  CSV: %s\n"
-        "Place in: %s",
+        "No local OFF data file found. Download from:\n  Parquet: %s\n  CSV: %s\nPlace in: %s",
         OFF_PARQUET_URL,
         OFF_CSV_URL,
         DATA_DIR,
@@ -133,9 +131,7 @@ def extract_with_duckdb(
     df = con.execute(query).fetchdf()
 
     elapsed = time.time() - start_time
-    logger.info(
-        "Extracted %d products in %.2f seconds", len(df), elapsed
-    )
+    logger.info("Extracted %d products in %.2f seconds", len(df), elapsed)
 
     con.close()
     return df
@@ -194,9 +190,7 @@ def save_results(df: pd.DataFrame, filename: str) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Extract products from OFF Parquet/CSV export using DuckDB"
-    )
+    parser = argparse.ArgumentParser(description="Extract products from OFF Parquet/CSV export using DuckDB")
     parser.add_argument(
         "--countries",
         type=str,

@@ -185,17 +185,13 @@ def get_engine():
 
 def extract_query(engine, query_name: str, query_info: dict) -> pd.DataFrame:
     """Execute a named query and return results as DataFrame."""
-    logger.info(
-        "Executing query '%s': %s", query_name, query_info["description"]
-    )
+    logger.info("Executing query '%s': %s", query_name, query_info["description"])
     logger.info("  Optimization: %s", query_info["optimization"])
 
     with engine.connect() as conn:
         # Log EXPLAIN plan for documentation
         try:
-            explain_result = conn.execute(
-                text(f"EXPLAIN ANALYZE {query_info['sql']}")
-            )
+            explain_result = conn.execute(text(f"EXPLAIN ANALYZE {query_info['sql']}"))
             plan = "\n".join(row[0] for row in explain_result)
             logger.debug("Query plan:\n%s", plan)
         except Exception:
@@ -220,9 +216,7 @@ def save_results(dataframes: dict[str, pd.DataFrame]) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Extract data from NutriTrack PostgreSQL database"
-    )
+    parser = argparse.ArgumentParser(description="Extract data from NutriTrack PostgreSQL database")
     parser.add_argument(
         "--queries",
         nargs="+",
@@ -246,9 +240,7 @@ def main():
 
     query_names = list(QUERIES.keys()) if "all" in args.queries else args.queries
 
-    logger.info(
-        "Starting database extraction (%d queries)", len(query_names)
-    )
+    logger.info("Starting database extraction (%d queries)", len(query_names))
 
     engine = get_engine()
     results = {}
