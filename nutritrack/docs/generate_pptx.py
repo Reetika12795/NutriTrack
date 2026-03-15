@@ -19,10 +19,10 @@ Slide decks:
 """
 
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 # ── Colours ──────────────────────────────────────────────────────────
 DARK_BG      = RGBColor(0x1B, 0x1B, 0x2F)
