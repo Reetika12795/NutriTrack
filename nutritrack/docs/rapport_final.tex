@@ -1235,6 +1235,58 @@ Compl\'etude des donn\'ees & $>$~80\,\% & Statistiques du rapport de nettoyage \
 \texttt{make backup-dw} (sch\'ema DW uniquement). Format
 \texttt{pg\_dump --format=custom --compress=6}, upload optionnel vers MinIO.
 
+\subsection{Maintenance Task Prioritization (ITIL-Aligned)}
+
+Maintenance tasks follow a four-tier priority matrix inspired by ITIL\,v4 incident management.
+
+\begin{table}[H]
+\centering
+\caption{Maintenance Priority Matrix}
+\label{tab:priority-matrix}
+\begin{tabularx}{\textwidth}{C{1.2cm} C{1.5cm} C{1.8cm} C{2cm} L{5cm}}
+\toprule
+\textbf{Priority} & \textbf{Severity} & \textbf{Response} & \textbf{Resolution} & \textbf{Examples} \\
+\midrule
+P1 & Critical & $<$~1h & $<$~4h & ETL failure blocking analytics; DB corruption; backup failure; security breach \\
+P2 & High & $<$~4h & $<$~8h & SLA breach (ETL $<$~95\,\%); data freshness $>$~24h; repeated DAG failure \\
+P3 & Medium & $<$~24h & $<$~3 days & Non-critical DAG failure; slow queries ($>$~5s); dashboard errors \\
+P4 & Low & Next sprint & Next release & Doc updates; cosmetic changes; new datamart requests \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Assignment rules:}
+\begin{itemize}
+  \item \textbf{P1:} Assigned to on-call engineer immediately. Escalate to project lead after 2\,h.
+  \item \textbf{P2:} Assigned during business hours. Escalate after 4\,h.
+  \item \textbf{P3:} Triaged in daily standup, assigned to next available engineer.
+  \item \textbf{P4:} Added to sprint backlog, prioritized during sprint planning.
+\end{itemize}
+
+\textbf{Escalation:} L1~(Engineer) $\to$ L2~(Senior Engineer, if unresolved within response time) $\to$ L3~(Project Lead, P1$>$2h or P2$>$4h).
+
+\subsection{SLA Compliance Dashboard}
+
+A dedicated Grafana dashboard (\texttt{sla-compliance.json}) provides real-time visibility:
+
+\begin{table}[H]
+\centering
+\caption{SLA Dashboard Panels}
+\label{tab:sla-dashboard}
+\begin{tabularx}{\textwidth}{L{4cm} C{2cm} L{6.5cm}}
+\toprule
+\textbf{Panel} & \textbf{Target} & \textbf{Prometheus Source} \\
+\midrule
+Overall SLA Compliance & $>$~95\,\% & Weighted composite of all indicators \\
+ETL Success Rate & $>$~95\,\% & \texttt{airflow\_dagrun\_duration\_*} \\
+Data Freshness & $<$~24h & \texttt{airflow\_dagrun\_start\_timestamp} \\
+Backup Completion & 100\,\% & \texttt{airflow\_ti\_successes} (7d) \\
+Query Response Time & $<$~5s & \texttt{pg\_stat\_activity\_max\_tx\_duration} \\
+Storage Usage & $<$~85\,\% & \texttt{pg\_database\_size\_bytes} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 
 % -----------------------------------------------------------
 \section{Variations dimensionnelles SCD (\competence{C17})}

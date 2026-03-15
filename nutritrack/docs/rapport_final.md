@@ -1511,6 +1511,57 @@ To grant access to a new analyst:
 
 The RGPD personal data registry is maintained in `app.rgpd_data_registry`. The automated cleanup function `rgpd_cleanup_expired_data()` runs periodically to enforce retention policies.
 
+### 12.8 Maintenance Task Prioritization (ITIL-Aligned)
+
+Maintenance tasks are classified using a four-tier priority matrix inspired by ITIL v4 incident management practices. Each priority level defines a maximum response time, resolution target, and escalation path.
+
+#### Priority Matrix
+
+| Priority | Severity | Response Time | Resolution Target | Examples |
+|----------|----------|---------------|-------------------|----------|
+| **P1 - Critical** | Service down or data loss risk | < 1 hour | < 4 hours | ETL pipeline failure blocking all downstream analytics; database corruption; backup system failure; security breach |
+| **P2 - High** | Major degradation, no workaround | < 4 hours | < 8 hours | SLA breach (ETL success < 95%); data freshness > 24h; single DAG repeated failure; MinIO storage > 90% |
+| **P3 - Medium** | Partial impact, workaround exists | < 24 hours | < 3 business days | Non-critical DAG failure with manual fallback; slow query performance (> 5s); Grafana dashboard errors; minor data quality issues |
+| **P4 - Low** | Cosmetic or improvement request | Next sprint | Next release | Documentation updates; dashboard cosmetic changes; new datamart view requests; dependency version upgrades |
+
+#### Assignment Rules
+
+1. **P1 incidents** are assigned to the on-call data engineer immediately. If unresolved within 2 hours, escalate to the project lead.
+2. **P2 incidents** are assigned during business hours to the data engineer responsible for the affected component. Escalation to project lead after 4 hours.
+3. **P3 incidents** are triaged in the daily standup and assigned to the next available engineer.
+4. **P4 requests** are added to the sprint backlog and prioritized during sprint planning.
+
+#### Escalation Procedures
+
+| Escalation Level | Trigger | Action |
+|-------------------|---------|--------|
+| **L1 - Engineer** | Initial assignment | Investigate, diagnose, apply fix |
+| **L2 - Senior Engineer** | L1 unable to resolve within response time | Deep investigation, architecture review |
+| **L3 - Project Lead** | P1 unresolved > 2h or P2 unresolved > 4h | Coordinate cross-team response, stakeholder communication |
+
+#### Tracking
+
+All maintenance tasks are tracked via:
+- **Airflow UI**: DAG run history, task logs, and SLA monitoring
+- **Grafana SLA Dashboard**: Real-time service level compliance (`monitoring/grafana/dashboards/sla-compliance.json`)
+- **`app.etl_activity_log` table**: Structured logging with alert categories (CRITICAL, WARNING, INFO)
+- **MailHog Web UI** (port 8025): Email alert verification during development
+
+### 12.9 SLA Dashboard
+
+A dedicated Grafana dashboard (`NutriTrack SLA Compliance`) provides real-time visibility into all service level indicators:
+
+| Panel | Metric | SLA Target | Source |
+|-------|--------|------------|--------|
+| Overall SLA Compliance | Weighted composite score | > 95% | All indicators below |
+| ETL Success Rate | DAG run success / total | > 95% | `airflow_dagrun_duration_*` |
+| Data Freshness | Hours since last successful ETL | < 24h | `airflow_dagrun_start_timestamp` |
+| Backup Completion | Backup task success rate (7d) | 100% | `airflow_ti_successes` |
+| Query Response Time | Max transaction duration | < 5s | `pg_stat_activity_max_tx_duration` |
+| Storage Usage | Database size as % of capacity | < 85% | `pg_database_size_bytes` |
+
+The dashboard also includes 7-day trend charts for ETL success rate and DAG run outcomes, enabling proactive identification of degrading performance before SLA breaches occur.
+
 ---
 
 ## Chapter 13 - SCD Dimension Variations
