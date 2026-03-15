@@ -1,86 +1,86 @@
-# Bulletin de Veille Technologique - NutriTrack
+# Technical Monitoring Newsletter - NutriTrack
 
-**Projet**: NutriTrack - Plateforme de suivi nutritionnel
-**Periode**: Semaine du 10 mars 2026
-**Redacteur**: Equipe Data Engineering
-**Frequence**: Hebdomadaire (1h minimum / semaine)
+**Project**: NutriTrack - Nutritional Tracking Platform
+**Period**: Week of March 10, 2026
+**Author**: Data Engineering Team
+**Frequency**: Weekly (minimum 1 hour / week)
 
 ---
 
-## 1. Theme de veille : Apache Superset 6.0 - BI et visualisation analytique
+## 1. Monitoring Topic: Apache Superset 6.0 - BI and Analytical Visualization
 
-### 1.1 Contexte du choix
+### 1.1 Context and Rationale
 
-Apache Superset a ete retenu comme outil BI pour le projet NutriTrack (evaluation E5, competence C14) afin de fournir aux equipes metier (nutritionnistes, analystes) un acces autonome aux donnees de l'entrepot. Ce bulletin couvre les evolutions majeures de la version 6.0 deployee dans le projet.
+Apache Superset was selected as the BI tool for the NutriTrack project (evaluation E5, competency C14) to provide business teams (nutritionists, analysts) with autonomous access to data warehouse content. This bulletin covers the major changes in version 6.0, which is deployed in the project.
 
-### 1.2 Nouveautes Superset 6.0.1
+### 1.2 Superset 6.0.1 New Features
 
-| Fonctionnalite | Impact NutriTrack | Statut |
+| Feature | NutriTrack Impact | Status |
 |---|---|---|
-| **Types de visualisation renommes** (e.g. `dist_bar` -> `echarts_bar`, `pie` -> `echarts_pie`) | Migration obligatoire des dashboards existants | Integre |
-| **Filtres natifs cross-dashboard** (`DASHBOARD_CROSS_FILTERS`) | Permet le filtrage interactif entre graphiques Nutri-Score et tendances nutritionnelles | Active |
-| **Template processing** (`ENABLE_TEMPLATE_PROCESSING`) | Requetes SQL dynamiques avec variables Jinja dans les datasets | Active |
-| **Cache Redis integre** | Temps de reponse des dashboards ameliore (TTL 300s configure) | Deploye |
+| **Renamed visualization types** (e.g. `dist_bar` -> `echarts_bar`, `pie` -> `echarts_pie`) | Mandatory migration of existing dashboards | Integrated |
+| **Native cross-dashboard filters** (`DASHBOARD_CROSS_FILTERS`) | Enables interactive filtering between Nutri-Score charts and nutritional trend visualizations | Enabled |
+| **Template processing** (`ENABLE_TEMPLATE_PROCESSING`) | Dynamic SQL queries with Jinja variables in datasets | Enabled |
+| **Integrated Redis cache** | Improved dashboard response time (TTL 300s configured) | Deployed |
 
-### 1.3 Decision technique prise
+### 1.3 Technical Decision Made
 
-Les anciens noms de types de visualisation (`dist_bar`, `pie`, `line`) ne sont plus reconnus dans Superset 6.x. Le script `superset/bootstrap_dashboards.py` a ete mis a jour pour utiliser exclusivement les types ECharts (`echarts_bar`, `echarts_pie`, `echarts_timeseries_line`). Cette migration a ete validee sur les 4 dashboards NutriTrack.
+Legacy visualization type names (`dist_bar`, `pie`, `line`) are no longer recognized in Superset 6.x. The `superset/bootstrap_dashboards.py` script was updated to use exclusively ECharts types (`echarts_bar`, `echarts_pie`, `echarts_timeseries_line`). This migration was validated across all 4 NutriTrack dashboards.
 
-### 1.4 Sources consultees
+### 1.4 Sources Consulted
 
-| Source | Fiabilite | URL/Reference |
+| Source | Reliability | URL/Reference |
 |---|---|---|
-| Apache Superset Release Notes | Officielle (ASF) | github.com/apache/superset/releases |
-| Superset Documentation | Officielle | superset.apache.org/docs |
-| Superset GitHub Issues | Communautaire (verifiee) | Tickets #28xxx series sur la migration ECharts |
+| Apache Superset Release Notes | Official (ASF) | github.com/apache/superset/releases |
+| Superset Documentation | Official | superset.apache.org/docs |
+| Superset GitHub Issues | Community (verified) | Tickets #28xxx series on ECharts migration |
 
 ---
 
-## 2. Veille reglementaire : RGPD et donnees nutritionnelles
+## 2. Regulatory Monitoring: GDPR and Nutritional Data
 
-### 2.1 Point de vigilance
+### 2.1 Key Concern
 
-Le Comite Europeen de la Protection des Donnees (CEPD) a publie des lignes directrices actualisees sur le traitement des donnees de sante et de bien-etre dans les applications mobiles (Guidelines 01/2026). Les donnees de suivi alimentaire (repas, apports caloriques) sont qualifiees de **donnees sensibles** lorsqu'elles permettent de deduire l'etat de sante d'un individu.
+The European Data Protection Board (EDPB) published updated guidelines on the processing of health and wellness data in mobile applications (Guidelines 01/2026). Dietary tracking data (meals, caloric intake) is classified as **sensitive data** when it can be used to infer an individual's health status.
 
-### 2.2 Impact sur NutriTrack
+### 2.2 Impact on NutriTrack
 
-| Mesure existante | Conformite |
+| Existing Measure | Compliance |
 |---|---|
-| Pseudonymisation SHA256 des identifiants utilisateur dans l'entrepot | Conforme |
-| Registre RGPD (`rgpd_data_registry`) avec bases legales et durees de conservation | Conforme |
-| Suppression automatique des donnees de repas > 2 ans (`rgpd_cleanup_expired_data()`) | Conforme |
-| Consentement explicite a l'inscription (champ `consent_date` obligatoire) | Conforme |
+| SHA256 pseudonymization of user identifiers in the data warehouse | Compliant |
+| GDPR registry (`rgpd_data_registry`) with legal bases and retention periods | Compliant |
+| Automatic deletion of meal data older than 2 years (`rgpd_cleanup_expired_data()`) | Compliant |
+| Explicit consent at registration (mandatory `consent_date` field) | Compliant |
 
-### 2.3 Action recommandee
+### 2.3 Recommended Action
 
-Aucune action corrective immediate requise. Maintenir la veille sur les publications du CEPD et de la CNIL pour anticiper d'eventuelles evolutions des exigences de consentement.
+No immediate corrective action required. Continue monitoring EDPB and CNIL publications to anticipate potential changes to consent requirements.
 
 ---
 
-## 3. Veille outil : Apache Airflow 2.8 - Orchestration ETL
+## 3. Tool Monitoring: Apache Airflow 2.8 - ETL Orchestration
 
-### 3.1 Evolutions pertinentes
+### 3.1 Relevant Updates
 
-- **Object Storage backend** : Airflow 2.8 introduit un support natif pour les backends de stockage objet (S3, GCS, Azure Blob). NutriTrack utilise deja MinIO comme data lake ; cette fonctionnalite pourrait simplifier les connexions dans les DAGs futurs.
-- **Listener hooks ameliores** : Les hooks `on_task_instance_failed` et `on_task_instance_success` permettent des callbacks personnalises, utile pour enrichir le systeme d'alertes (C16).
+- **Object Storage backend**: Airflow 2.8 introduces native support for object storage backends (S3, GCS, Azure Blob). NutriTrack already uses MinIO as its data lake; this feature could simplify connections in future DAGs.
+- **Improved listener hooks**: The `on_task_instance_failed` and `on_task_instance_success` hooks enable custom callbacks, useful for enriching the alerting system (C16).
 
-### 3.2 Sources consultees
+### 3.2 Sources Consulted
 
-| Source | Fiabilite |
+| Source | Reliability |
 |---|---|
-| Apache Airflow Changelog (apache/airflow) | Officielle (ASF) |
-| Astronomer Blog | Industrie (verifiee) |
+| Apache Airflow Changelog (apache/airflow) | Official (ASF) |
+| Astronomer Blog | Industry (verified) |
 
 ---
 
-## 4. Synthese et actions
+## 4. Summary and Action Items
 
-| Priorite | Action | Echeance | Responsable |
+| Priority | Action | Deadline | Owner |
 |---|---|---|---|
-| Haute | Valider la compatibilite des dashboards Superset apres mise a jour 6.0.1 | Fait | Data Engineer |
-| Moyenne | Surveiller les publications CEPD/CNIL sur les donnees de bien-etre | Continue | DPO / Data Engineer |
-| Basse | Evaluer l'Object Storage backend Airflow 2.8 pour simplifier les DAGs MinIO | Sprint suivant | Data Engineer |
+| High | Validate Superset dashboard compatibility after 6.0.1 upgrade | Done | Data Engineer |
+| Medium | Monitor EDPB/CNIL publications on wellness data | Ongoing | DPO / Data Engineer |
+| Low | Evaluate Airflow 2.8 Object Storage backend to simplify MinIO DAGs | Next sprint | Data Engineer |
 
 ---
 
-*Ce bulletin est produit dans le cadre de la veille technologique et reglementaire (competence C4) du projet NutriTrack. Frequence : hebdomadaire, duree minimale : 1 heure par semaine. Les sources sont evaluees selon les criteres de fiabilite suivants : officielle (editeur/organisme), communautaire verifiee (peer-reviewed, >1000 contributeurs), industrie (verifiee par experience).*
+*This bulletin is produced as part of technical and regulatory monitoring (competency C4) for the NutriTrack project. Frequency: weekly, minimum duration: 1 hour per week. Sources are evaluated according to the following reliability criteria: official (publisher/organization), verified community (peer-reviewed, >1000 contributors), industry (verified through experience).*
