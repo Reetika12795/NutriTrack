@@ -1,0 +1,21 @@
+[project]
+name = "nutritrack"
+version = "1.0.0"
+description = "Fitness nutrition tracker powered by Open Food Facts"
+requires-python = ">=3.9"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

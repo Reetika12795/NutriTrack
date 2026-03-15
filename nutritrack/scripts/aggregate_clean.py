@@ -6,6 +6,7 @@ homogenizes formats, and produces a single clean dataset.
 Entry point: main()
 Dependencies: pandas, pathlib
 """
+from __future__ import annotations
 
 import argparse
 import json
