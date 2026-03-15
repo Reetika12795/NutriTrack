@@ -6,8 +6,9 @@ Covers: C8 (Data file + Big data), C9 (SQL queries), C15 (ETL pipeline)
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",

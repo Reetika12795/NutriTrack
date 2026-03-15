@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from api.auth.jwt import get_current_user
 from api.database import get_db
-from api.models.product import Brand, Category, Product
+from api.models.product import Product
 from api.models.user import User
 from api.schemas.product import ProductAlternative, ProductOut, ProductSearchResult
 

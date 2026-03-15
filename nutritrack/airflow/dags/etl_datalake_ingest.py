@@ -11,9 +11,10 @@ Both paths are independent. The gold layer reads from silver, not from PostgreSQ
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.sensors.external_task import ExternalTaskSensor
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -26,6 +27,7 @@ default_args = {
 
 def _get_minio_client():
     import os
+
     from minio import Minio
     return Minio(
         os.getenv("MINIO_ENDPOINT", "minio:9000"),
@@ -41,8 +43,8 @@ def ingest_to_bronze(**context):
     Medallion architecture: Bronze = raw, unprocessed data.
     """
     import json
-    from pathlib import Path
     from io import BytesIO
+    from pathlib import Path
 
     client = _get_minio_client()
     ds = context["ds"]
@@ -161,8 +163,8 @@ def transform_to_silver(**context):
     Also produces data quality metadata (C20 — catalog management).
     """
     import json
-    from pathlib import Path
     from io import BytesIO
+    from pathlib import Path
 
     import pandas as pd
 
@@ -254,6 +256,7 @@ def transform_to_silver(**context):
 def _download_silver_parquet(client, ds):
     """Download the silver products Parquet file from MinIO."""
     from io import BytesIO
+
     import pandas as pd
 
     # Try date-partitioned path first, then fall back to latest

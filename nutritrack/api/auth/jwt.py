@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.config import settings
 from api.database import get_db
 from api.models.user import User
-from api.schemas.user import TokenData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -48,7 +47,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         user_id: str = payload.get("sub")
-        role: str = payload.get("role")
+        role: str = payload.get("role")  # noqa: F841
         if user_id is None:
             raise credentials_exception
     except JWTError:

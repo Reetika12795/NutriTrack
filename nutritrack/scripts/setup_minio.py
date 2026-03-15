@@ -11,7 +11,7 @@ import os
 
 from minio import Minio
 from minio.commonconfig import ENABLED
-from minio.lifecycleconfig import LifecycleConfig, Rule, Expiration, Filter
+from minio.lifecycleconfig import Expiration, Filter, LifecycleConfig, Rule
 
 logging.basicConfig(
     level=logging.INFO,
@@ -128,7 +128,7 @@ def setup_access_policies(client: Minio):
                 "Effect": "Allow",
                 "Principal": {"AWS": "*"},
                 "Action": ["s3:GetObject"],
-                "Resource": [f"arn:aws:s3:::gold/*"],
+                "Resource": ["arn:aws:s3:::gold/*"],
             }],
         })
         client.set_bucket_policy("gold", policy)

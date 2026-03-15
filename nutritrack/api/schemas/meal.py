@@ -1,7 +1,6 @@
 """Pydantic schemas for meal-related endpoints."""
 from __future__ import annotations
 
-import uuid
 from datetime import date, datetime
 
 from pydantic import BaseModel

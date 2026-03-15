@@ -11,8 +11,9 @@ Both downstream DAGs use ExternalTaskSensors to wait for this DAG to complete.
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",

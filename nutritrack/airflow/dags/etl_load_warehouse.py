@@ -6,9 +6,10 @@ Covers: C13 (Star schema), C14 (DW creation), C15 (ETL), C17 (SCD)
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.sensors.external_task import ExternalTaskSensor
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -22,6 +23,7 @@ default_args = {
 
 def _get_db_engine():
     import os
+
     from sqlalchemy import create_engine
     db_url = (
         f"postgresql+psycopg2://"

@@ -4,10 +4,9 @@ Streamlit frontend application
 """
 
 import os
-from datetime import date, timedelta
+from datetime import date
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import requests
 import streamlit as st

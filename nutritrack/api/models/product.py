@@ -2,12 +2,12 @@
 
 from sqlalchemy import (
     Column,
+    DateTime,
     ForeignKey,
     Integer,
     Numeric,
     String,
     Text,
-    DateTime,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

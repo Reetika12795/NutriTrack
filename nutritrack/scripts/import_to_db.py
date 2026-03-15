@@ -189,7 +189,7 @@ def import_products(
 
         if records:
             with engine.begin() as conn:
-                result = conn.execute(
+                conn.execute(
                     text("""
                         INSERT INTO app.products (
                             barcode, product_name, generic_name, quantity, packaging,

@@ -27,7 +27,6 @@ default_args = {
 
 def run_dw_backup(**context):
     """Daily partial backup: data warehouse schema only."""
-    import subprocess
     import sys
 
     sys.path.insert(0, "/opt/airflow/scripts")
@@ -44,7 +43,6 @@ def run_dw_backup(**context):
 
 def run_full_backup(**context):
     """Weekly full backup: all schemas."""
-    import subprocess
     import sys
 
     sys.path.insert(0, "/opt/airflow/scripts")
@@ -83,7 +81,6 @@ def run_rgpd_cleanup(**context):
 
 def check_storage_health(**context):
     """Check PostgreSQL and MinIO storage health metrics."""
-    import json
     import os
 
     from sqlalchemy import create_engine, text
