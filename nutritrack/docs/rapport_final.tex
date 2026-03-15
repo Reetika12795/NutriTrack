@@ -1,0 +1,1643 @@
+% =============================================================
+% NutriTrack — Rapport Final de Certification
+% Expert en Infrastructures de Donnees Massives (RNCP37638)
+% =============================================================
+\documentclass[a4paper,12pt,twoside,openright]{report}
+
+% ---- Encodage et langue ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+
+% ---- Mise en page ----
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% ---- En-tetes et pieds de page ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---- Graphiques et couleurs ----
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{
+  positioning, arrows.meta, shapes.geometric, shapes.multipart,
+  calc, fit, backgrounds, decorations.pathreplacing, chains,
+  matrix, shadows, patterns
+}
+
+% ---- Couleurs NutriTrack ----
+\definecolor{ntgreen}{HTML}{2E7D32}
+\definecolor{ntdarkgreen}{HTML}{1B5E20}
+\definecolor{ntlightgreen}{HTML}{A5D6A7}
+\definecolor{ntblue}{HTML}{1565C0}
+\definecolor{ntlightblue}{HTML}{90CAF9}
+\definecolor{ntorange}{HTML}{EF6C00}
+\definecolor{ntred}{HTML}{C62828}
+\definecolor{ntgold}{HTML}{F9A825}
+\definecolor{ntgray}{HTML}{616161}
+\definecolor{ntlightgray}{HTML}{E0E0E0}
+% Nutri-Score
+\definecolor{nsA}{HTML}{038141}
+\definecolor{nsB}{HTML}{85BB2F}
+\definecolor{nsC}{HTML}{FECB02}
+\definecolor{nsD}{HTML}{EE8100}
+\definecolor{nsE}{HTML}{E63E11}
+% Medallion
+\definecolor{bronze}{HTML}{CD7F32}
+\definecolor{silver}{HTML}{C0C0C0}
+\definecolor{gold}{HTML}{FFD700}
+
+% ---- Tableaux ----
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% ---- Code source ----
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{ntlightgray!30},
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{ntgray},
+  breaklines=true,
+  breakatwhitespace=true,
+  numbers=left,
+  numberstyle=\tiny\color{ntgray},
+  numbersep=8pt,
+  tabsize=4,
+  showstringspaces=false,
+  captionpos=b,
+  keywordstyle=\color{ntblue}\bfseries,
+  stringstyle=\color{ntgreen},
+  commentstyle=\color{ntgray}\itshape,
+  columns=flexible,
+  xleftmargin=1.5em,
+  framexleftmargin=1.5em,
+}
+\lstdefinelanguage{SQL}{
+  morekeywords={SELECT,FROM,WHERE,JOIN,LEFT,ON,INSERT,INTO,UPDATE,SET,
+    DELETE,CREATE,TABLE,INDEX,VIEW,SCHEMA,AS,AND,OR,NOT,NULL,
+    IS,DISTINCT,GROUP,BY,ORDER,HAVING,COUNT,SUM,AVG,ROUND,
+    WITH,CASE,WHEN,THEN,ELSE,END,OVER,PARTITION,ROWS,BETWEEN,
+    PRECEDING,CURRENT,ROW,FUNCTION,RETURNS,BEGIN,DECLARE,
+    LANGUAGE,plpgsql,VOID,INTEGER,VARCHAR,BOOLEAN,DATE,
+    TIMESTAMP,SERIAL,PRIMARY,KEY,REFERENCES,FOREIGN,GRANT,
+    REVOKE,ALL,PRIVILEGES,USAGE,IF,EXISTS,REPLACE,DEFAULT,
+    CONSTRAINT,CHECK,UNIQUE,CASCADE,INTERVAL,EXTRACT,
+    GENERATE_SERIES,IN,LIKE,LIMIT,OFFSET,ASC,DESC,VALUES,
+    CONFLICT,DO,EXCLUDED,COALESCE,GREATEST,NULLIF,ROW_NUMBER,
+    LAG,PERCENTILE_CONT,STDDEV,MODE,WITHIN,TEXT},
+  sensitive=false,
+  morecomment=[l]{--},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+}
+\lstdefinelanguage{Python}{
+  morekeywords={def,class,return,import,from,as,if,elif,else,for,
+    while,with,try,except,raise,in,not,and,or,True,False,None,
+    async,await,yield,lambda,pass,break,continue,finally,global},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]{"""},
+}
+
+% ---- Hyperlinks ----
+\usepackage[
+  colorlinks=true,
+  linkcolor=ntdarkgreen,
+  citecolor=ntblue,
+  urlcolor=ntblue,
+  bookmarks=true,
+  bookmarksnumbered=true,
+]{hyperref}
+
+% ---- Bibliographie ----
+\usepackage[numbers,sort&compress]{natbib}
+
+% ---- Divers ----
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{pdfpages}
+
+% ---- Commandes personnalisees ----
+\newcommand{\competence}[1]{\textbf{\textcolor{ntgreen}{#1}}}
+\newcommand{\evaluation}[1]{\textbf{\textcolor{ntblue}{#1}}}
+\newcommand{\nutritrack}{\textsc{NutriTrack}}
+\newcommand{\off}{Open Food Facts}
+
+% ---- Glossaire rapide ----
+\newcommand{\rgpd}{RGPD}
+\newcommand{\scd}{SCD}
+
+% =============================================================
+\begin{document}
+
+% =============================================================
+% PAGE DE TITRE
+% =============================================================
+\begin{titlepage}
+\begin{center}
+\vspace*{1cm}
+
+\begin{tikzpicture}
+  \node[circle, fill=ntgreen, minimum size=2.5cm, text=white,
+        font=\Huge\bfseries] {NT};
+\end{tikzpicture}
+
+\vspace{1cm}
+{\huge\bfseries\color{ntdarkgreen} NutriTrack}\\[0.5cm]
+{\Large Plateforme d'Ing\'enierie de Donn\'ees Nutritionnelles}
+
+\vspace{1.5cm}
+\rule{\textwidth}{1.5pt}
+\vspace{0.5cm}
+{\LARGE\bfseries Rapport Final de Certification}\\[0.3cm]
+{\large Expert en Infrastructures de Donn\'ees Massives}\\[0.2cm]
+{\large RNCP37638 --- Niveau 7 (Master)}
+\vspace{0.5cm}
+\rule{\textwidth}{1.5pt}
+
+\vspace{2cm}
+
+\begin{tabular}{rl}
+  \textbf{Candidat :} & Reetika Gautam \\[0.3cm]
+  \textbf{Date :} & Mars 2026 \\[0.3cm]
+  \textbf{Organisme :} & Simplon.co \\[0.3cm]
+  \textbf{\'Evaluations :} & E1 \`a E7 (Blocs 1--4) \\
+\end{tabular}
+
+\vfill
+
+{\small Ce document couvre l'ensemble des 21 comp\'etences (C1--C21)
+r\'eparties en 4 blocs de comp\'etences, \'evalu\'ees au travers de
+7 \'evaluations (E1--E7).}
+\end{center}
+\end{titlepage}
+
+% =============================================================
+% TABLE DES MATIERES
+% =============================================================
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+
+% =============================================================
+% INTRODUCTION
+% =============================================================
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Contexte du projet}
+
+\nutritrack{} est une plateforme d'ing\'enierie de donn\'ees de bout en bout
+d\'edi\'ee au suivi nutritionnel. Le projet collecte des donn\'ees de produits
+alimentaires depuis \off{}, les nettoie et les transforme via des pipelines
+ETL automatis\'es, les stocke dans un entrep\^ot de donn\'ees en sch\'ema
+en \'etoile, et les expose \`a travers une API REST consomm\'ee par une
+interface Streamlit. Un data lake bas\'e sur MinIO impl\'emente l'architecture
+m\'edaillon (bronze/silver/gold) avec une gouvernance compl\`ete et une
+conformit\'e \rgpd{}.
+
+\section{Objectifs}
+
+Le projet a pour objectif de d\'emontrer la ma\^itrise des 21 comp\'etences
+(C1--C21) requises pour la certification \textit{Expert en Infrastructures
+de Donn\'ees Massives} (RNCP37638). Il couvre les 4 blocs de comp\'etences
+\`a travers un projet unique et coh\'erent.
+
+\textbf{Objectifs SMART :}
+\begin{itemize}[nosep]
+  \item \textbf{S} : Construire une plateforme de suivi nutritionnel
+        int\'egrant 5 types de sources de donn\'ees
+  \item \textbf{M} : Traiter 100\,000+ produits avec 95\,\%+ de
+        compl\'etude sur les champs nutritionnels cl\'es
+  \item \textbf{A} : Utiliser des technologies open-source dans un
+        environnement Docker Compose
+  \item \textbf{R} : S'aligner sur le mod\`ele de donn\'ees \off{} et
+        les normes nutritionnelles europ\'eennes
+  \item \textbf{T} : Livrer en un cycle de 3 mois (12 sprints d'une semaine)
+\end{itemize}
+
+\section{P\'erim\`etre de certification}
+
+\begin{table}[H]
+\centering
+\caption{Correspondance blocs, \'evaluations et comp\'etences}
+\label{tab:bloc-eval}
+\begin{tabularx}{\textwidth}{C{1.5cm} L{5cm} C{1.5cm} L{4cm}}
+\toprule
+\textbf{Bloc} & \textbf{Intitul\'e} & \textbf{\'Eval.} & \textbf{Comp\'etences} \\
+\midrule
+1 & Piloter la conduite d'un projet data & E1--E3 & C1--C7 \\
+2 & R\'ealiser la collecte, le stockage et la mise \`a disposition & E4 & C8--C12 \\
+3 & \'Elaborer et maintenir un entrep\^ot de donn\'ees & E5--E6 & C13--C17 \\
+4 & Encadrer la collecte massive et la mise \`a disposition avec un data lake & E7 & C18--C21 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =============================================================
+% ARCHITECTURE SYSTEME (diagramme TikZ principal)
+% =============================================================
+\section{Architecture g\'en\'erale}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.8cm and 1.2cm,
+  service/.style={
+    rectangle, rounded corners=4pt, draw=ntgray, fill=#1!15,
+    minimum width=2.8cm, minimum height=1.4cm,
+    font=\footnotesize\bfseries, align=center,
+    drop shadow={shadow xshift=1pt, shadow yshift=-1pt, opacity=0.2}
+  },
+  service/.default=ntblue,
+  ext/.style={
+    rectangle, rounded corners=4pt, draw=ntgray, dashed,
+    fill=ntlightgray!40, minimum width=2.5cm, minimum height=1cm,
+    font=\footnotesize, align=center
+  },
+  arrow/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
+  label/.style={font=\tiny\color{ntgray}, midway},
+]
+
+% --- Ligne 1 : Sources externes ---
+\node[ext] (off) {Open Food\\Facts API};
+\node[ext, right=1.5cm of off] (parquet) {OFF Parquet\\(HuggingFace)};
+\node[ext, right=1.5cm of parquet] (anses) {ANSES /\\EFSA};
+
+% --- Ligne 2 : ETL Orchestration ---
+\node[service=ntorange, below=1.5cm of parquet, minimum width=8cm] (airflow)
+  {Apache Airflow 2.8\\{\tiny Webserver :8080 | Scheduler | Worker (Celery)}};
+
+% --- Ligne 3 : Stockage ---
+\node[service=ntblue, below left=1.5cm and 1.5cm of airflow] (postgres)
+  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | dw | airflow}};
+\node[service=ntgreen, below=1.5cm of airflow] (minio)
+  {MinIO (S3)\\{\tiny :9000 / :9001}\\{\tiny bronze | silver | gold}};
+\node[service=ntred, below right=1.5cm and 1.5cm of airflow] (redis)
+  {Redis 7\\{\tiny :6379}\\{\tiny Cache + Broker}};
+
+% --- Ligne 4 : Applications ---
+\node[service=ntgreen, below left=1.5cm and 0cm of postgres] (fastapi)
+  {FastAPI\\{\tiny :8000}\\{\tiny REST API + JWT}};
+\node[service=ntblue, below right=1.5cm and 0cm of postgres] (superset)
+  {Superset 6.0\\{\tiny :8088}\\{\tiny BI Dashboards}};
+
+% --- Ligne 5 : Frontend ---
+\node[service=ntgreen, below=1.2cm of fastapi] (streamlit)
+  {Streamlit\\{\tiny :8501}\\{\tiny Frontend UI}};
+
+% --- Monitoring ---
+\node[service=ntgold, right=1cm of redis] (monitoring)
+  {Monitoring\\{\tiny Prometheus :9090}\\{\tiny Grafana :3000}};
+
+% --- Fleches ---
+\draw[arrow] (off) -- (airflow);
+\draw[arrow] (parquet) -- (airflow);
+\draw[arrow] (anses) -- (airflow);
+\draw[arrow] (airflow) -- (postgres);
+\draw[arrow] (airflow) -- (minio);
+\draw[arrow] (airflow) -- (redis);
+\draw[arrow] (postgres) -- (fastapi);
+\draw[arrow] (postgres) -- (superset);
+\draw[arrow] (redis) -- (fastapi);
+\draw[arrow] (fastapi) -- (streamlit);
+\draw[arrow, dashed] (monitoring) -- (redis);
+\draw[arrow, dashed] (monitoring) |- (postgres);
+
+% --- Cadre Docker ---
+\begin{scope}[on background layer]
+  \node[draw=ntgray, dashed, rounded corners=8pt,
+        fill=ntlightgray!10, inner sep=12pt,
+        fit=(airflow)(postgres)(minio)(redis)(fastapi)(superset)
+            (streamlit)(monitoring),
+        label={[font=\small\bfseries\color{ntgray}]above:
+          docker-compose.yml --- 14 services}] {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Architecture syst\`eme de \nutritrack{} --- Vue d'ensemble des services Docker}
+\label{fig:arch-system}
+\end{figure}
+
+
+% =============================================================
+% BLOC 1 : PILOTER LA CONDUITE D'UN PROJET DATA
+% =============================================================
+\chapter{Bloc 1 --- Piloter la conduite d'un projet data}
+\label{ch:bloc1}
+
+% -----------------------------------------------------------
+\section{Analyse du besoin et grilles d'entretien}
+\label{sec:e1}
+{\small\evaluation{E1} | \competence{C1} | Livrable : grilles d'entretien}
+
+\subsection{Contexte et besoin m\'etier}
+
+\nutritrack{} r\'epond \`a une demande croissante de suivi nutritionnel
+personnalis\'e. Le besoin m\'etier provient de trois groupes de parties
+prenantes : (1)~les utilisateurs finaux souhaitant suivre leur alimentation
+et recevoir des alternatives plus saines, (2)~les nutritionnistes ayant
+besoin de donn\'ees alimentaires agr\'eg\'ees pour la recherche et les
+recommandations, et (3)~les administrateurs g\'erant la plateforme et
+assurant la qualit\'e des donn\'ees.
+
+L'\'etude de faisabilit\'e a identifi\'e \off{} comme source de donn\'ees
+principale --- une base collaborative et open-source de produits alimentaires
+avec plus de 3~millions d'entr\'ees, incluant les notations Nutri-Score et
+des valeurs nutritionnelles d\'etaill\'ees.
+
+\subsection{Grille d'entretien : producteurs de donn\'ees}
+
+\begin{table}[H]
+\centering
+\caption{Grille d'entretien --- Producteurs de donn\'ees}
+\label{tab:grid-prod}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{7cm} L{2.5cm} L{3cm}}
+\toprule
+\textbf{\#} & \textbf{Question} & \textbf{Domaine} & \textbf{Type de r\'eponse} \\
+\midrule
+1 & Quelles bases de produits alimentaires maintenez-vous ou contribuez-vous ? & Activit\'e m\'etier & Inventaire sources \\
+2 & \`A quelle fr\'equence les informations produit sont-elles mises \`a jour ? & Caract\'erisation & Cadence \\
+3 & Quelles m\'etadonn\'ees accompagnent chaque entr\'ee produit ? & M\'etadonn\'ees & Inventaire champs \\
+4 & Sous quel format les donn\'ees sont-elles stock\'ees ou export\'ees ? & Format stockage & Liste formats \\
+5 & Quelles m\'ethodes d'acc\`es sont disponibles (API REST, export bulk, BDD) ? & Acc\`es donn\'ees & Liste protocoles \\
+6 & Existe-t-il des limites de d\'ebit ou des exigences d'authentification ? & Contraintes acc\`es & Limites techniques \\
+7 & Quels probl\`emes de qualit\'e ont \'et\'e observ\'es ? & Qualit\'e donn\'ees & Cat\'egories d\'efauts \\
+8 & Comment les contributions sont-elles valid\'ees avant publication ? & Gouvernance & Processus validation \\
+9 & Existe-t-il une politique de r\'etention ou d'archivage ? & Cycle de vie & R\`egles r\'etention \\
+10 & Y a-t-il des \'el\'ements de donn\'ees personnelles ? & \rgpd{} & Identification \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Grille d'entretien : consommateurs de donn\'ees}
+
+\begin{table}[H]
+\centering
+\caption{Grille d'entretien --- Consommateurs de donn\'ees}
+\label{tab:grid-cons}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{7cm} L{2.5cm} L{3cm}}
+\toprule
+\textbf{\#} & \textbf{Question} & \textbf{Domaine} & \textbf{Type de r\'eponse} \\
+\midrule
+1 & Quelles analyses nutritionnelles effectuez-vous et quelles donn\'ees manquent ? & Besoin m\'etier & Analyse des \'ecarts \\
+2 & Comment recherchez-vous actuellement les informations produit ? & Usages & Parcours utilisateur \\
+3 & Quel niveau de d\'etail nutritionnel est n\'ecessaire ? & Granularit\'e & Sp\'ecification \\
+4 & Avez-vous besoin de donn\'ees historiques pour suivre les reformulations ? & Analyse temporelle & Besoins historisation \\
+5 & Quel niveau d'agr\'egation est utile ? & Granularit\'e analytique & Sp\'ecification \\
+6 & Comment les donn\'ees doivent-elles \^etre livr\'ees ? & Acc\`es donn\'ees & Pr\'ef\'erence livraison \\
+7 & Quel temps de r\'eponse est acceptable ? & Performance & Attentes SLA \\
+8 & Devez-vous suivre les repas individuels (implications \rgpd{}) ? & \rgpd{} & Exigences consentement \\
+9 & Quels am\'enagements d'accessibilit\'e sont n\'ecessaires ? & Accessibilit\'e & Exigences WCAG \\
+10 & Existe-t-il des contraintes r\'eglementaires sur l'affichage nutritionnel ? & R\'eglementaire & Conformit\'e \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Note de synth\`ese}
+
+\textbf{Analyse du besoin :} Le projet r\'epond au besoin d'une plateforme
+centralis\'ee combinant des donn\'ees de produits alimentaires provenant de
+sources multiples (API, exports bulk, web scraping) avec un suivi de repas
+personnel.
+
+\textbf{Actions de conformit\'e \rgpd{} :} Inscription bas\'ee sur le
+consentement, limites de r\'etention des donn\'ees, pseudonymisation SHA256
+dans l'entrep\^ot, nettoyage automatis\'e via
+\texttt{rgpd\_cleanup\_expired\_data()}.
+
+
+% -----------------------------------------------------------
+\section{Topographie des donn\'ees, architecture et veille}
+\label{sec:e2}
+{\small\evaluation{E2} | \competence{C1, C2, C3, C4, C6} |
+Livrable : rapport professionnel}
+
+\subsection{Topographie des donn\'ees (\competence{C2})}
+
+\subsubsection{S\'emantique --- Glossaire m\'etier}
+
+\begin{table}[H]
+\centering
+\caption{Glossaire m\'etier --- Objets principaux}
+\label{tab:glossary}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{6cm} L{4.5cm}}
+\toprule
+\textbf{Objet m\'etier} & \textbf{Description} & \textbf{M\'etadonn\'ees cl\'es} \\
+\midrule
+Produit & Produit alimentaire identifi\'e par code-barres & barcode, nom, marque, cat\'egorie, nutrition/100g, Nutri-Score, NOVA, Eco-Score \\
+Marque & Fabricant ou distributeur & nom, soci\'et\'e m\`ere \\
+Cat\'egorie & Classification alimentaire hi\'erarchique & nom, parent, niveau \\
+Utilisateur & Utilisateur suivant sa nutrition & UUID, email, r\^ole, objectif, activit\'e \\
+Repas & Occasion de repas enregistr\'ee & type, date, user\_id \\
+\'El\'ement repas & Produit dans un repas & product\_id, quantit\'e, nutrition calcul\'ee \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Matrice des flux}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.6cm,
+  source/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!30,
+    minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  process/.style={
+    rectangle, rounded corners=3pt, draw=ntorange, fill=ntorange!15,
+    minimum width=2.5cm, minimum height=0.9cm,
+    font=\scriptsize, align=center
+  },
+  target/.style={
+    rectangle, rounded corners=3pt, draw=ntgreen, fill=ntlightgreen!40,
+    minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+
+% Sources
+\node[source] (api) {OFF REST\\API};
+\node[source, right=0.8cm of api] (pq) {OFF Parquet\\HuggingFace};
+\node[source, right=0.8cm of pq] (scrap) {ANSES/EFSA\\Scraping};
+\node[source, right=0.8cm of scrap] (db) {PostgreSQL\\app};
+\node[source, right=0.8cm of db] (duck) {DuckDB\\Analytics};
+
+% Processing
+\node[process, below=1.2cm of $(api)!0.5!(pq)$] (agg) {aggregate\_clean.py\\Merge, Clean, D\'eduplique};
+\node[process, below=1.2cm of $(scrap)!0.5!(db)$] (bronze) {Bronze\\(MinIO brut)};
+
+% Targets
+\node[target, below=1.2cm of agg] (import) {import\_to\_db.py\\app schema};
+\node[target, below=1.2cm of bronze] (silverT) {Silver\\(nettoy\'e)};
+
+\node[target, below=1cm of import] (dw) {Star Schema DW\\dw schema};
+\node[target, below=1cm of silverT] (goldT) {Gold\\(analytics)};
+
+% Arrows from sources
+\draw[arr] (api.south) -- ++(0,-0.4) -| (agg.north);
+\draw[arr] (pq.south) -- (agg.north);
+\draw[arr] (scrap.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (db.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (duck.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (api.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (pq.south) -- ++(0,-0.4) -| (bronze.north);
+
+% Processing to targets
+\draw[arr] (agg) -- (import);
+\draw[arr] (bronze) -- (silverT);
+\draw[arr] (import) -- (dw);
+\draw[arr] (silverT) -- (goldT);
+
+\end{tikzpicture}
+\caption{Pipeline de donn\'ees --- Des sources aux couches analytiques}
+\label{fig:data-pipeline}
+\end{figure}
+
+
+\subsection{\'Etude technique d'architecture (\competence{C3})}
+
+\subsubsection{Analyse fonctionnelle}
+
+Le syst\`eme doit : (1)~collecter des donn\'ees de produits alimentaires
+depuis 5 sources h\'et\'erog\`enes, (2)~nettoyer, normaliser et d\'edupliquer
+les donn\'ees, (3)~stocker les donn\'ees structur\'ees dans PostgreSQL,
+(4)~exposer les donn\'ees via une API REST s\'ecuris\'ee, (5)~fournir une
+interface de suivi nutritionnel, et (6)~maintenir un data lake avec
+architecture m\'edaillon.
+
+\subsubsection{Besoins non fonctionnels}
+
+\begin{table}[H]
+\centering
+\caption{Exigences non fonctionnelles et solutions retenues}
+\label{tab:nonfunc}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{4cm} L{6cm}}
+\toprule
+\textbf{Contrainte} & \textbf{Exigence} & \textbf{Solution} \\
+\midrule
+Performance & Recherche produit $<$~1s & Index GIN plein texte, pool de connexions (pool\_size=10) \\
+Scalabilit\'e & G\'erer 3M+ produits & DuckDB pour l'analytique en m\'emoire sur Parquet \\
+Fiabilit\'e & Z\'ero perte de donn\'ees & Retries Airflow (2--3 tentatives), log d'audit \\
+S\'ecurit\'e & Pas de mots de passe en clair & Hachage bcrypt, JWT HS256, RBAC \\
+Disponibilit\'e & Monitoring de sant\'e & Healthchecks Docker, Airflow UI, endpoint \texttt{/health} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{D\'ecisions architecturales}
+
+\begin{table}[H]
+\centering
+\caption{D\'ecisions architecturales cl\'es}
+\label{tab:arch-decisions}
+\begin{tabularx}{\textwidth}{L{3.5cm} L{3cm} L{6.5cm}}
+\toprule
+\textbf{D\'ecision} & \textbf{Choix} & \textbf{Justification} \\
+\midrule
+BDD OLTP/OLAP & PostgreSQL unique & Simplifie le d\'eploiement ; ad\'equat \`a l'\'echelle actuelle \\
+Orchestrateur ETL & Apache Airflow & Standard industriel, DAG, interface web, Celery \\
+Stockage data lake & MinIO (S3) & Open-source, auto-h\'eberg\'e, API compatible AWS S3 \\
+Framework API & FastAPI (async) & Support async natif, docs OpenAPI auto-g\'en\'er\'ees \\
+Big data & DuckDB & Lecture Parquet directe, SQL, z\'ero config \\
+Authentification & JWT + bcrypt & Stateless, scalable, standard REST \\
+Approche DW & Bottom-up & Valeur rapide ; datamarts d'abord \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Conformit\'e \rgpd{}}
+
+\begin{table}[H]
+\centering
+\caption{Registre des donn\'ees personnelles (extrait)}
+\label{tab:rgpd}
+\begin{tabularx}{\textwidth}{L{2.8cm} L{2.5cm} L{2cm} L{5.5cm}}
+\toprule
+\textbf{Cat\'egorie} & \textbf{Base l\'egale} & \textbf{R\'etention} & \textbf{Mesures de s\'ecurit\'e} \\
+\midrule
+Compte utilisateur & Consentement (Art.~6.1.a) & 3 ans & Hachage bcrypt, stockage chiffr\'e \\
+Profil utilisateur & Consentement (Art.~6.1.a) & 3 ans & Pseudonymis\'e (SHA256) en analytique \\
+Suivi des repas & Consentement (Art.~6.1.a) & 2 ans & Associ\'e \`a UUID, supprimable sur demande \\
+Donn\'ees produits & Int\'er\^et l\'egitime (Art.~6.1.f) & Ind\'efinie & Donn\'ees publiques \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Proc\'edures de tri et suppression :}
+\begin{itemize}[nosep]
+  \item \texttt{rgpd\_cleanup\_expired\_data()} : fonction PL/pgSQL automatisant
+        la suppression des repas $>$~2 ans et la d\'esactivation des comptes
+        au-del\`a de la r\'etention
+  \item R\`egles de cycle de vie du data lake : Bronze expire \`a 90 jours,
+        sauvegardes \`a 30 jours
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.7cm and 1.5cm,
+  step/.style={
+    rectangle, rounded corners=4pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=3.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  decision/.style={
+    diamond, draw=ntorange, fill=ntorange!15,
+    minimum width=1.5cm, minimum height=1cm,
+    font=\scriptsize, aspect=2, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+
+% Steps
+\node[step] (collect) {Collecte des donn\'ees\\{\tiny avec consentement}};
+\node[step, right=2cm of collect] (registry) {Enregistrement au\\registre \rgpd{}};
+\node[step, below=1cm of registry] (hash) {Pseudonymisation\\{\tiny SHA256 dans le DW}};
+\node[step, below=1cm of hash] (retention) {V\'erification\\r\'etention};
+\node[decision, below=1cm of retention] (expired) {Expir\'e\,?};
+\node[step, below left=1cm and 1.5cm of expired] (keep) {Conserver\\{\tiny acc\`es contr\^ol\'e}};
+\node[step, below right=1cm and 1.5cm of expired] (delete) {Supprimer /\\D\'esactiver};
+
+% Arrows
+\draw[arr] (collect) -- (registry);
+\draw[arr] (registry) -- (hash);
+\draw[arr] (hash) -- (retention);
+\draw[arr] (retention) -- (expired);
+\draw[arr] (expired) -- node[font=\tiny, left] {Non} (keep);
+\draw[arr] (expired) -- node[font=\tiny, right] {Oui} (delete);
+
+\end{tikzpicture}
+\caption{Processus \rgpd{} --- Du consentement \`a la suppression}
+\label{fig:rgpd-process}
+\end{figure}
+
+\subsubsection{Strat\'egie d'\'eco-responsabilit\'e}
+
+Conform\'ement au cadre RGESN :
+\begin{enumerate}[nosep]
+  \item \textbf{Requ\^etes efficaces} : DuckDB traite 3M+ produits sans chargement complet
+  \item \textbf{Transferts minimaux} : Pagination API, delta ETL
+  \item \textbf{Cycle de vie} : Bronze expire \`a 90 jours, sauvegardes \`a 30 jours
+  \item \textbf{Conteneurs l\'egers} : Images Alpine (PostgreSQL, Redis)
+  \item \textbf{Traitement batch} : ETL en heures creuses (02:00--06:00 UTC)
+\end{enumerate}
+
+\subsection{Veille technique (\competence{C4})}
+
+\textbf{Th\`eme :} Apache Airflow --- orchestration et observabilit\'e ETL.\\
+\textbf{Planning :} Minimum 1h/semaine de revue des logs DAG, sant\'e pipeline
+et m\'etriques de qualit\'e via l'interface web Airflow (port 8080).\\
+\textbf{Outils d'agr\'egation :} Airflow Web UI, table \texttt{extraction\_log},
+rapport de nettoyage JSON.
+
+\subsection{Supervision du projet (\competence{C6})}
+
+Outils de suivi : Airflow Web UI, table \texttt{extraction\_log}, Makefile
+standardis\'e. Indicateurs mis \`a jour tout au long du projet :
+enregistrements extraits/charg\'es/rejet\'es, pourcentage de compl\'etude
+par colonne, taux de succ\`es des DAG.
+
+
+% -----------------------------------------------------------
+\section{Planification et communication du projet}
+\label{sec:e3}
+{\small\evaluation{E3} | \competence{C5, C6, C7} |
+Livrable : simulation r\'eunion de lancement}
+
+\subsection{Roadmap projet (\competence{C5})}
+
+\begin{table}[H]
+\centering
+\caption{Roadmap projet en 6 phases}
+\label{tab:roadmap}
+\begin{tabularx}{\textwidth}{L{1cm} L{2cm} L{3cm} L{5cm} C{1.5cm}}
+\toprule
+\textbf{Phase} & \textbf{Dur\'ee} & \textbf{Livrables} & \textbf{Jalon} & \textbf{SP} \\
+\midrule
+1 & 2 sem. & Grilles, faisabilit\'e & Architecture valid\'ee & 21 \\
+2 & 3 sem. & 5 scripts extraction & Pipeline op\'erationnel & 24 \\
+3 & 2 sem. & BDD, API REST & API fonctionnelle & 21 \\
+4 & 2 sem. & Star schema, ETL & DW aliment\'e & 21 \\
+5 & 2 sem. & MinIO, m\'edaillon & Lake op\'erationnel & 16 \\
+6 & 1 sem. & Streamlit, tests & Plateforme pr\^ete & 13 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{M\'ethode de pond\'eration :} Story points Fibonacci via estimation
+d'\'equipe (poker planning).
+
+\subsection{Strat\'egie de communication (\competence{C7})}
+
+\begin{table}[H]
+\centering
+\caption{Plan de communication}
+\label{tab:comms}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{2cm} L{2cm} L{3.5cm}}
+\toprule
+\textbf{Communication} & \textbf{Audience} & \textbf{Format} & \textbf{Fr\'equence} & \textbf{Contenu} \\
+\midrule
+Kickoff sprint & Toutes parties & Pr\'esentation & Bi-hebdo & Objectifs sprint \\
+Mise \`a jour & Sponsor & Email & Hebdo & Jalons, blocages \\
+D\'emo technique & \'Equipe + nutri. & D\'emo live & Fin de phase & Fonctions, qualit\'e \\
+Doc API & D\'eveloppeurs & OpenAPI & Continue & Endpoints, auth \\
+Livraison finale & Jury & Oral + rapport & Fin projet & D\'emo compl\`ete \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% =============================================================
+% BLOC 2 : COLLECTE, STOCKAGE ET MISE A DISPOSITION
+% =============================================================
+\chapter{Bloc 2 --- Collecte, stockage et mise \`a disposition des donn\'ees}
+\label{ch:bloc2}
+
+% -----------------------------------------------------------
+\section{Scripts d'extraction (\competence{C8})}
+\label{sec:c8}
+{\small\evaluation{E4} | 5 scripts d'extraction depuis des sources h\'et\'erog\`enes}
+
+Tous les scripts d'extraction suivent une structure coh\'erente : point
+d'entr\'ee (\texttt{main()}), initialisation des d\'ependances, configuration
+de la connexion externe, r\`egles de logique m\'etier, gestion d'erreurs,
+et sauvegarde des r\'esultats. Tous sont versionn\'es sur Git.
+
+\subsection{Source 1 : API REST}
+
+\textbf{Fichier :} \texttt{scripts/extract\_off\_api.py}
+
+\begin{lstlisting}[language=Python, caption={Extraction API REST --- Open Food Facts}]
+def extract_products_by_category(
+    category: str, max_pages: int = 10, page_size: int = 50
+) -> list[dict]:
+    all_products = []
+    for page in range(1, max_pages + 1):
+        products = search_products(category, page=page,
+                                   page_size=page_size)
+        if not products:
+            break
+        all_products.extend(products)
+        time.sleep(0.6)  # Rate limiting
+    return all_products
+\end{lstlisting}
+
+\subsection{Source 2 : Fichier Parquet + DuckDB}
+
+\textbf{Fichier :} \texttt{scripts/extract\_off\_parquet.py}\\
+R\'esultat : 50\,000 produits fran\c{c}ais extraits en $\sim$8 secondes
+depuis un fichier Parquet de 4,1~Go.
+
+\begin{lstlisting}[language=SQL, caption={Requ\^ete DuckDB --- Extraction Parquet avec structures imbriqu\'ees}]
+SELECT
+    code AS barcode, product_name,
+    (SELECT n.per_100g FROM UNNEST(nutriments) n
+     WHERE n.name = 'energy-kcal') AS energy_kcal,
+    (SELECT n.per_100g FROM UNNEST(nutriments) n
+     WHERE n.name = 'proteins') AS proteins_g,
+    nutriscore_grade, nova_group
+FROM read_parquet('food.parquet')
+WHERE code IS NOT NULL
+  AND list_contains(countries_tags, 'en:france')
+ORDER BY completeness DESC LIMIT 50000;
+\end{lstlisting}
+
+\subsection{Source 3 : Web Scraping}
+
+\textbf{Fichier :} \texttt{scripts/extract\_scraping.py}\\
+Extraction BeautifulSoup des tables HTML de l'ANSES et l'EFSA avec
+fallback vers les valeurs de r\'ef\'erence du R\`eglement UE~1169/2011.
+
+\subsection{Source 4 : Base de donn\'ees PostgreSQL}
+
+\textbf{Fichier :} \texttt{scripts/extract\_from\_db.py}\\
+Extraction des produits avec jointures marques et cat\'egories depuis le
+sch\'ema op\'erationnel, sortie en Parquet et CSV.
+
+\subsection{Source 5 : Syst\`eme big data (DuckDB Analytics)}
+
+\textbf{Fichier :} \texttt{scripts/extract\_duckdb.py}\\
+Requ\^etes analytiques complexes sur le dataset complet de 3M+ produits,
+incluant la distribution Nutri-Score par pays.
+
+
+% -----------------------------------------------------------
+\section{Requ\^etes SQL (\competence{C9})}
+\label{sec:c9}
+
+\textbf{Fichier :} \texttt{sql/queries/analytical\_queries.sql} (7 requ\^etes)
+
+\begin{lstlisting}[language=SQL, caption={Requ\^ete 2 --- Recherche plein texte avec filtre Nutri-Score}]
+SELECT p.barcode, p.product_name, b.brand_name,
+       p.nutriscore_grade,
+       ts_rank(to_tsvector('french', p.product_name),
+               plainto_tsquery('french', 'chocolat noir'))
+               AS relevance
+FROM app.products p
+LEFT JOIN app.brands b ON p.brand_id = b.brand_id
+WHERE to_tsvector('french', p.product_name)
+      @@ plainto_tsquery('french', 'chocolat noir')
+  AND p.nutriscore_grade IN ('A', 'B', 'C')
+ORDER BY relevance DESC LIMIT 20;
+\end{lstlisting}
+
+\textbf{Optimisation :} Index GIN sur \texttt{to\_tsvector('french',
+product\_name)} pour une recherche sub-seconde sur 100\,000+ produits.
+
+
+% -----------------------------------------------------------
+\section{Pipeline d'agr\'egation et nettoyage (\competence{C10})}
+\label{sec:c10}
+
+\textbf{Fichier :} \texttt{scripts/aggregate\_clean.py}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.5cm,
+  step/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=6cm, minimum height=0.7cm,
+    font=\scriptsize, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+\node[step] (s1) {Standardiser colonnes (30+ mappings)};
+\node[step, below=of s1] (s2) {Nettoyer codes-barres (8--14 chiffres)};
+\node[step, below=of s2] (s3) {Nettoyer texte (normaliser, supprimer caract\`eres de contr\^ole)};
+\node[step, below=of s3] (s4) {Supprimer entr\'ees sans product\_name};
+\node[step, below=of s4] (s5) {Convertir kJ $\rightarrow$ kcal si kcal manquant};
+\node[step, below=of s5] (s6) {Valider plages num\'eriques (\'energie $\leq$ 1000, etc.)};
+\node[step, below=of s6] (s7) {Normaliser Nutri-Score (A--E) et NOVA (1--4)};
+\node[step, below=of s7] (s8) {D\'edupliquer par barcode (garder le plus complet)};
+
+\foreach \i/\j in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6, s6/s7, s7/s8} {
+  \draw[arr] (\i) -- (\j);
+}
+
+% Input/output labels
+\node[font=\scriptsize\bfseries\color{ntgreen}, above=0.3cm of s1]
+  {50\,000 produits bruts (5 sources)};
+\node[font=\scriptsize\bfseries\color{ntgreen}, below=0.3cm of s8]
+  {49\,955 produits propres (99,9\,\% r\'etention)};
+\end{tikzpicture}
+\caption{Pipeline de nettoyage des donn\'ees}
+\label{fig:cleaning-pipeline}
+\end{figure}
+
+
+% -----------------------------------------------------------
+\section{Mod\'elisation de la base de donn\'ees et \rgpd{} (\competence{C11})}
+\label{sec:c11}
+
+\subsection{Mod\`ele conceptuel de donn\'ees (MCD)}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  entity/.style={
+    rectangle, draw=ntblue, fill=ntlightblue!20,
+    minimum width=2.8cm, minimum height=1.5cm,
+    font=\small\bfseries, align=center
+  },
+  rel/.style={
+    diamond, draw=ntorange, fill=ntorange!15,
+    minimum width=1cm, minimum height=0.8cm,
+    font=\tiny, aspect=2
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+  card/.style={font=\tiny\color{ntgray}, midway},
+]
+
+\node[entity] (brand) {MARQUE\\{\tiny brand\_id}\\{\tiny brand\_name}};
+\node[entity, right=3.5cm of brand] (product) {PRODUIT\\{\tiny barcode}\\{\tiny nutrition, scores}};
+\node[entity, right=3.5cm of product] (cat) {CAT\'EGORIE\\{\tiny category\_id}\\{\tiny name, parent}};
+
+\node[entity, below=2.5cm of product] (mealitem) {\'EL\'EMENT\\REPAS\\{\tiny quantit\'e}};
+\node[entity, below=2.5cm of mealitem] (meal) {REPAS\\{\tiny type, date}};
+\node[entity, right=3.5cm of meal] (user) {UTILISATEUR\\{\tiny UUID, email}\\{\tiny r\^ole, consentement}};
+
+% Relations
+\draw[arr] (brand) -- node[card, above] {1,N} (product);
+\draw[arr] (product) -- node[card, above] {N,1} (cat);
+\draw[arr] (product) -- node[card, right] {1,N} (mealitem);
+\draw[arr] (mealitem) -- node[card, right] {N,1} (meal);
+\draw[arr] (meal) -- node[card, above] {N,1} (user);
+
+\end{tikzpicture}
+\caption{Mod\`ele conceptuel de donn\'ees (MCD)}
+\label{fig:mcd}
+\end{figure}
+
+\subsection{Mod\`ele physique de donn\'ees (MPD)}
+
+\textbf{Fichier :} \texttt{sql/init/01\_schema\_operational.sql} (279 lignes)
+
+Choix physiques cl\'es :
+\begin{itemize}[nosep]
+  \item \textbf{UUID} pour user\_id (anonymisation, conformit\'e \rgpd{})
+  \item \textbf{Index GIN} sur \texttt{to\_tsvector('french', product\_name)}
+  \item \textbf{Index composite} sur \texttt{(user\_id, meal\_date)}
+  \item \textbf{Contraintes CHECK} sur role, activity\_level, nova\_group
+  \item \textbf{CASCADE} sur users $\rightarrow$ meals $\rightarrow$ meal\_items
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{API REST (\competence{C12})}
+\label{sec:c12}
+
+\begin{table}[H]
+\centering
+\caption{Endpoints API REST --- Documentation}
+\label{tab:api}
+\begin{tabularx}{\textwidth}{C{1cm} L{4cm} C{1.5cm} L{5.5cm}}
+\toprule
+\textbf{M\'eth.} & \textbf{Endpoint} & \textbf{Auth} & \textbf{Description} \\
+\midrule
+POST & /api/v1/auth/register & --- & Cr\'eer un compte utilisateur \\
+POST & /api/v1/auth/login & --- & Authentifier l'utilisateur \\
+GET & /api/v1/auth/me & Bearer & Profil utilisateur courant \\
+GET & /api/v1/products/\{barcode\} & Bearer & Produit par code-barres \\
+GET & /api/v1/products/?q=\ldots & Bearer & Recherche produits \\
+GET & /api/v1/products/\{barcode\}/alternatives & Bearer & Alternatives plus saines \\
+POST & /api/v1/meals/ & Bearer & Enregistrer un repas \\
+GET & /api/v1/meals/daily-summary & Bearer & R\'esum\'e nutritionnel du jour \\
+GET & /api/v1/meals/weekly-trends & Bearer & Tendances hebdomadaires \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Documentation auto-g\'en\'er\'ee : \texttt{/docs} (Swagger UI), \texttt{/redoc}
+(ReDoc), \texttt{/api/v1/openapi.json} (sch\'ema machine).
+
+
+% =============================================================
+% BLOC 3 : ENTREPOT DE DONNEES
+% =============================================================
+\chapter{Bloc 3 --- \'Elaborer et maintenir un entrep\^ot de donn\'ees}
+\label{ch:bloc3}
+
+% -----------------------------------------------------------
+\section{Mod\'elisation en sch\'ema en \'etoile (\competence{C13})}
+\label{sec:c13}
+{\small\evaluation{E5} | Sch\'ema en \'etoile : dimensions et faits}
+
+\subsection{Approche : Bottom-up (Kimball)}
+
+L'approche bottom-up a \'et\'e choisie car : (1)~les questions analytiques
+\'etaient identifi\'ees en amont, (2)~livraison de valeur plus rapide
+via les datamarts, (3)~le sch\'ema op\'erationnel est bien d\'efini,
+et (4)~extensibilit\'e incr\'ementale sans restructuration.
+
+\subsection{Diagramme du sch\'ema en \'etoile}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  dim/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=3cm, minimum height=2cm,
+    font=\scriptsize, align=left, inner sep=5pt
+  },
+  fact/.style={
+    rectangle, rounded corners=3pt, draw=ntgreen!80!black,
+    fill=ntlightgreen!30, minimum width=3.5cm, minimum height=2.5cm,
+    font=\scriptsize, align=left, inner sep=5pt
+  },
+  arr/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
+]
+
+% Fact table (center)
+\node[fact] (fact) {
+  \textbf{fact\_daily\_nutrition}\\[2pt]
+  daily\_nutrition\_id PK\\
+  user\_key FK\\
+  time\_key FK\\
+  product\_key FK\\
+  category\_key FK\\
+  brand\_key FK\\[2pt]
+  \textit{meal\_type}\\
+  \textit{quantity\_g}\\
+  \textit{energy\_kcal}\\
+  \textit{fat\_g, proteins\_g}\\
+  \textit{nutriscore\_score}
+};
+
+% Dimensions
+\node[dim, above left=1.5cm and 2.5cm of fact] (dimtime) {
+  \textbf{dim\_time}\\[2pt]
+  time\_key PK\\
+  full\_date\\
+  day\_of\_week\\
+  month, quarter\\
+  year, is\_weekend
+};
+
+\node[dim, above right=1.5cm and 2.5cm of fact] (dimuser) {
+  \textbf{dim\_user} {\tiny\color{ntred}[SCD2]}\\[2pt]
+  user\_key PK\\
+  user\_hash (SHA256)\\
+  age\_group\\
+  dietary\_goal\\
+  effective\_date\\
+  is\_current
+};
+
+\node[dim, left=2.5cm of fact] (dimbrand) {
+  \textbf{dim\_brand} {\tiny\color{ntorange}[SCD1]}\\[2pt]
+  brand\_key PK\\
+  brand\_name\\
+  parent\_company\\
+  last\_updated
+};
+
+\node[dim, right=2.5cm of fact] (dimcat) {
+  \textbf{dim\_category}\\[2pt]
+  category\_key PK\\
+  category\_name\\
+  parent\_category\\
+  category\_level
+};
+
+\node[dim, below left=1.5cm and 2.5cm of fact] (dimproduct) {
+  \textbf{dim\_product} {\tiny\color{ntred}[SCD2]}\\[2pt]
+  product\_key PK\\
+  barcode\\
+  product\_name\\
+  ingredients\_text\\
+  effective\_date\\
+  end\_date, is\_current
+};
+
+\node[dim, below right=1.5cm and 2.5cm of fact] (dimns) {
+  \textbf{dim\_nutriscore}\\[2pt]
+  nutriscore\_key PK\\
+  grade (A--E)\\
+  description\\
+  color\_code\\
+  score\_range
+};
+
+% Arrows
+\draw[arr] (dimtime) -- (fact);
+\draw[arr] (dimuser) -- (fact);
+\draw[arr] (dimbrand) -- (fact);
+\draw[arr] (dimcat) -- (fact);
+\draw[arr] (dimproduct) -- (fact);
+\draw[arr] (dimns) -- (fact);
+
+\end{tikzpicture}
+\caption{Sch\'ema en \'etoile --- fact\_daily\_nutrition avec 6 dimensions}
+\label{fig:star-schema}
+\end{figure}
+
+\subsection{Tables de dimensions et de faits}
+
+\begin{table}[H]
+\centering
+\caption{Dimensions du data warehouse}
+\label{tab:dimensions}
+\begin{tabularx}{\textwidth}{L{2.5cm} C{1.5cm} C{1.2cm} L{6.5cm}}
+\toprule
+\textbf{Dimension} & \textbf{SCD} & \textbf{Lignes} & \textbf{Description} \\
+\midrule
+dim\_time & --- & 4\,018 & Dimension temporelle pr\'e-remplie (2020--2030) \\
+dim\_product & Type 2 & $\sim$50K & Attributs produit avec historique \\
+dim\_brand & Type 1 & $\sim$15K & Marques (correction par \'ecrasement) \\
+dim\_category & --- & $\sim$2K & Hi\'erarchie cat\'egories \\
+dim\_country & Type 3 & Ref. & Pays avec suivi d'expansion \\
+dim\_user & Type 2 & $\sim$1K & Profils anonymis\'es (SHA256) \\
+dim\_nutriscore & --- & 5 & R\'ef\'erentiel Nutri-Score (A--E) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Tables de faits}
+\label{tab:facts}
+\begin{tabularx}{\textwidth}{L{3.5cm} L{4cm} L{5.5cm}}
+\toprule
+\textbf{Table de faits} & \textbf{Grain} & \textbf{Mesures} \\
+\midrule
+fact\_daily\_nutrition & 1 ligne / user + jour + produit & quantity, energy, fat, proteins, carbs, fiber, salt, nutriscore, nova \\
+fact\_product\_market & 1 ligne / produit + snapshot & nutriscore, nova, ecoscore, completeness, valeurs nutrition/100g \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{Impl\'ementation du data warehouse (\competence{C14})}
+\label{sec:c14}
+{\small\evaluation{E5} | Cr\'eation et configuration du DW}
+
+\textbf{Fichier :} \texttt{sql/init/02\_schema\_warehouse.sql} (360 lignes)
+
+Le DW est impl\'ement\'e comme un sch\'ema s\'epar\'e (\texttt{dw}) dans la
+m\^eme instance PostgreSQL~16, cr\'e\'e automatiquement lors de l'initialisation
+Docker Compose. Six vues analytiques (datamarts) sont cr\'e\'ees pour
+l'acc\`es analyste : \texttt{dm\_user\_daily\_nutrition},
+\texttt{dm\_product\_market\_by\_category},
+\texttt{dm\_brand\_quality\_ranking},
+\texttt{dm\_nutriscore\_distribution},
+\texttt{dm\_nutrition\_trends},
+\texttt{dm\_dw\_health}.
+
+\textbf{Acc\`es analyste via Superset :} Superset 6.0.1 se connecte au DW
+via un r\^ole PostgreSQL \texttt{superset} en lecture seule sur \texttt{dw.*}.
+Trois tableaux de bord fournissent des analyses en self-service.
+
+\subsection{Proc\'edure de test}
+
+\begin{table}[H]
+\centering
+\caption{Proc\'edure de test du data warehouse}
+\label{tab:test-dw}
+\begin{tabularx}{\textwidth}{L{3cm} L{2cm} L{7.5cm}}
+\toprule
+\textbf{Test} & \textbf{Port\'ee} & \textbf{V\'erification} \\
+\midrule
+Cr\'eation sch\'ema & Technique & Tables, index, vues cr\'e\'es sans erreur \\
+Population dimensions & Fonctionnel & dim\_time = 4\,018 lignes ; dim\_nutriscore = 5 lignes (A--E) \\
+SCD Type 2 & Fonctionnel & MAJ produit cr\'ee nouvelle ligne \texttt{is\_current=TRUE}, ferme l'ancienne \\
+SCD Type 1 & Fonctionnel & Correction marque \'ecrase sur place, met \`a jour \texttt{last\_updated} \\
+Chargement faits & Fonctionnel & FK valides vers dimensions ; pas de cl\'es orphelines \\
+Vues datamarts & Fonctionnel & Vues retournent des r\'esultats ; \texttt{nutritionist\_role} peut SELECT \\
+Contr\^ole d'acc\`es & S\'ecurit\'e & \texttt{app\_readonly} ne peut pas acc\'eder au sch\'ema \texttt{dw} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Retour d'exp\'erience sur la pile technique}
+
+\begin{table}[H]
+\centering
+\caption{Retour d'exp\'erience --- Pile technique du DW}
+\label{tab:tech-feedback}
+\begin{tabularx}{\textwidth}{L{2.8cm} L{3cm} L{3.5cm} L{3.5cm}}
+\toprule
+\textbf{Technologie} & \textbf{Coh\'erence projet} & \textbf{Avantages} & \textbf{Difficult\'es} \\
+\midrule
+PostgreSQL (OLTP+OLAP) & Bonne \`a petite \'echelle & Instance unique, d\'eploiement simple & S\'eparation n\'ecessaire \`a grande \'echelle \\
+Airflow pour ETL & Standard industriel & Web UI, retries, gestion d\'ependances & Setup complexe (Celery, Redis, init) \\
+ETL SQL (pas Spark) & Adapt\'e au volume & Simple, d\'eboguable & Traitement parall\`ele limit\'e \\
+Isolation sch\'emas & S\'eparation propre & Pas de contamination op/analytique & Requ\^etes cross-sch\'ema dans l'ETL \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{Pipelines ETL (\competence{C15})}
+\label{sec:c15}
+{\small\evaluation{E5} | ETL pour l'alimentation du data warehouse}
+
+\subsection{Workflow ETL}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  task/.style={
+    rectangle, rounded corners=3pt, draw=ntorange, fill=ntorange!15,
+    minimum width=3.2cm, minimum height=0.8cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  arr/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
+]
+
+% Dimension tasks (parallel)
+\node[task] (brands) {load\_dim\_brands\\{\tiny SCD Type 1}};
+\node[task, right=0.4cm of brands] (cats) {load\_dim\_categories};
+\node[task, right=0.4cm of cats] (prods) {load\_dim\_products\\{\tiny SCD Type 2}};
+\node[task, right=0.4cm of prods] (users) {load\_dim\_users\\{\tiny SCD Type 2}};
+
+% Fact tasks
+\node[task, below=1.5cm of $(brands)!0.5!(cats)$, fill=ntlightgreen!40, draw=ntgreen] (factmarket) {load\_fact\_product\_market};
+\node[task, below=1.5cm of $(prods)!0.5!(users)$, fill=ntlightgreen!40, draw=ntgreen] (factnutri) {load\_fact\_daily\_nutrition};
+
+% Arrows
+\draw[arr] (brands) -- (factmarket);
+\draw[arr] (cats) -- (factmarket);
+\draw[arr] (prods) -- (factmarket);
+\draw[arr] (prods) -- (factnutri);
+\draw[arr] (users) -- (factnutri);
+\draw[arr] (cats) -- (factnutri);
+\draw[arr] (brands) -- (factnutri);
+
+% Labels
+\node[font=\scriptsize\color{ntgray}, above=0.3cm of $(cats)!0.5!(prods)$]
+  {Dimensions (parall\`ele)};
+\node[font=\scriptsize\color{ntgray}, below=0.3cm of $(factmarket)!0.5!(factnutri)$]
+  {Faits (apr\`es dimensions)};
+\end{tikzpicture}
+\caption{D\'ependances du DAG ETL --- \texttt{etl\_load\_warehouse}}
+\label{fig:etl-dag}
+\end{figure}
+
+
+% -----------------------------------------------------------
+\section{Maintenance et monitoring du DW (\competence{C16})}
+\label{sec:c16}
+{\small\evaluation{E6} | Administration et supervision}
+
+\begin{table}[H]
+\centering
+\caption{Indicateurs de niveau de service (SLA)}
+\label{tab:sla}
+\begin{tabularx}{\textwidth}{L{4cm} C{2cm} L{6.5cm}}
+\toprule
+\textbf{Indicateur} & \textbf{Cible} & \textbf{Mesure} \\
+\midrule
+Taux de succ\`es ETL & $>$~95\,\% & Historique des runs DAG Airflow \\
+Fra\^icheur des donn\'ees & $<$~24h & Timestamp du dernier run r\'eussi \\
+Temps de r\'eponse DW & $<$~5s & EXPLAIN ANALYZE sur vues datamarts \\
+Taux de succ\`es backup & 100\,\% & Entr\'ees log de sauvegarde \\
+Compl\'etude des donn\'ees & $>$~80\,\% & Statistiques du rapport de nettoyage \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Syst\`eme d'alerte :} DAG Airflow configur\'es avec
+\texttt{email\_on\_failure: True} vers \texttt{admin@nutritrack.local}.
+
+\textbf{Proc\'edures de sauvegarde :} \texttt{make backup} (compl\`ete) et
+\texttt{make backup-dw} (sch\'ema DW uniquement). Format
+\texttt{pg\_dump --format=custom --compress=6}, upload optionnel vers MinIO.
+
+
+% -----------------------------------------------------------
+\section{Variations dimensionnelles SCD (\competence{C17})}
+\label{sec:c17}
+{\small\evaluation{E6} | Kimball Type 1, 2, 3}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  scd/.style={
+    rectangle, rounded corners=5pt, draw=#1, fill=#1!10,
+    minimum width=4.5cm, minimum height=2.5cm,
+    font=\scriptsize, align=left, inner sep=8pt
+  },
+  title/.style={font=\small\bfseries\color{#1}},
+]
+
+% SCD Type 1
+\node[scd=ntorange] (scd1) at (0,0) {
+  \textbf{\color{ntorange}SCD Type 1 : \'Ecrasement}\\[3pt]
+  \textbf{Cas :} Correction nom de marque\\
+  \textbf{Table :} dim\_brand\\
+  \textbf{Action :} UPDATE direct\\
+  \textbf{Historique :} Non conserv\'e\\[2pt]
+  {\tiny \texttt{SET brand\_name = p\_new}}\\
+  {\tiny \texttt{SET last\_updated = NOW()}}
+};
+
+% SCD Type 2
+\node[scd=ntred, right=0.8cm of scd1] (scd2) {
+  \textbf{\color{ntred}SCD Type 2 : Historique}\\[3pt]
+  \textbf{Cas :} Reformulation produit\\
+  \textbf{Table :} dim\_product, dim\_user\\
+  \textbf{Action :} Fermer ancien + ins\'erer\\
+  \textbf{Historique :} Complet\\[2pt]
+  {\tiny \texttt{end\_date, is\_current}}\\
+  {\tiny \texttt{effective\_date}}
+};
+
+% SCD Type 3
+\node[scd=ntblue, right=0.8cm of scd2] (scd3) {
+  \textbf{\color{ntblue}SCD Type 3 : Colonne}\\[3pt]
+  \textbf{Cas :} Expansion pays\\
+  \textbf{Table :} dim\_country\\
+  \textbf{Action :} Stocker pr\'ec\'edent\\
+  \textbf{Historique :} 1 version ant\'erieure\\[2pt]
+  {\tiny \texttt{previous\_country\_list}}\\
+  {\tiny \texttt{= ancien country\_name}}
+};
+
+\end{tikzpicture}
+\caption{Les trois types de Slowly Changing Dimensions impl\'ement\'es}
+\label{fig:scd-types}
+\end{figure}
+
+
+% =============================================================
+% BLOC 4 : DATA LAKE
+% =============================================================
+\chapter{Bloc 4 --- Data Lake}
+\label{ch:bloc4}
+
+% -----------------------------------------------------------
+\section{Architecture du data lake (\competence{C18})}
+\label{sec:c18}
+{\small\evaluation{E7} | Conception de l'architecture}
+
+\subsection{Architecture m\'edaillon}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  layer/.style={
+    rectangle, rounded corners=8pt, draw=#1!80!black, fill=#1!20,
+    minimum width=4cm, minimum height=3.5cm,
+    font=\small, align=center, inner sep=10pt
+  },
+  arr/.style={-{Stealth[length=6pt]}, very thick, color=ntgray},
+  content/.style={font=\tiny, align=left, text=ntgray},
+]
+
+% Bronze
+\node[layer=bronze] (br) {};
+\node[font=\bfseries\color{bronze!80!black}, anchor=north] at (br.north)
+  {BRONZE};
+\node[content, anchor=center] at (br.center) {
+  api/\{ds\}/*.json\\
+  parquet/\{ds\}/*.parquet\\
+  scraping/\{ds\}/*.json\\
+  duckdb/\{ds\}/*.parquet\\[3pt]
+  \_manifests/\{ds\}.json\\[3pt]
+  \textit{Donn\'ees brutes}\\
+  \textit{R\'etention : 90 jours}
+};
+
+% Silver
+\node[layer=silver, right=1.5cm of br] (sv) {};
+\node[font=\bfseries\color{ntgray}, anchor=north] at (sv.north) {SILVER};
+\node[content, anchor=center] at (sv.center) {
+  products/\{ds\}/\\
+  \quad products\_cleaned.parquet\\[3pt]
+  \_reports/\\
+  \quad cleaning\_report.json\\[5pt]
+  \textit{Donn\'ees nettoy\'ees}\\
+  \textit{R\'etention : 1 an}
+};
+
+% Gold
+\node[layer=gold, right=1.5cm of sv] (gd) {};
+\node[font=\bfseries\color{gold!80!black}, anchor=north] at (gd.north)
+  {GOLD};
+\node[content, anchor=center] at (gd.center) {
+  analytics/\{ds\}/\\
+  \quad nutriscore\_dist.parquet\\
+  \quad category\_stats.parquet\\
+  \quad brand\_ranking.parquet\\[3pt]
+  \textit{Donn\'ees analytiques}\\
+  \textit{R\'etention : ind\'efinie}
+};
+
+% Arrows
+\draw[arr] (br) -- (sv);
+\draw[arr] (sv) -- (gd);
+
+% Labels
+\node[font=\tiny\color{ntgray}, above=0.1cm of $(br)!0.5!(sv)$] {Nettoyage};
+\node[font=\tiny\color{ntgray}, above=0.1cm of $(sv)!0.5!(gd)$] {Agr\'egation};
+
+% MinIO label
+\node[font=\footnotesize\bfseries\color{ntgray},
+      above=0.8cm of sv] {MinIO (S3-compatible) --- Architecture M\'edaillon};
+
+\end{tikzpicture}
+\caption{Architecture m\'edaillon du data lake (Bronze / Silver / Gold)}
+\label{fig:medallion}
+\end{figure}
+
+\subsection{Adressage des 3~V}
+
+\begin{table}[H]
+\centering
+\caption{Contraintes Volume, V\'elocit\'e, Vari\'et\'e et solutions}
+\label{tab:3v}
+\begin{tabularx}{\textwidth}{C{1.5cm} L{4cm} L{7.5cm}}
+\toprule
+\textbf{V} & \textbf{D\'efi} & \textbf{Solution} \\
+\midrule
+Volume & 3M+ produits ($\sim$5\,Go Parquet) & DuckDB lit le Parquet sans chargement m\'emoire ; MinIO scalable au p\'etaoctet \\
+Vari\'et\'e & JSON, Parquet, CSV, SQL & Bronze stocke les formats bruts ; Silver normalise en Parquet unifi\'e \\
+V\'elocit\'e & MAJ quotidiennes API, bulk hebdo & DAGs Airflow planifi\'es ; Bronze conserve les snapshots par \{ds\}/ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Comparaison des outils de catalogue}
+
+\begin{table}[H]
+\centering
+\caption{Comparaison et choix de l'outil de catalogue}
+\label{tab:catalog-compare}
+\begin{tabularx}{\textwidth}{L{2.5cm} C{2.5cm} C{2.5cm} C{3.5cm}}
+\toprule
+\textbf{Crit\`ere} & \textbf{Apache Atlas} & \textbf{DataHub} & \textbf{Catalogue JSON} \\
+\midrule
+Complexit\'e & \'Elev\'ee & Moyenne & \textbf{Faible} \\
+Temps de mise en place & Jours & Heures & \textbf{Minutes} \\
+Int\'egration & Hadoop & REST API & \textbf{MinIO natif} \\
+Co\^ut ressources & \'Elev\'e (JVM) & Moyen & \textbf{Minimal} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{S\'election :} Catalogue JSON personnalis\'e --- choisi pour son
+surco\^ut minimal, son int\'egration directe MinIO, et sa suffisance \`a
+l'\'echelle du projet.
+
+
+% -----------------------------------------------------------
+\section{Composants d'infrastructure (\competence{C19})}
+\label{sec:c19}
+{\small\evaluation{E7} | Installation et configuration}
+
+L'ensemble de l'infrastructure est d\'eployable en environnement de
+d\'eveloppement via Docker Compose :
+
+\begin{lstlisting}[language=bash, caption={D\'eploiement de l'infrastructure}]
+# Demarrage complet de la plateforme
+docker compose up -d
+
+# Verification de la sante des services
+docker compose ps
+# Resultat attendu : 14 services en cours d'execution
+
+# Commandes Makefile pour les tests
+make up            # Demarrer tous les services
+make pipeline      # Lancer extraction -> nettoyage -> import
+make setup-lake    # Initialiser les buckets MinIO
+make lake-status   # Verifier l'etat du stockage
+\end{lstlisting}
+
+
+% -----------------------------------------------------------
+\section{Gestion du catalogue de donn\'ees (\competence{C20})}
+\label{sec:c20}
+{\small\evaluation{E7} | Catalogue, cycle de vie et monitoring}
+
+Le catalogue de donn\'ees est stock\'e sous forme de
+\texttt{\_catalog/metadata.json} dans chaque bucket MinIO, mis \`a jour
+quotidiennement par le pipeline ETL. Il documente pour chaque dataset :
+description, format, fr\'equence de mise \`a jour, source, sch\'ema,
+propri\'etaire, qualit\'e et lin\'eage.
+
+\textbf{Suppression bas\'ee sur le cycle de vie :}
+\begin{itemize}[nosep]
+  \item Bronze \texttt{api/} et \texttt{scraping/} : expiration automatique
+        \`a 90 jours
+  \item Sauvegardes : expiration \`a 30 jours
+  \item Silver : r\'etention 1 an ; Gold : r\'etention ind\'efinie
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{Gouvernance des donn\'ees (\competence{C21})}
+\label{sec:c21}
+{\small\evaluation{E7} | R\`egles de gouvernance et contr\^ole d'acc\`es}
+
+\begin{table}[H]
+\centering
+\caption{Matrice des droits d'acc\`es par groupe}
+\label{tab:access-matrix}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{3.5cm} C{1.5cm} L{3cm}}
+\toprule
+\textbf{Groupe} & \textbf{R\^ole PG} & \textbf{Politique MinIO} & \textbf{R\^ole API} & \textbf{Description} \\
+\midrule
+Utilisateurs & app\_readonly & gold: lecture & user & Recherche, repas \\
+Nutritionnistes & nutritionist\_role & silver+gold: lecture & nutritionist & Donn\'ees nettoy\'ees \\
+Administrateurs & admin\_role & tout: \'ecriture & admin & Acc\`es complet \\
+Service ETL & etl\_service & bronze/silver/gold: \'ecr. & --- & Pipeline auto. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Principes :}
+\begin{itemize}[nosep]
+  \item Droits appliqu\'es aux groupes (pas aux individus) quand possible
+  \item Acc\`es limit\'e aux ressources n\'ecessaires par groupe
+  \item Aucune donn\'ee personnelle dans le data lake
+  \item Bucket gold en lecture publique pour analyses anonymes
+\end{itemize}
+
+
+% =============================================================
+% CONCLUSION
+% =============================================================
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+\section{Plan de d\'emonstration}
+
+La d\'emonstration live suit le d\'eroulement suivant (32~minutes) :
+
+\begin{table}[H]
+\centering
+\caption{Plan de d\'emonstration live}
+\label{tab:demo-plan}
+\begin{tabularx}{\textwidth}{C{1cm} C{1.5cm} L{9.5cm}}
+\toprule
+\textbf{\'Etape} & \textbf{Dur\'ee} & \textbf{D\'emonstration} \\
+\midrule
+1 & 3 min & Lancement \texttt{docker compose up -d}, v\'erification des 14 services \\
+2 & 5 min & Ex\'ecution pipeline complet : extraction $\rightarrow$ nettoyage $\rightarrow$ import \\
+3 & 3 min & Interface Airflow : historique DAGs, logs, d\'ependances \\
+4 & 3 min & PostgreSQL : sch\'ema \texttt{app}, requ\^etes SQL, index GIN \\
+5 & 4 min & API REST : Swagger UI, enregistrement, login JWT, recherche, alternatives \\
+6 & 3 min & Streamlit : recherche produit, saisie repas, r\'esum\'e nutritionnel \\
+7 & 3 min & Data warehouse : sch\'ema \texttt{dw}, star schema, vues datamarts \\
+8 & 3 min & SCD : simulation reformulation produit (Type~2), correction marque (Type~1) \\
+9 & 3 min & MinIO Console : buckets bronze/silver/gold, catalogue, cycle de vie \\
+10 & 2 min & Gouvernance : matrice d'acc\`es, politiques MinIO, \rgpd{} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\section{Matrice de v\'erification comp\'etences-artefacts}
+
+\begin{longtable}{C{1cm} C{1cm} L{5cm} L{5cm}}
+\toprule
+\textbf{Comp.} & \textbf{\'Eval.} & \textbf{Artefacts} & \textbf{Section} \\
+\midrule
+\endhead
+C1 & E1, E2 & Grilles d'entretien, note de synth\`ese & \S\ref{sec:e1}, \S\ref{sec:e2} \\
+C2 & E2 & Topographie (4 parties), matrice des flux & \S\ref{sec:e2} \\
+C3 & E2 & \'Etude architecture, Docker Compose & \S\ref{sec:e2} \\
+C4 & E2 & Monitoring Airflow, extraction\_log & \S\ref{sec:e2} \\
+C5 & E3 & Roadmap, calendrier, pond\'eration & \S\ref{sec:e3} \\
+C6 & E2, E3 & Makefile, Airflow UI, indicateurs & \S\ref{sec:e2}, \S\ref{sec:e3} \\
+C7 & E3 & Strat\'egie communication, Swagger docs & \S\ref{sec:e3} \\
+C8 & E4 & 5 scripts extraction (API, Parquet, scraping, BDD, DuckDB) & \S\ref{sec:c8} \\
+C9 & E4 & 7 requ\^etes SQL avec optimisations & \S\ref{sec:c9} \\
+C10 & E4 & aggregate\_clean.py, rapport qualit\'e & \S\ref{sec:c10} \\
+C11 & E4 & MCD/MLD/MPD, registre \rgpd{}, import & \S\ref{sec:c11} \\
+C12 & E4 & API FastAPI, JWT, docs OpenAPI & \S\ref{sec:c12} \\
+C13 & E5 & Sch\'ema en \'etoile (2 faits, 7 dimensions) & \S\ref{sec:c13} \\
+C14 & E5 & Cr\'eation DW, config acc\`es, tests & \S\ref{sec:c14} \\
+C15 & E5 & 6 DAGs Airflow, logique ETL & \S\ref{sec:c15} \\
+C16 & E6 & Logging, alertes, sauvegardes & \S\ref{sec:c16} \\
+C17 & E6 & Proc\'edures SCD Type 1/2/3 & \S\ref{sec:c17} \\
+C18 & E7 & Architecture m\'edaillon, 3V, comparaison catalogue & \S\ref{sec:c18} \\
+C19 & E7 & Docker Compose, MinIO, Airflow & \S\ref{sec:c19} \\
+C20 & E7 & Catalogue, lifecycle, monitoring & \S\ref{sec:c20} \\
+C21 & E7 & RBAC, politiques groupes, \rgpd{} & \S\ref{sec:c21} \\
+\bottomrule
+\end{longtable}
+
+
+\section{Le\c{c}ons apprises}
+
+\begin{enumerate}[nosep]
+  \item \textbf{PostgreSQL unique OLTP+OLAP} fonctionne \`a petite \'echelle
+        gr\^ace \`a l'isolation de sch\'emas, mais n\'ecessiterait une
+        s\'eparation \`a plus grande \'echelle.
+  \item \textbf{DuckDB} est remarquablement efficace pour l'analytique
+        big data sans infrastructure d\'edi\'ee.
+  \item \textbf{CeleryExecutor d'Airflow} ajoute de la complexit\'e mais
+        permet le parall\'elisme ETL.
+  \item \textbf{SCD Type~2} requiert une logique \texttt{IS DISTINCT FROM}
+        soigneuse pour les valeurs NULL.
+  \item La \textbf{conformit\'e \rgpd{}} doit \^etre con\c{c}ue d\`es le
+        d\'epart, pas ajout\'ee a posteriori.
+\end{enumerate}
+
+
+\section{Am\'eliorations futures}
+
+\begin{itemize}[nosep]
+  \item S\'eparation OLTP/OLAP avec un moteur analytique d\'edi\'e
+        (ClickHouse, Redshift)
+  \item Migration vers un catalogue de donn\'ees complet (DataHub)
+  \item Impl\'ementation de tests de qualit\'e avec Great Expectations
+  \item Pipeline CI/CD pour les DAGs Airflow
+  \item Monitoring avanc\'e avec Grafana et alerting PagerDuty
+  \item Streaming en temps r\'eel avec Apache Kafka
+\end{itemize}
+
+
+% =============================================================
+% BIBLIOGRAPHIE
+% =============================================================
+\begin{thebibliography}{99}
+
+\bibitem{off}
+Open Food Facts.
+\textit{Open Food Facts --- The free food products database}.
+\url{https://world.openfoodfacts.org/}, 2024.
+
+\bibitem{kimball}
+R.~Kimball et M.~Ross.
+\textit{The Data Warehouse Toolkit: The Definitive Guide to Dimensional
+Modeling}. 3\`eme \'edition, Wiley, 2013.
+
+\bibitem{eu1169}
+R\`eglement (UE) n\textdegree{} 1169/2011.
+\textit{Information des consommateurs sur les denr\'ees alimentaires}.
+Journal officiel de l'Union europ\'eenne, 2011.
+
+\bibitem{gdpr}
+R\`eglement (UE) 2016/679.
+\textit{R\`eglement g\'en\'eral sur la protection des donn\'ees (RGPD)}.
+Journal officiel de l'Union europ\'eenne, 2016.
+
+\bibitem{rgesn}
+Direction interminist\'erielle du num\'erique.
+\textit{R\'ef\'erentiel g\'en\'eral d'\'ecoconception de services num\'eriques
+(RGESN)}.
+\url{https://ecoresponsable.numerique.gouv.fr/publications/referentiel-general-ecoconception/}, 2024.
+
+\bibitem{airflow}
+Apache Software Foundation.
+\textit{Apache Airflow Documentation}.
+\url{https://airflow.apache.org/docs/}, 2024.
+
+\bibitem{fastapi}
+S.~Ram\'irez.
+\textit{FastAPI --- Modern, fast web framework for building APIs with Python}.
+\url{https://fastapi.tiangolo.com/}, 2024.
+
+\bibitem{duckdb}
+M.~Raasveldt et H.~M\"uhleisen.
+\textit{DuckDB: An Embeddable Analytical Database}.
+Proc. SIGMOD, 2019.
+
+\bibitem{minio}
+MinIO, Inc.
+\textit{MinIO --- High Performance Object Storage}.
+\url{https://min.io/}, 2024.
+
+\bibitem{anses}
+ANSES.
+\textit{Valeurs nutritionnelles de r\'ef\'erence}.
+\url{https://www.anses.fr/fr/content/les-references-nutritionnelles-en-vitamines-et-mineraux}, 2024.
+
+\end{thebibliography}
+
+
+\end{document}
