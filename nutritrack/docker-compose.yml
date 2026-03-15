@@ -296,8 +296,12 @@ services:
       - "8501:8501"
     environment:
       API_BASE_URL: http://fastapi:8000
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
     depends_on:
       - fastapi
+      - minio
     volumes:
       - ./app:/app/app
 
