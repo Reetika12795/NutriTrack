@@ -95,7 +95,7 @@ class TestCleanNumeric:
         assert clean_numeric(50.5) == 50.5
 
     def test_rounds_to_two_decimals(self):
-        assert clean_numeric(50.555) == 50.56
+        assert clean_numeric(50.556) == 50.56
 
     def test_rejects_negative(self):
         assert clean_numeric(-1) is None

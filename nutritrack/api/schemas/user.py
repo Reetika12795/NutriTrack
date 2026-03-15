@@ -1,4 +1,5 @@
 """Pydantic schemas for user and auth endpoints."""
+from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
