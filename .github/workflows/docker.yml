@@ -1,0 +1,44 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-api:
+    name: Build API Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API Dockerfile
+        run: docker build -f nutritrack/api/Dockerfile -t nutritrack-api:test nutritrack/
+
+  build-app:
+    name: Build App Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build App Dockerfile
+        run: docker build -f nutritrack/app/Dockerfile -t nutritrack-app:test nutritrack/
+
+  build-airflow:
+    name: Build Airflow Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Airflow Dockerfile
+        run: docker build -f nutritrack/airflow/Dockerfile -t nutritrack-airflow:test nutritrack/
+
+  build-superset:
+    name: Build Superset Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Superset Dockerfile
+        run: docker build -f nutritrack/superset/Dockerfile -t nutritrack-superset:test nutritrack/
