@@ -27,7 +27,6 @@ default_args = {
 
 def run_dw_backup(**context):
     """Daily partial backup: data warehouse schema only."""
-    import subprocess
     import sys
 
     sys.path.insert(0, "/opt/airflow/scripts")
@@ -44,7 +43,6 @@ def run_dw_backup(**context):
 
 def run_full_backup(**context):
     """Weekly full backup: all schemas."""
-    import subprocess
     import sys
 
     sys.path.insert(0, "/opt/airflow/scripts")
@@ -83,7 +81,6 @@ def run_rgpd_cleanup(**context):
 
 def check_storage_health(**context):
     """Check PostgreSQL and MinIO storage health metrics."""
-    import json
     import os
 
     from sqlalchemy import create_engine, text
@@ -100,7 +97,8 @@ def check_storage_health(**context):
 
     # Check database sizes
     with engine.connect() as conn:
-        result = conn.execute(text("""
+        result = conn.execute(
+            text("""
             SELECT
                 schemaname,
                 COUNT(*) AS table_count,
@@ -108,7 +106,8 @@ def check_storage_health(**context):
             FROM pg_tables
             WHERE schemaname IN ('app', 'dw')
             GROUP BY schemaname
-        """))
+        """)
+        )
         for row in result:
             print(f"Schema {row[0]}: {row[1]} tables, {row[2]} total size")
 
@@ -131,7 +130,7 @@ def check_storage_health(**context):
         for bucket in ["bronze", "silver", "gold", "backups"]:
             objects = list(client.list_objects(bucket, recursive=True))
             total_size = sum(obj.size for obj in objects)
-            print(f"MinIO {bucket}: {len(objects)} objects, {total_size / (1024*1024):.2f} MB")
+            print(f"MinIO {bucket}: {len(objects)} objects, {total_size / (1024 * 1024):.2f} MB")
     except Exception as e:
         print(f"MinIO health check failed: {e}")
 

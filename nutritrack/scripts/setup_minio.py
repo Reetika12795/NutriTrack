@@ -11,7 +11,7 @@ import os
 
 from minio import Minio
 from minio.commonconfig import ENABLED
-from minio.lifecycleconfig import LifecycleConfig, Rule, Expiration, Filter
+from minio.lifecycleconfig import Expiration, Filter, LifecycleConfig, Rule
 
 logging.basicConfig(
     level=logging.INFO,
@@ -71,8 +71,17 @@ def setup_lifecycle_rules(client: Minio):
     """Configure data lifecycle rules (C20 - Data lifecycle management)."""
     # Bronze: expire after 90 days
     bronze_config = LifecycleConfig(
-        [Rule(ENABLED, rule_filter=Filter(prefix="api/"), expiration=Expiration(days=90), rule_id="expire-api-raw-90d"),
-         Rule(ENABLED, rule_filter=Filter(prefix="scraping/"), expiration=Expiration(days=90), rule_id="expire-scraping-raw-90d")]
+        [
+            Rule(
+                ENABLED, rule_filter=Filter(prefix="api/"), expiration=Expiration(days=90), rule_id="expire-api-raw-90d"
+            ),
+            Rule(
+                ENABLED,
+                rule_filter=Filter(prefix="scraping/"),
+                expiration=Expiration(days=90),
+                rule_id="expire-scraping-raw-90d",
+            ),
+        ]
     )
     try:
         client.set_bucket_lifecycle("bronze", bronze_config)
@@ -82,7 +91,14 @@ def setup_lifecycle_rules(client: Minio):
 
     # Backups: expire after 30 days
     backup_config = LifecycleConfig(
-        [Rule(ENABLED, rule_filter=Filter(prefix="daily/"), expiration=Expiration(days=30), rule_id="expire-daily-backups-30d")]
+        [
+            Rule(
+                ENABLED,
+                rule_filter=Filter(prefix="daily/"),
+                expiration=Expiration(days=30),
+                rule_id="expire-daily-backups-30d",
+            )
+        ]
     )
     try:
         client.set_bucket_lifecycle("backups", backup_config)
@@ -122,15 +138,19 @@ def setup_access_policies(client: Minio):
 
     # Set gold bucket as publicly readable (for app users)
     try:
-        policy = json.dumps({
-            "Version": "2012-10-17",
-            "Statement": [{
-                "Effect": "Allow",
-                "Principal": {"AWS": "*"},
-                "Action": ["s3:GetObject"],
-                "Resource": [f"arn:aws:s3:::gold/*"],
-            }],
-        })
+        policy = json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": "*"},
+                        "Action": ["s3:GetObject"],
+                        "Resource": ["arn:aws:s3:::gold/*"],
+                    }
+                ],
+            }
+        )
         client.set_bucket_policy("gold", policy)
         logger.info("Gold bucket: public read access enabled")
     except Exception as e:
@@ -212,8 +232,10 @@ def upload_initial_catalog(client: Minio):
     catalog_bytes = json.dumps(catalog, indent=2).encode()
     for bucket in ["bronze", "silver", "gold"]:
         client.put_object(
-            bucket, "_catalog/metadata.json",
-            BytesIO(catalog_bytes), len(catalog_bytes),
+            bucket,
+            "_catalog/metadata.json",
+            BytesIO(catalog_bytes),
+            len(catalog_bytes),
             content_type="application/json",
         )
     logger.info("Data catalog metadata uploaded to all buckets")
@@ -228,7 +250,9 @@ def check_storage_status(client: Minio):
             total_size = sum(obj.size for obj in objects if obj.size)
             logger.info(
                 "  %s: %d objects, %.2f MB",
-                bucket, len(objects), total_size / (1024 * 1024),
+                bucket,
+                len(objects),
+                total_size / (1024 * 1024),
             )
 
 
@@ -242,10 +266,15 @@ def main():
     parser.add_argument("--all", action="store_true", help="Run all setup steps")
 
     args = parser.parse_args()
-    run_all = args.all or not any([
-        args.create_buckets, args.setup_lifecycle, args.setup_access,
-        args.upload_catalog, args.check_status,
-    ])
+    run_all = args.all or not any(
+        [
+            args.create_buckets,
+            args.setup_lifecycle,
+            args.setup_access,
+            args.upload_catalog,
+            args.check_status,
+        ]
+    )
 
     client = get_client()
 

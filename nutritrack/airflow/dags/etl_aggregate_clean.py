@@ -11,8 +11,9 @@ Both downstream DAGs use ExternalTaskSensors to wait for this DAG to complete.
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -111,12 +112,15 @@ def clean_data(**context):
 
     # Standardize column names
     col_map = {
-        "code": "barcode", "brands": "brand_name",
+        "code": "barcode",
+        "brands": "brand_name",
         "categories": "category_name",
         "energy-kcal_100g": "energy_kcal",
-        "fat_100g": "fat_g", "proteins_100g": "proteins_g",
+        "fat_100g": "fat_g",
+        "proteins_100g": "proteins_g",
         "carbohydrates_100g": "carbohydrates_g",
-        "sugars_100g": "sugars_g", "fiber_100g": "fiber_g",
+        "sugars_100g": "sugars_g",
+        "fiber_100g": "fiber_g",
         "salt_100g": "salt_g",
     }
     df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
@@ -131,8 +135,14 @@ def clean_data(**context):
         df = df.dropna(subset=["product_name"])
 
     # Validate numeric ranges (per 100g)
-    for col, max_val in [("energy_kcal", 1000), ("fat_g", 100), ("proteins_g", 100),
-                          ("carbohydrates_g", 100), ("sugars_g", 100), ("salt_g", 100)]:
+    for col, max_val in [
+        ("energy_kcal", 1000),
+        ("fat_g", 100),
+        ("proteins_g", 100),
+        ("carbohydrates_g", 100),
+        ("sugars_g", 100),
+        ("salt_g", 100),
+    ]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
             df.loc[df[col] > max_val, col] = None
@@ -150,12 +160,30 @@ def clean_data(**context):
 
     # Keep only usable columns (drop nested/complex objects that break Parquet)
     keep_cols = [
-        "barcode", "product_name", "generic_name", "brands", "brand_name",
-        "categories", "category_name", "countries", "quantity", "packaging",
-        "ingredients_text", "energy_kcal", "fat_g", "proteins_g",
-        "carbohydrates_g", "sugars_g", "fiber_g", "salt_g",
-        "nutriscore_grade", "nutriscore_score", "nova_group",
-        "ecoscore_grade", "completeness_score", "data_source",
+        "barcode",
+        "product_name",
+        "generic_name",
+        "brands",
+        "brand_name",
+        "categories",
+        "category_name",
+        "countries",
+        "quantity",
+        "packaging",
+        "ingredients_text",
+        "energy_kcal",
+        "fat_g",
+        "proteins_g",
+        "carbohydrates_g",
+        "sugars_g",
+        "fiber_g",
+        "salt_g",
+        "nutriscore_grade",
+        "nutriscore_score",
+        "nova_group",
+        "ecoscore_grade",
+        "completeness_score",
+        "data_source",
     ]
     df = df[[c for c in keep_cols if c in df.columns]]
 
@@ -197,23 +225,29 @@ def load_to_database(**context):
     batch_size = 1000
 
     for start in range(0, len(df), batch_size):
-        batch = df.iloc[start:start + batch_size]
+        batch = df.iloc[start : start + batch_size]
         records = []
         for _, row in batch.iterrows():
-            records.append({
-                "barcode": str(row.get("barcode", "")),
-                "product_name": str(row.get("product_name", ""))[:500] if pd.notna(row.get("product_name")) else None,
-                "energy_kcal": float(row["energy_kcal"]) if pd.notna(row.get("energy_kcal")) else None,
-                "fat_g": float(row["fat_g"]) if pd.notna(row.get("fat_g")) else None,
-                "carbohydrates_g": float(row["carbohydrates_g"]) if pd.notna(row.get("carbohydrates_g")) else None,
-                "proteins_g": float(row["proteins_g"]) if pd.notna(row.get("proteins_g")) else None,
-                "fiber_g": float(row["fiber_g"]) if pd.notna(row.get("fiber_g")) else None,
-                "salt_g": float(row["salt_g"]) if pd.notna(row.get("salt_g")) else None,
-                "nutriscore_grade": str(row["nutriscore_grade"]) if pd.notna(row.get("nutriscore_grade")) else None,
-                "nova_group": int(float(row["nova_group"])) if pd.notna(row.get("nova_group")) else None,
-                "completeness_score": float(row["completeness_score"]) if pd.notna(row.get("completeness_score")) else None,
-                "data_source": "etl_pipeline",
-            })
+            records.append(
+                {
+                    "barcode": str(row.get("barcode", "")),
+                    "product_name": str(row.get("product_name", ""))[:500]
+                    if pd.notna(row.get("product_name"))
+                    else None,
+                    "energy_kcal": float(row["energy_kcal"]) if pd.notna(row.get("energy_kcal")) else None,
+                    "fat_g": float(row["fat_g"]) if pd.notna(row.get("fat_g")) else None,
+                    "carbohydrates_g": float(row["carbohydrates_g"]) if pd.notna(row.get("carbohydrates_g")) else None,
+                    "proteins_g": float(row["proteins_g"]) if pd.notna(row.get("proteins_g")) else None,
+                    "fiber_g": float(row["fiber_g"]) if pd.notna(row.get("fiber_g")) else None,
+                    "salt_g": float(row["salt_g"]) if pd.notna(row.get("salt_g")) else None,
+                    "nutriscore_grade": str(row["nutriscore_grade"]) if pd.notna(row.get("nutriscore_grade")) else None,
+                    "nova_group": int(float(row["nova_group"])) if pd.notna(row.get("nova_group")) else None,
+                    "completeness_score": float(row["completeness_score"])
+                    if pd.notna(row.get("completeness_score"))
+                    else None,
+                    "data_source": "etl_pipeline",
+                }
+            )
 
         if records:
             with engine.begin() as conn:
@@ -248,7 +282,6 @@ with DAG(
     catchup=False,
     tags=["aggregation", "cleaning", "loading"],
 ) as dag:
-
     aggregate = PythonOperator(
         task_id="aggregate_all_sources",
         python_callable=aggregate_all_sources,

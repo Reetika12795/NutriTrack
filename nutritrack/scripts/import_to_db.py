@@ -52,9 +52,7 @@ def load_cleaned_data() -> pd.DataFrame:
         logger.info("Loaded %d products from %s", len(df), csv_path)
         return df
 
-    raise FileNotFoundError(
-        f"No cleaned data found in {CLEANED_DATA_DIR}. Run aggregate_clean.py first."
-    )
+    raise FileNotFoundError(f"No cleaned data found in {CLEANED_DATA_DIR}. Run aggregate_clean.py first.")
 
 
 def import_brands(engine, df: pd.DataFrame) -> dict[str, int]:
@@ -173,23 +171,31 @@ def import_products(
                 "salt_g": float(row["salt_g"]) if pd.notna(row.get("salt_g")) else None,
                 "sodium_g": float(row["sodium_g"]) if pd.notna(row.get("sodium_g")) else None,
                 "nutriscore_grade": str(row["nutriscore_grade"]) if pd.notna(row.get("nutriscore_grade")) else None,
-                "nutriscore_score": int(float(row["nutriscore_score"])) if pd.notna(row.get("nutriscore_score")) else None,
+                "nutriscore_score": int(float(row["nutriscore_score"]))
+                if pd.notna(row.get("nutriscore_score"))
+                else None,
                 "nova_group": int(float(row["nova_group"])) if pd.notna(row.get("nova_group")) else None,
-                "ecoscore_grade": str(row["ecoscore_grade"])[0] if pd.notna(row.get("ecoscore_grade")) and str(row.get("ecoscore_grade")).strip() else None,
+                "ecoscore_grade": str(row["ecoscore_grade"])[0]
+                if pd.notna(row.get("ecoscore_grade")) and str(row.get("ecoscore_grade")).strip()
+                else None,
                 "countries": str(row.get("countries", ""))[:500] if pd.notna(row.get("countries")) else None,
-                "ingredients_text": str(row.get("ingredients_text", "")) if pd.notna(row.get("ingredients_text")) else None,
+                "ingredients_text": str(row.get("ingredients_text", ""))
+                if pd.notna(row.get("ingredients_text"))
+                else None,
                 "allergens": str(row.get("allergens", "")) if pd.notna(row.get("allergens")) else None,
                 "traces": str(row.get("traces", "")) if pd.notna(row.get("traces")) else None,
                 "image_url": str(row.get("image_url", ""))[:1000] if pd.notna(row.get("image_url")) else None,
                 "off_url": str(row.get("off_url", ""))[:500] if pd.notna(row.get("off_url")) else None,
-                "completeness_score": float(row["completeness_score"]) if pd.notna(row.get("completeness_score")) else None,
+                "completeness_score": float(row["completeness_score"])
+                if pd.notna(row.get("completeness_score"))
+                else None,
                 "data_source": str(row.get("data_source", "open_food_facts"))[:50],
             }
             records.append(record)
 
         if records:
             with engine.begin() as conn:
-                result = conn.execute(
+                conn.execute(
                     text("""
                         INSERT INTO app.products (
                             barcode, product_name, generic_name, quantity, packaging,
@@ -244,12 +250,8 @@ def log_extraction(engine, source_name: str, records_loaded: int, status: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Import cleaned data into NutriTrack PostgreSQL database"
-    )
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Validate data without importing"
-    )
+    parser = argparse.ArgumentParser(description="Import cleaned data into NutriTrack PostgreSQL database")
+    parser.add_argument("--dry-run", action="store_true", help="Validate data without importing")
 
     args = parser.parse_args()
 

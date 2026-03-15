@@ -6,8 +6,9 @@ Covers: C8 (Data file + Big data), C9 (SQL queries), C15 (ETL pipeline)
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -133,7 +134,6 @@ with DAG(
     catchup=False,
     tags=["extraction", "parquet", "duckdb", "bigdata"],
 ) as dag:
-
     extract = PythonOperator(
         task_id="extract_from_parquet",
         python_callable=extract_from_parquet,

@@ -6,8 +6,9 @@ Covers: C8 (Web scraping), C15 (ETL pipeline)
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -52,12 +53,14 @@ def scrape_nutritional_guidelines(**context):
                 for row in table.find_all("tr")[1:]:
                     cells = row.find_all(["th", "td"])
                     if len(cells) >= 2:
-                        guidelines.append({
-                            "nutrient": cells[0].get_text(strip=True),
-                            "daily_value": cells[1].get_text(strip=True),
-                            "unit": cells[2].get_text(strip=True) if len(cells) > 2 else "",
-                            "source": "ANSES",
-                        })
+                        guidelines.append(
+                            {
+                                "nutrient": cells[0].get_text(strip=True),
+                                "daily_value": cells[1].get_text(strip=True),
+                                "unit": cells[2].get_text(strip=True) if len(cells) > 2 else "",
+                                "source": "ANSES",
+                            }
+                        )
     except Exception as e:
         print(f"ANSES scraping failed (using fallback): {e}")
 
@@ -81,7 +84,6 @@ with DAG(
     catchup=False,
     tags=["extraction", "scraping", "guidelines"],
 ) as dag:
-
     scrape_task = PythonOperator(
         task_id="scrape_nutritional_guidelines",
         python_callable=scrape_nutritional_guidelines,

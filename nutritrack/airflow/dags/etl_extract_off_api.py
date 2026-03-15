@@ -6,8 +6,9 @@ Covers: C8 (REST API extraction), C15 (ETL pipeline)
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
@@ -78,7 +79,6 @@ with DAG(
     catchup=False,
     tags=["extraction", "api", "off"],
 ) as dag:
-
     extract_task = PythonOperator(
         task_id="extract_off_api",
         python_callable=extract_off_api,

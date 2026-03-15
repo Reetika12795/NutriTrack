@@ -6,6 +6,7 @@ homogenizes formats, and produces a single clean dataset.
 Entry point: main()
 Dependencies: pandas, pathlib
 """
+
 from __future__ import annotations
 
 import argparse
@@ -163,9 +164,7 @@ def load_db_data() -> pd.DataFrame:
 
 def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Rename columns to standard names."""
-    rename_map = {
-        col: STANDARD_COLUMNS[col] for col in df.columns if col in STANDARD_COLUMNS
-    }
+    rename_map = {col: STANDARD_COLUMNS[col] for col in df.columns if col in STANDARD_COLUMNS}
     df = df.rename(columns=rename_map)
 
     # Keep only standard columns that exist
@@ -285,8 +284,17 @@ def aggregate_and_clean(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     logger.info("After barcode cleaning: %d rows (removed %d)", len(merged), initial_count - len(merged))
 
     # 2. Clean text fields
-    for col in ["product_name", "generic_name", "brand_name", "category_name",
-                 "ingredients_text", "allergens", "traces", "packaging", "quantity"]:
+    for col in [
+        "product_name",
+        "generic_name",
+        "brand_name",
+        "category_name",
+        "ingredients_text",
+        "allergens",
+        "traces",
+        "packaging",
+        "quantity",
+    ]:
         if col in merged.columns:
             merged[col] = merged[col].apply(clean_text)
 
@@ -324,13 +332,9 @@ def aggregate_and_clean(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     if "nova_group" in merged.columns:
         merged["nova_group"] = merged["nova_group"].apply(clean_nova_group)
     if "nutriscore_score" in merged.columns:
-        merged["nutriscore_score"] = merged["nutriscore_score"].apply(
-            lambda x: clean_numeric(x, -15, 40)
-        )
+        merged["nutriscore_score"] = merged["nutriscore_score"].apply(lambda x: clean_numeric(x, -15, 40))
     if "completeness_score" in merged.columns:
-        merged["completeness_score"] = merged["completeness_score"].apply(
-            lambda x: clean_numeric(x, 0, 1)
-        )
+        merged["completeness_score"] = merged["completeness_score"].apply(lambda x: clean_numeric(x, 0, 1))
 
     # 7. Deduplication: keep the most complete version per barcode
     merged = merged.sort_values("completeness_score", ascending=False, na_position="last")
@@ -348,18 +352,14 @@ def aggregate_and_clean(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     return merged
 
 
-def generate_cleaning_report(
-    initial_count: int, final_df: pd.DataFrame
-) -> dict:
+def generate_cleaning_report(initial_count: int, final_df: pd.DataFrame) -> dict:
     """Generate a cleaning/quality report."""
     report = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "initial_records": initial_count,
         "final_records": len(final_df),
         "records_removed": initial_count - len(final_df),
-        "removal_rate_pct": round(
-            (initial_count - len(final_df)) / max(initial_count, 1) * 100, 1
-        ),
+        "removal_rate_pct": round((initial_count - len(final_df)) / max(initial_count, 1) * 100, 1),
         "completeness": {},
     }
 
@@ -395,9 +395,7 @@ def save_results(df: pd.DataFrame, report: dict) -> Path:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Aggregate and clean data from all extraction sources"
-    )
+    parser = argparse.ArgumentParser(description="Aggregate and clean data from all extraction sources")
     parser.add_argument(
         "--sources",
         nargs="+",

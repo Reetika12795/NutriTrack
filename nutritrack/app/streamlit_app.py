@@ -4,10 +4,9 @@ Streamlit frontend application
 """
 
 import os
-from datetime import date, timedelta
+from datetime import date
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import requests
 import streamlit as st
@@ -26,6 +25,7 @@ st.set_page_config(
 # ==============================================================
 # Auth helpers
 # ==============================================================
+
 
 def api_request(method: str, endpoint: str, **kwargs) -> requests.Response | None:
     """Make an authenticated API request."""
@@ -63,7 +63,8 @@ def login_page():
 
             if submitted and username and password:
                 resp = api_request(
-                    "POST", "/api/v1/auth/login",
+                    "POST",
+                    "/api/v1/auth/login",
                     json={"username": username, "password": password},
                 )
                 if resp and resp.status_code == 200:
@@ -98,7 +99,8 @@ def login_page():
                     st.error("You must consent to data processing to register.")
                 else:
                     resp = api_request(
-                        "POST", "/api/v1/auth/register",
+                        "POST",
+                        "/api/v1/auth/register",
                         json={
                             "email": new_email,
                             "username": new_username,
@@ -117,6 +119,7 @@ def login_page():
 # ==============================================================
 # Main app pages
 # ==============================================================
+
 
 def product_search_page():
     """Product search and barcode lookup."""
@@ -195,7 +198,8 @@ def meal_logger_page():
 
         if submitted:
             resp = api_request(
-                "POST", "/api/v1/meals",
+                "POST",
+                "/api/v1/meals",
                 json={
                     "meal_type": meal_type,
                     "meal_date": str(meal_date),
@@ -219,10 +223,7 @@ def meal_logger_page():
             with st.expander(f"{meal['meal_type'].title()} - {meal['meal_date']}"):
                 for item in meal.get("items", []):
                     product_name = item.get("product", {}).get("product_name", "Unknown")
-                    st.write(
-                        f"- {product_name}: {item['quantity_g']}g "
-                        f"({item.get('energy_kcal', 0):.0f} kcal)"
-                    )
+                    st.write(f"- {product_name}: {item['quantity_g']}g ({item.get('energy_kcal', 0):.0f} kcal)")
 
 
 def daily_dashboard_page():
@@ -232,7 +233,8 @@ def daily_dashboard_page():
     target_date = st.date_input("Select date", value=date.today())
 
     resp = api_request(
-        "GET", "/api/v1/meals/daily-summary",
+        "GET",
+        "/api/v1/meals/daily-summary",
         params={"target_date": str(target_date)},
     )
 
@@ -242,9 +244,15 @@ def daily_dashboard_page():
         # KPI metrics
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("Calories", f"{summary['total_kcal']:.0f} kcal", delta=f"{summary['total_kcal'] - 2000:.0f} vs RDA")
+            st.metric(
+                "Calories", f"{summary['total_kcal']:.0f} kcal", delta=f"{summary['total_kcal'] - 2000:.0f} vs RDA"
+            )
         with col2:
-            st.metric("Protein", f"{summary['total_proteins_g']:.1f} g", delta=f"{summary['total_proteins_g'] - 50:.1f} vs RDA")
+            st.metric(
+                "Protein",
+                f"{summary['total_proteins_g']:.1f} g",
+                delta=f"{summary['total_proteins_g'] - 50:.1f} vs RDA",
+            )
         with col3:
             st.metric("Fiber", f"{summary['total_fiber_g']:.1f} g", delta=f"{summary['total_fiber_g'] - 25:.1f} vs RDA")
         with col4:
@@ -255,12 +263,16 @@ def daily_dashboard_page():
             col_chart1, col_chart2 = st.columns(2)
 
             with col_chart1:
-                fig = go.Figure(data=[go.Pie(
-                    labels=["Protein", "Carbs", "Fat"],
-                    values=[summary["protein_pct"], summary["carbs_pct"], summary["fat_pct"]],
-                    marker_colors=["#2ecc71", "#3498db", "#e74c3c"],
-                    hole=0.4,
-                )])
+                fig = go.Figure(
+                    data=[
+                        go.Pie(
+                            labels=["Protein", "Carbs", "Fat"],
+                            values=[summary["protein_pct"], summary["carbs_pct"], summary["fat_pct"]],
+                            marker_colors=["#2ecc71", "#3498db", "#e74c3c"],
+                            hole=0.4,
+                        )
+                    ]
+                )
                 fig.update_layout(title="Macro Distribution", height=350)
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -294,19 +306,28 @@ def weekly_trends_page():
         data = resp.json()
 
         if data["dates"]:
-            df = pd.DataFrame({
-                "Date": pd.to_datetime(data["dates"]),
-                "Calories": data["daily_kcal"],
-                "Protein (g)": data["daily_proteins"],
-                "Carbs (g)": data["daily_carbs"],
-                "Fat (g)": data["daily_fat"],
-                "7-day Avg Calories": data["moving_avg_kcal"],
-            })
+            df = pd.DataFrame(
+                {
+                    "Date": pd.to_datetime(data["dates"]),
+                    "Calories": data["daily_kcal"],
+                    "Protein (g)": data["daily_proteins"],
+                    "Carbs (g)": data["daily_carbs"],
+                    "Fat (g)": data["daily_fat"],
+                    "7-day Avg Calories": data["moving_avg_kcal"],
+                }
+            )
 
             # Calories chart
             fig = go.Figure()
             fig.add_trace(go.Bar(x=df["Date"], y=df["Calories"], name="Daily Calories", marker_color="#3498db"))
-            fig.add_trace(go.Scatter(x=df["Date"], y=df["7-day Avg Calories"], name="7-day Moving Avg", line=dict(color="#e74c3c", width=3)))
+            fig.add_trace(
+                go.Scatter(
+                    x=df["Date"],
+                    y=df["7-day Avg Calories"],
+                    name="7-day Moving Avg",
+                    line=dict(color="#e74c3c", width=3),
+                )
+            )
             fig.add_hline(y=2000, line_dash="dash", annotation_text="RDA (2000 kcal)")
             fig.update_layout(title="Daily Calorie Intake", xaxis_title="Date", yaxis_title="kcal", height=400)
             st.plotly_chart(fig, use_container_width=True)
@@ -353,10 +374,26 @@ def product_comparison_page():
 
         if len(products) >= 2:
             # Comparison table
-            nutrients = ["energy_kcal", "fat_g", "saturated_fat_g", "carbohydrates_g",
-                        "sugars_g", "proteins_g", "fiber_g", "salt_g"]
-            labels = ["Energy (kcal)", "Fat (g)", "Sat. Fat (g)", "Carbs (g)",
-                     "Sugars (g)", "Protein (g)", "Fiber (g)", "Salt (g)"]
+            nutrients = [
+                "energy_kcal",
+                "fat_g",
+                "saturated_fat_g",
+                "carbohydrates_g",
+                "sugars_g",
+                "proteins_g",
+                "fiber_g",
+                "salt_g",
+            ]
+            labels = [
+                "Energy (kcal)",
+                "Fat (g)",
+                "Sat. Fat (g)",
+                "Carbs (g)",
+                "Sugars (g)",
+                "Protein (g)",
+                "Fiber (g)",
+                "Salt (g)",
+            ]
 
             comparison_data = {"Nutrient": labels}
             for p in products:
@@ -388,7 +425,9 @@ def alternatives_page():
         if resp and resp.ok:
             product = resp.json()
             st.subheader(f"Original: {product.get('product_name', 'Unknown')}")
-            st.write(f"Nutri-Score: **{product.get('nutriscore_grade', 'N/A')}** | NOVA: **{product.get('nova_group', 'N/A')}**")
+            st.write(
+                f"Nutri-Score: **{product.get('nutriscore_grade', 'N/A')}** | NOVA: **{product.get('nova_group', 'N/A')}**"
+            )
             st.write(f"Energy: {product.get('energy_kcal', 'N/A')} kcal/100g")
 
             # Get alternatives
@@ -418,6 +457,7 @@ def alternatives_page():
 # ==============================================================
 # Main app
 # ==============================================================
+
 
 def main():
     # Check if logged in

@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.config import settings
 from api.database import get_db
 from api.models.user import User
-from api.schemas.user import TokenData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -28,9 +27,7 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (
-        expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
@@ -48,7 +45,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         user_id: str = payload.get("sub")
-        role: str = payload.get("role")
+        role: str = payload.get("role")  # noqa: F841
         if user_id is None:
             raise credentials_exception
     except JWTError:
@@ -65,6 +62,7 @@ async def get_current_user(
 
 def require_role(*roles: str):
     """Dependency that checks if the current user has one of the required roles."""
+
     async def role_checker(current_user: User = Depends(get_current_user)):
         if current_user.role not in roles:
             raise HTTPException(
@@ -72,4 +70,5 @@ def require_role(*roles: str):
                 detail=f"Role '{current_user.role}' not authorized. Required: {', '.join(roles)}",
             )
         return current_user
+
     return role_checker
