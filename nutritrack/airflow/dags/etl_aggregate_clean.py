@@ -7,6 +7,9 @@ This DAG is the single transformation step that feeds BOTH downstream paths:
   - Lake path (etl_datalake_ingest @ 05:00): silver reads cleaned Parquet files
   - DW path  (etl_load_warehouse  @ 05:00): reads from PostgreSQL app schema
 Both downstream DAGs use ExternalTaskSensors to wait for this DAG to complete.
+
+Data processing uses PySpark for distributed-capable transformation, reading
+raw data from the local filesystem and writing cleaned output as Parquet.
 """
 
 from datetime import datetime, timedelta
@@ -67,133 +70,356 @@ def aggregate_all_sources(**context):
     return len(merged)
 
 
-def clean_data(**context):
-    """Apply cleaning rules: dedup, format homogenization, corruption removal."""
+def clean_data_spark(**context):
+    """Apply cleaning rules using PySpark for distributed-capable processing.
+
+    Cleaning pipeline (C10):
+      1. Standardize column names across sources
+      2. Validate barcodes (strip non-numeric, keep 8-14 digits)
+      3. Remove rows without product_name
+      4. Cap nutritional values at physiological maximums per 100g
+      5. Normalize Nutri-Score to uppercase A-E
+      6. Deduplicate by barcode (keep highest completeness_score)
+      7. Generate cleaning report
+    """
     import json
+    import os
     from pathlib import Path
 
-    import pandas as pd
+    from pyspark.sql import SparkSession
+    from pyspark.sql import functions as F
+    from pyspark.sql import Window
 
     raw_dir = Path("/opt/airflow/data/raw")
     cleaned_dir = Path("/opt/airflow/data/cleaned")
     cleaned_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load latest merged data, tagging each source
-    dfs = []
-    for subdir in ["api", "parquet", "duckdb"]:
-        dir_path = raw_dir / subdir
-        if not dir_path.exists():
-            continue
-        for f in sorted(dir_path.glob("*.parquet"), reverse=True)[:1]:
-            tmp = pd.read_parquet(f)
-            tmp["data_source"] = subdir
-            dfs.append(tmp)
-        for f in sorted(dir_path.glob("*.csv"), reverse=True)[:1]:
-            tmp = pd.read_csv(f, low_memory=False)
-            tmp["data_source"] = subdir
-            dfs.append(tmp)
-        for f in sorted(dir_path.glob("*.json"), reverse=True)[:1]:
-            with open(f) as fh:
-                data = json.load(fh)
-            if isinstance(data, dict) and data.get("products"):
-                tmp = pd.DataFrame(data["products"])
-            elif isinstance(data, list):
-                tmp = pd.DataFrame(data)
-            else:
+    # --- Initialize Spark session with S3A (MinIO) support ---
+    spark = (
+        SparkSession.builder.master("local[*]")
+        .appName("NutriTrack-Clean")
+        .config("spark.hadoop.fs.s3a.endpoint", f"http://{os.getenv('MINIO_ENDPOINT', 'minio:9000')}")
+        .config("spark.hadoop.fs.s3a.access.key", os.getenv("MINIO_ACCESS_KEY", "minioadmin"))
+        .config("spark.hadoop.fs.s3a.secret.key", os.getenv("MINIO_SECRET_KEY", "minioadmin123"))
+        .config("spark.hadoop.fs.s3a.path.style.access", "true")
+        .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+        .config("spark.sql.session.timeZone", "UTC")
+        .config("spark.driver.memory", "1g")
+        .getOrCreate()
+    )
+
+    spark.sparkContext.setLogLevel("WARN")
+
+    try:
+        # --- Load raw data from all sources ---
+        dfs = []
+        for subdir in ["api", "parquet", "duckdb"]:
+            dir_path = raw_dir / subdir
+            if not dir_path.exists():
                 continue
-            tmp["data_source"] = subdir
-            dfs.append(tmp)
+            # Parquet files
+            for f in sorted(dir_path.glob("*.parquet"), reverse=True)[:1]:
+                sdf = spark.read.parquet(str(f))
+                sdf = sdf.withColumn("data_source", F.lit(subdir))
+                dfs.append(sdf)
+                print(f"Spark loaded {subdir} parquet: {sdf.count()} rows")
+            # CSV files
+            for f in sorted(dir_path.glob("*.csv"), reverse=True)[:1]:
+                sdf = spark.read.option("header", "true").option("inferSchema", "true").csv(str(f))
+                sdf = sdf.withColumn("data_source", F.lit(subdir))
+                dfs.append(sdf)
+                print(f"Spark loaded {subdir} CSV: {sdf.count()} rows")
+            # JSON files (read with pandas, convert to Spark)
+            for f in sorted(dir_path.glob("*.json"), reverse=True)[:1]:
+                import pandas as pd
 
-    if not dfs:
-        print("No data to clean")
-        return None
+                with open(f) as fh:
+                    data = json.load(fh)
+                if isinstance(data, dict) and data.get("products"):
+                    pdf = pd.DataFrame(data["products"])
+                elif isinstance(data, list):
+                    pdf = pd.DataFrame(data)
+                else:
+                    continue
+                pdf["data_source"] = subdir
+                sdf = spark.createDataFrame(pdf.astype(str))
+                dfs.append(sdf)
+                print(f"Spark loaded {subdir} JSON: {sdf.count()} rows")
 
-    df = pd.concat(dfs, ignore_index=True)
+        if not dfs:
+            print("No data to clean")
+            spark.stop()
+            return None
 
-    # Standardize column names
-    col_map = {
-        "code": "barcode",
-        "brands": "brand_name",
-        "categories": "category_name",
-        "energy-kcal_100g": "energy_kcal",
-        "fat_100g": "fat_g",
-        "proteins_100g": "proteins_g",
-        "carbohydrates_100g": "carbohydrates_g",
-        "sugars_100g": "sugars_g",
-        "fiber_100g": "fiber_g",
-        "salt_100g": "salt_g",
-    }
-    df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
+        # --- Union all sources ---
+        # Align schemas before union (use string type for safety, cast later)
+        all_columns = set()
+        for sdf in dfs:
+            all_columns.update(sdf.columns)
 
-    # Clean barcodes
-    if "barcode" in df.columns:
-        df["barcode"] = df["barcode"].astype(str).str.strip().str.replace(r"[^0-9]", "", regex=True)
-        df = df[df["barcode"].str.len().between(8, 14)]
+        aligned = []
+        for sdf in dfs:
+            for col in all_columns:
+                if col not in sdf.columns:
+                    sdf = sdf.withColumn(col, F.lit(None).cast("string"))
+            aligned.append(sdf.select(sorted(all_columns)))
 
-    # Remove entries without product name
-    if "product_name" in df.columns:
-        df = df.dropna(subset=["product_name"])
+        df = aligned[0]
+        for sdf in aligned[1:]:
+            df = df.unionByName(sdf, allowMissingColumns=True)
 
-    # Validate numeric ranges (per 100g)
-    for col, max_val in [
-        ("energy_kcal", 1000),
-        ("fat_g", 100),
-        ("proteins_g", 100),
-        ("carbohydrates_g", 100),
-        ("sugars_g", 100),
-        ("salt_g", 100),
-    ]:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-            df.loc[df[col] > max_val, col] = None
-            df.loc[df[col] < 0, col] = None
+        raw_count = df.count()
+        print(f"Merged: {raw_count} total rows from {len(dfs)} sources")
 
-    # Normalize Nutri-Score
+        # --- RULE 1: Standardize column names ---
+        col_map = {
+            "code": "barcode",
+            "brands": "brand_name",
+            "categories": "category_name",
+            "energy-kcal_100g": "energy_kcal",
+            "fat_100g": "fat_g",
+            "proteins_100g": "proteins_g",
+            "carbohydrates_100g": "carbohydrates_g",
+            "sugars_100g": "sugars_g",
+            "fiber_100g": "fiber_g",
+            "salt_100g": "salt_g",
+        }
+        for old_name, new_name in col_map.items():
+            if old_name in df.columns:
+                df = df.withColumnRenamed(old_name, new_name)
+
+        # --- RULE 2: Clean barcodes ---
+        if "barcode" in df.columns:
+            df = df.withColumn("barcode", F.regexp_replace(F.col("barcode").cast("string"), r"[^0-9]", ""))
+            df = df.withColumn("barcode", F.trim(F.col("barcode")))
+            df = df.filter(F.length("barcode").between(8, 14))
+
+        # --- RULE 3: Remove null product names ---
+        if "product_name" in df.columns:
+            df = df.filter(F.col("product_name").isNotNull() & (F.trim(F.col("product_name")) != ""))
+
+        # --- RULE 4: Cap nutritional values at physiological max per 100g ---
+        numeric_caps = {
+            "energy_kcal": 1000,
+            "fat_g": 100,
+            "proteins_g": 100,
+            "carbohydrates_g": 100,
+            "sugars_g": 100,
+            "salt_g": 100,
+        }
+        for col, max_val in numeric_caps.items():
+            if col in df.columns:
+                df = df.withColumn(col, F.col(col).cast("double"))
+                df = df.withColumn(
+                    col,
+                    F.when((F.col(col) > max_val) | (F.col(col) < 0), None).otherwise(F.col(col)),
+                )
+
+        # --- RULE 5: Normalize Nutri-Score to uppercase A-E ---
+        if "nutriscore_grade" in df.columns:
+            df = df.withColumn("nutriscore_grade", F.upper(F.trim(F.col("nutriscore_grade").cast("string"))))
+            df = df.withColumn(
+                "nutriscore_grade",
+                F.when(F.col("nutriscore_grade").isin("A", "B", "C", "D", "E"), F.col("nutriscore_grade")).otherwise(
+                    None
+                ),
+            )
+
+        # --- RULE 6: Deduplicate by barcode (keep highest completeness_score) ---
+        if "completeness_score" in df.columns:
+            df = df.withColumn("completeness_score", F.col("completeness_score").cast("double"))
+            window = Window.partitionBy("barcode").orderBy(F.col("completeness_score").desc_nulls_last())
+            df = df.withColumn("_row_num", F.row_number().over(window))
+            df = df.filter(F.col("_row_num") == 1).drop("_row_num")
+        else:
+            df = df.dropDuplicates(["barcode"])
+
+        # --- Select output columns ---
+        keep_cols = [
+            "barcode", "product_name", "generic_name", "brands", "brand_name",
+            "categories", "category_name", "countries", "quantity", "packaging",
+            "ingredients_text", "energy_kcal", "fat_g", "proteins_g",
+            "carbohydrates_g", "sugars_g", "fiber_g", "salt_g",
+            "nutriscore_grade", "nutriscore_score", "nova_group",
+            "ecoscore_grade", "completeness_score", "data_source",
+        ]
+        existing_cols = [c for c in keep_cols if c in df.columns]
+        df = df.select(existing_cols)
+
+        cleaned_count = df.count()
+
+        # --- Write output ---
+        output_path = str(cleaned_dir / "products_cleaned.parquet")
+        csv_path = str(cleaned_dir / "products_cleaned.csv")
+
+        # Coalesce to 1 file for downstream compatibility
+        df.coalesce(1).write.mode("overwrite").parquet(output_path + "_spark")
+
+        # Move the single parquet file to the expected path
+        import glob
+        import shutil
+
+        spark_output = glob.glob(output_path + "_spark/part-*.parquet")
+        if spark_output:
+            shutil.copy(spark_output[0], output_path)
+        shutil.rmtree(output_path + "_spark", ignore_errors=True)
+
+        # Also write CSV using pandas for compatibility
+        import pandas as pd
+
+        pdf = pd.read_parquet(output_path)
+        pdf.to_csv(csv_path, index=False)
+
+        print(f"PySpark cleaned: {raw_count} -> {cleaned_count} products ({raw_count - cleaned_count} removed)")
+        print(f"Output: {output_path}")
+
+        # --- RULE 7: Generate cleaning report ---
+        report = {
+            "pipeline": "etl_aggregate_clean (PySpark)",
+            "timestamp": datetime.utcnow().isoformat(),
+            "raw_count": raw_count,
+            "cleaned_count": cleaned_count,
+            "removal_rate": round((raw_count - cleaned_count) / max(raw_count, 1) * 100, 1),
+            "rules_applied": [
+                "column_standardization",
+                "barcode_validation",
+                "null_product_name_removal",
+                "nutritional_range_capping",
+                "nutriscore_normalization",
+                "barcode_deduplication",
+            ],
+            "output_format": "parquet",
+            "spark_version": spark.version,
+        }
+        report_path = cleaned_dir / "cleaning_report.json"
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+
+        return str(output_path)
+
+    finally:
+        spark.stop()
+
+
+def validate_data_quality(**context):
+    """Validate cleaned data quality before loading to database.
+
+    Checks: row count, null rates, range validation, schema conformance.
+    Logs results to staging.data_quality_checks table.
+    Fails task if critical checks fail.
+    """
+    import os
+    from pathlib import Path
+
+    import pandas as pd
+    import psycopg2
+
+    cleaned_path = Path("/opt/airflow/data/cleaned/products_cleaned.parquet")
+    if not cleaned_path.exists():
+        raise FileNotFoundError("No cleaned data found for quality validation")
+
+    df = pd.read_parquet(cleaned_path)
+    checks = []
+
+    # Check 1: Row count > 0
+    checks.append({
+        "check_name": "row_count_positive",
+        "check_type": "row_count",
+        "expected": "> 0",
+        "actual": str(len(df)),
+        "passed": len(df) > 0,
+    })
+
+    # Check 2: Barcode null rate = 0%
+    barcode_nulls = df["barcode"].isna().sum() if "barcode" in df.columns else 0
+    checks.append({
+        "check_name": "barcode_not_null",
+        "check_type": "null_rate",
+        "expected": "0",
+        "actual": str(barcode_nulls),
+        "passed": barcode_nulls == 0,
+    })
+
+    # Check 3: Product name null rate = 0%
+    name_nulls = df["product_name"].isna().sum() if "product_name" in df.columns else 0
+    checks.append({
+        "check_name": "product_name_not_null",
+        "check_type": "null_rate",
+        "expected": "0",
+        "actual": str(name_nulls),
+        "passed": name_nulls == 0,
+    })
+
+    # Check 4: Energy kcal max <= 1000
+    if "energy_kcal" in df.columns:
+        max_energy = df["energy_kcal"].max()
+        checks.append({
+            "check_name": "energy_kcal_range",
+            "check_type": "range",
+            "expected": "<= 1000",
+            "actual": str(round(max_energy, 1)) if pd.notna(max_energy) else "null",
+            "passed": pd.isna(max_energy) or max_energy <= 1000,
+        })
+
+    # Check 5: Nutri-Score only A-E
     if "nutriscore_grade" in df.columns:
-        df["nutriscore_grade"] = df["nutriscore_grade"].astype(str).str.upper().str.strip()
-        df.loc[~df["nutriscore_grade"].isin(["A", "B", "C", "D", "E"]), "nutriscore_grade"] = None
+        valid_grades = {"A", "B", "C", "D", "E"}
+        non_null_grades = df["nutriscore_grade"].dropna().unique()
+        invalid = set(non_null_grades) - valid_grades
+        checks.append({
+            "check_name": "nutriscore_valid_grades",
+            "check_type": "schema",
+            "expected": "only A,B,C,D,E",
+            "actual": f"{len(invalid)} invalid" if invalid else "all valid",
+            "passed": len(invalid) == 0,
+        })
 
-    # Deduplicate by barcode (keep most complete)
-    if "completeness_score" in df.columns:
-        df = df.sort_values("completeness_score", ascending=False)
-    df = df.drop_duplicates(subset=["barcode"], keep="first")
+    # Check 6: No duplicate barcodes
+    if "barcode" in df.columns:
+        dup_count = df.duplicated(subset=["barcode"]).sum()
+        checks.append({
+            "check_name": "barcode_unique",
+            "check_type": "uniqueness",
+            "expected": "0 duplicates",
+            "actual": str(dup_count),
+            "passed": dup_count == 0,
+        })
 
-    # Keep only usable columns (drop nested/complex objects that break Parquet)
-    keep_cols = [
-        "barcode",
-        "product_name",
-        "generic_name",
-        "brands",
-        "brand_name",
-        "categories",
-        "category_name",
-        "countries",
-        "quantity",
-        "packaging",
-        "ingredients_text",
-        "energy_kcal",
-        "fat_g",
-        "proteins_g",
-        "carbohydrates_g",
-        "sugars_g",
-        "fiber_g",
-        "salt_g",
-        "nutriscore_grade",
-        "nutriscore_score",
-        "nova_group",
-        "ecoscore_grade",
-        "completeness_score",
-        "data_source",
-    ]
-    df = df[[c for c in keep_cols if c in df.columns]]
+    # Log results to staging.data_quality_checks (if table exists)
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("NUTRITRACK_DB_HOST", "postgres"),
+            port=os.getenv("NUTRITRACK_DB_PORT", "5432"),
+            dbname=os.getenv("NUTRITRACK_DB_NAME", "nutritrack"),
+            user=os.getenv("NUTRITRACK_DB_USER", "nutritrack"),
+            password=os.getenv("NUTRITRACK_DB_PASSWORD", "nutritrack"),
+        )
+        cur = conn.cursor()
+        for c in checks:
+            cur.execute(
+                """INSERT INTO staging.data_quality_checks
+                   (pipeline_name, check_name, check_type, expected_value, actual_value, passed)
+                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                ("etl_aggregate_clean", c["check_name"], c["check_type"], c["expected"], c["actual"], c["passed"]),
+            )
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("Quality checks logged to staging.data_quality_checks")
+    except Exception as e:
+        print(f"Could not log to DB (table may not exist yet): {e}")
 
-    # Save
-    output_path = cleaned_dir / "products_cleaned.parquet"
-    df.to_parquet(str(output_path), index=False)
-    df.to_csv(str(cleaned_dir / "products_cleaned.csv"), index=False)
+    # Print results
+    failed = [c for c in checks if not c["passed"]]
+    for c in checks:
+        status = "PASS" if c["passed"] else "FAIL"
+        print(f"  [{status}] {c['check_name']}: expected {c['expected']}, got {c['actual']}")
 
-    print(f"Cleaned: {len(df)} products -> {output_path}")
-    return str(output_path)
+    if failed:
+        raise ValueError(f"{len(failed)} data quality check(s) failed: {[c['check_name'] for c in failed]}")
+
+    print(f"All {len(checks)} data quality checks passed")
+    return len(checks)
 
 
 def load_to_database(**context):
@@ -276,11 +502,11 @@ def load_to_database(**context):
 with DAG(
     "etl_aggregate_clean",
     default_args=default_args,
-    description="Aggregate, clean, and load data — single transform feeding both lake and DW paths",
+    description="PySpark-based aggregate, clean, validate, and load — feeds both lake and DW paths",
     schedule_interval="0 4 * * *",
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["aggregation", "cleaning", "loading"],
+    tags=["aggregation", "cleaning", "pyspark", "data-quality"],
 ) as dag:
     aggregate = PythonOperator(
         task_id="aggregate_all_sources",
@@ -289,7 +515,12 @@ with DAG(
 
     clean = PythonOperator(
         task_id="clean_data",
-        python_callable=clean_data,
+        python_callable=clean_data_spark,
+    )
+
+    validate = PythonOperator(
+        task_id="validate_data_quality",
+        python_callable=validate_data_quality,
     )
 
     load = PythonOperator(
@@ -297,4 +528,4 @@ with DAG(
         python_callable=load_to_database,
     )
 
-    aggregate >> clean >> load
+    aggregate >> clean >> validate >> load
