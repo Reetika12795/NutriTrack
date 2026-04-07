@@ -593,23 +593,26 @@ def publish_anonymized_aggregates(**context):
         """,
     }
 
-    for dataset_name, query in queries.items():
-        try:
-            df = pd.read_sql(query, engine)
-            if df.empty:
-                print(f"  {dataset_name}: no data returned, skipping")
-                continue
+    raw_conn = engine.raw_connection()
+    try:
+        for dataset_name, query in queries.items():
+            try:
+                df = pd.read_sql(query, raw_conn)
+                if df.empty:
+                    print(f"  {dataset_name}: no data returned, skipping")
+                    continue
 
-            with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-                df.to_parquet(tmp.name, index=False)
-                object_name = f"{dataset_name}/{ds}/{dataset_name}.parquet"
-                client.fput_object("gold", object_name, tmp.name)
-                print(f"  {dataset_name}: {len(df)} rows -> gold/{object_name}")
-                os.unlink(tmp.name)
-        except Exception as e:
-            print(f"  {dataset_name}: ERROR - {e}")
-
-    engine.dispose()
+                with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
+                    df.to_parquet(tmp.name, index=False)
+                    object_name = f"{dataset_name}/{ds}/{dataset_name}.parquet"
+                    client.fput_object("gold", object_name, tmp.name)
+                    print(f"  {dataset_name}: {len(df)} rows -> gold/{object_name}")
+                    os.unlink(tmp.name)
+            except Exception as e:
+                print(f"  {dataset_name}: ERROR - {e}")
+    finally:
+        raw_conn.close()
+        engine.dispose()
     print(f"Anonymized gold aggregates published for {ds}")
 
 

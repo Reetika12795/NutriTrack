@@ -152,7 +152,8 @@ def clean_data_spark(**context):
             return None
 
         # --- Union all sources ---
-        # Align schemas before union (use string type for safety, cast later)
+        # Cast every column to string so heterogeneous schemas (e.g.
+        # ARRAY<STRUCT> in Parquet vs plain STRING from JSON) can union safely.
         all_columns = set()
         for sdf in dfs:
             all_columns.update(sdf.columns)
@@ -162,11 +163,13 @@ def clean_data_spark(**context):
             for col in all_columns:
                 if col not in sdf.columns:
                     sdf = sdf.withColumn(col, F.lit(None).cast("string"))
+                else:
+                    sdf = sdf.withColumn(col, F.col(col).cast("string"))
             aligned.append(sdf.select(sorted(all_columns)))
 
         df = aligned[0]
         for sdf in aligned[1:]:
-            df = df.unionByName(sdf, allowMissingColumns=True)
+            df = df.unionByName(sdf)
 
         raw_count = df.count()
         print(f"Merged: {raw_count} total rows from {len(dfs)} sources")
@@ -185,8 +188,12 @@ def clean_data_spark(**context):
             "salt_100g": "salt_g",
         }
         for old_name, new_name in col_map.items():
-            if old_name in df.columns:
+            if old_name in df.columns and new_name not in df.columns:
                 df = df.withColumnRenamed(old_name, new_name)
+            elif old_name in df.columns and new_name in df.columns:
+                # Target already exists — coalesce old into new, drop old
+                df = df.withColumn(new_name, F.coalesce(F.col(new_name), F.col(old_name)))
+                df = df.drop(old_name)
 
         # --- RULE 2: Clean barcodes ---
         if "barcode" in df.columns:
@@ -400,7 +407,7 @@ def validate_data_quality(**context):
                 """INSERT INTO staging.data_quality_checks
                    (pipeline_name, check_name, check_type, expected_value, actual_value, passed)
                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                ("etl_aggregate_clean", c["check_name"], c["check_type"], c["expected"], c["actual"], c["passed"]),
+                ("etl_aggregate_clean", c["check_name"], c["check_type"], c["expected"], c["actual"], bool(c["passed"])),
             )
         conn.commit()
         cur.close()
