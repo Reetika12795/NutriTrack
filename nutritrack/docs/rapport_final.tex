@@ -559,6 +559,7 @@ Availability & Health monitoring & Docker healthchecks, Airflow UI, \texttt{/hea
 \midrule
 OLTP/OLAP DB & Single PostgreSQL & Simplifies deployment; adequate at current scale \\
 ETL orchestrator & Apache Airflow & Industry standard, DAG-based, web UI, Celery \\
+ETL engine & PySpark & Distributed cleaning on 800k+ rows, cluster-ready \\
 Data lake storage & MinIO (S3) & Open-source, self-hosted, AWS S3-compatible API \\
 API framework & FastAPI (async) & Native async support, auto-generated OpenAPI docs \\
 Big data & DuckDB & Direct Parquet reads, SQL interface, zero config \\
@@ -763,7 +764,7 @@ def extract_products_by_category(
 \subsection{Source 2: Parquet File + DuckDB}
 
 \textbf{File:} \texttt{scripts/extract\_off\_parquet.py}\\
-Result: 50\,000 French products extracted in $\sim$8 seconds from a
+Result: 798\,177 French products extracted in $\sim$12 seconds from a
 4.1~GB Parquet file.
 
 \begin{lstlisting}[language=SQL, caption={DuckDB query --- Parquet extraction with nested structures}]
@@ -777,7 +778,7 @@ SELECT
 FROM read_parquet('food.parquet')
 WHERE code IS NOT NULL
   AND list_contains(countries_tags, 'en:france')
-ORDER BY completeness DESC LIMIT 50000;
+ORDER BY completeness DESC;
 \end{lstlisting}
 
 \subsection{Source 3: Web Scraping}
@@ -855,9 +856,9 @@ product\_name)} for sub-second search across 100\,000+ products.
 
 % Input/output labels
 \node[font=\scriptsize\bfseries\color{ntgreen}, above=0.3cm of s1]
-  {50\,000 raw products (5 sources)};
+  {798\,177 raw products (5 sources)};
 \node[font=\scriptsize\bfseries\color{ntgreen}, below=0.3cm of s8]
-  {49\,955 clean products (99.9\,\% retention)};
+  {777\,126 clean products (97.4\,\% retention)};
 \end{tikzpicture}
 \caption{Data cleaning pipeline}
 \label{fig:cleaning-pipeline}
@@ -1081,7 +1082,7 @@ extensibility without restructuring.
 \textbf{Dimension} & \textbf{SCD} & \textbf{Rows} & \textbf{Description} \\
 \midrule
 dim\_time & --- & 4\,018 & Pre-populated time dimension (2020--2030) \\
-dim\_product & Type 2 & $\sim$50K & Product attributes with history \\
+dim\_product & Type 2 & $\sim$777K & Product attributes with history \\
 dim\_brand & Type 1 & $\sim$15K & Brands (overwrite corrections) \\
 dim\_category & --- & $\sim$2K & Category hierarchy \\
 dim\_country & Type 3 & Ref. & Countries with expansion tracking \\
@@ -1160,7 +1161,7 @@ Access control & Security & \texttt{app\_readonly} cannot access \texttt{dw} sch
 \midrule
 PostgreSQL (OLTP+OLAP) & Good at small scale & Single instance, simple deployment & Separation needed at larger scale \\
 Airflow for ETL & Industry standard & Web UI, retries, dependency mgmt & Complex setup (Celery, Redis, init) \\
-SQL-based ETL (no Spark) & Fits current volume & Simple, debuggable & Limited parallel processing \\
+PySpark ETL & Distributed-capable cleaning & Handles 800k+ rows, cluster-ready & Heavier setup than pure SQL \\
 Schema isolation & Clean separation & No operational/analytical contamination & Cross-schema queries in ETL \\
 \bottomrule
 \end{tabularx}
@@ -1502,10 +1503,11 @@ checks, and cleanup of old backup files.
   {GOLD};
 \node[content, anchor=center] at (gd.center) {
   analytics/\{ds\}/\\
-  \quad nutriscore\_dist.parquet\\
-  \quad category\_stats.parquet\\
-  \quad brand\_ranking.parquet\\[3pt]
-  \textit{Analytical data}\\
+  \quad nutrition\_patterns.parquet\\
+  \quad popular\_products.parquet\\
+  \quad brand\_rankings.parquet\\
+  \quad category\_stats.parquet\\[3pt]
+  \textit{Anonymized aggregates}\\
   \textit{Retention: indefinite}
 };
 
@@ -1781,7 +1783,9 @@ C21 & E7 & RBAC, group policies, \rgpd{} & \S\ref{sec:c21} \\
   \item Separate OLTP/OLAP with a dedicated analytical engine
         (ClickHouse, Redshift)
   \item Migrate to a full data catalog (DataHub)
-  \item Implement data quality tests with Great Expectations
+  \item Extend data quality framework (6 formal checks already implemented
+        and logged to \texttt{staging.data\_quality\_checks}; next step:
+        integrate Great Expectations for schema-level validation)
   \item Real-time streaming with Apache Kafka
   \item Advanced monitoring with PagerDuty integration
   \item Machine learning recommendation engine in the gold layer

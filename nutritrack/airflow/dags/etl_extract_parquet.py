@@ -33,45 +33,44 @@ def extract_from_parquet(**context):
     con = duckdb.connect()
     source = f"read_parquet('{data_path}')"
 
+    # Parquet dump stores multilingual fields as ARRAY<STRUCT<lang,text>>.
+    # Extract the 'main' entry text. Nutrition data is in a nutriments array.
     query = f"""
     SELECT
         code AS barcode,
-        product_name,
-        generic_name,
+        list_extract(list_filter(product_name, x -> x.lang = 'main'), 1)."text" AS product_name,
+        list_extract(list_filter(generic_name, x -> x.lang = 'main'), 1)."text" AS generic_name,
         quantity,
         packaging,
         brands AS brand_name,
         categories AS category_name,
-        countries,
-        "energy-kcal_100g" AS energy_kcal,
-        "energy-kj_100g" AS energy_kj,
-        fat_100g AS fat_g,
-        "saturated-fat_100g" AS saturated_fat_g,
-        carbohydrates_100g AS carbohydrates_g,
-        sugars_100g AS sugars_g,
-        fiber_100g AS fiber_g,
-        proteins_100g AS proteins_g,
-        salt_100g AS salt_g,
-        sodium_100g AS sodium_g,
+        countries_tags AS countries,
+        list_extract(list_filter(nutriments, x -> x.name = 'energy-kcal'), 1)."100g" AS energy_kcal,
+        list_extract(list_filter(nutriments, x -> x.name = 'fat'), 1)."100g" AS fat_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'saturated-fat'), 1)."100g" AS saturated_fat_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'carbohydrates'), 1)."100g" AS carbohydrates_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'sugars'), 1)."100g" AS sugars_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'fiber'), 1)."100g" AS fiber_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'proteins'), 1)."100g" AS proteins_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'salt'), 1)."100g" AS salt_g,
+        list_extract(list_filter(nutriments, x -> x.name = 'sodium'), 1)."100g" AS sodium_g,
         nutriscore_grade,
         nutriscore_score,
         nova_group,
         ecoscore_grade,
-        ingredients_text,
-        allergens,
-        traces,
-        image_url,
-        url AS off_url,
+        list_extract(list_filter(ingredients_text, x -> x.lang = 'main'), 1)."text" AS ingredients_text,
+        array_to_string(allergens_tags, ', ') AS allergens,
+        array_to_string(traces_tags, ', ') AS traces,
+        link AS off_url,
         completeness AS completeness_score,
         last_modified_t
     FROM {source}
-    WHERE countries LIKE '%France%'
+    WHERE countries_tags LIKE '%en:france%'
       AND code IS NOT NULL
       AND product_name IS NOT NULL
-      AND LENGTH(code) >= 8
+      AND LENGTH(CAST(code AS VARCHAR)) >= 8
       AND completeness >= 0.3
     ORDER BY completeness DESC
-    LIMIT 100000
     """
 
     df = con.execute(query).fetchdf()

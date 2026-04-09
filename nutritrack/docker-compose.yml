@@ -306,37 +306,6 @@ services:
       - ./app:/app/app
 
   # ============================================
-  # Apache Superset - Analytics BI Dashboards
-  # ============================================
-  superset:
-    build:
-      context: .
-      dockerfile: superset/Dockerfile
-    ports:
-      - "8088:8088"
-    environment:
-      SUPERSET_CONFIG_PATH: /app/superset_config.py
-      SUPERSET_SECRET_KEY: nutritrack-superset-change-in-production
-      SUPERSET_SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://superset:superset@postgres:5432/superset
-      REDIS_URL: redis://redis:6379/2
-    volumes:
-      - ./superset/superset_config.py:/app/superset_config.py:ro
-      - ./superset/superset-init.sh:/app/superset-init.sh:ro
-    entrypoint: ["/bin/bash", "/app/superset-init.sh"]
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8088/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
-    restart: unless-stopped
-
-  # ============================================
   # MailHog - SMTP testing for Airflow alerts (C16)
   # ============================================
   mailhog:
