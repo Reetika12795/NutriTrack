@@ -230,13 +230,13 @@ single coherent project.
 \textbf{SMART Objectives:}
 \begin{itemize}[nosep]
   \item \textbf{S}: Build a nutrition tracking platform integrating 5
-        types of data sources
-  \item \textbf{M}: Process 100\,000+ products with 95\,\%+ completeness
-        on key nutritional fields
+        types of data sources (REST API, Parquet, web scraping, database, DuckDB)
+  \item \textbf{M}: Process 798\,177 raw products down to 777\,116 cleaned
+        (97.4\,\% retention) with 95\,\%+ completeness on key nutritional fields
   \item \textbf{A}: Use open-source technologies within a Docker Compose
-        environment
+        environment (15 services, 0\,EUR licensing cost)
   \item \textbf{R}: Align with the \off{} data model and European
-        nutritional standards
+        nutritional standards (EU Reg.~1169/2011)
   \item \textbf{T}: Deliver within a 3-month cycle (12 one-week sprints)
 \end{itemize}
 
@@ -335,7 +335,7 @@ single coherent project.
         fit=(airflow)(postgres)(minio)(redis)(fastapi)(superset)
             (streamlit)(monitoring),
         label={[font=\small\bfseries\color{ntgray}]above:
-          docker-compose.yml --- 14 services}] {};
+          docker-compose.yml --- 15 services}] {};
 \end{scope}
 
 \end{tikzpicture}
@@ -418,13 +418,122 @@ entries, including Nutri-Score ratings and detailed nutritional values.
 
 \subsection{Synthesis Note}
 
-\textbf{Need analysis:} The project addresses the need for a centralized
-platform combining food product data from multiple sources (API, bulk
-exports, web scraping) with personal meal tracking.
+\subsubsection{Introduction --- Context, Stakes and Need Reformulation}
 
-\textbf{\rgpd{} compliance actions:} Consent-based registration, data
-retention limits, SHA256 pseudonymization in the warehouse, automated
-cleanup via \texttt{rgpd\_cleanup\_expired\_data()}.
+\textbf{Context:} Nutritional transparency is a growing societal concern in France and
+across Europe, driven by public health policies (Plan National Nutrition Sant\'{e}) and
+consumer demand for product transparency. The Open Food Facts project has assembled
+over 3~million product entries collaboratively, but this data remains fragmented,
+inconsistently formatted, and difficult to exploit for analytical or tracking purposes.
+
+\textbf{Stakes:} The project's stakeholders require a centralized, clean and
+governed data platform that transforms heterogeneous food product data into
+actionable nutritional insights --- from personal meal tracking (end users) to
+population-level dietary analysis (nutritionists) and infrastructure management
+(administrators).
+
+\textbf{Need reformulation:} Build an end-to-end data engineering platform that
+(1)~collects food product data from 5 heterogeneous sources, (2)~cleans and
+normalizes 798\,177 French products into a unified dataset of 777\,116 validated
+records, (3)~stores data in a star-schema data warehouse with SCD historization,
+(4)~exposes it via a secured REST API and a Streamlit frontend, and (5)~maintains
+a MinIO-based data lake with medallion architecture and full \rgpd{} governance.
+
+\subsubsection{Objectives and Scope}
+
+The functional scope covers: data collection (5 source types), data cleaning and
+aggregation (PySpark pipeline), relational storage (PostgreSQL 16 with 4 schemas),
+analytical warehouse (star schema, 7 dimensions, 2 facts), data lake (MinIO medallion),
+REST API (FastAPI, 8 endpoints, JWT), frontend (Streamlit, 4 roles), monitoring
+(Prometheus + Grafana, 6 dashboards), and \rgpd{} compliance.
+
+\subsubsection{Opportunity Study}
+
+\textbf{Interview synthesis:} The data producer interviews (Table~\ref{tab:grid-prod})
+revealed that the primary data source (\off{}) provides both a REST API and bulk
+Parquet exports via HuggingFace. The data consumer interviews
+(Table~\ref{tab:grid-cons}) confirmed the need for personalized nutrition tracking,
+product comparison by Nutri-Score, and aggregated dietary trends.
+
+\textbf{Benchmark:} A benchmark of existing solutions (Yuka, MyFitnessPal,
+Cronometer) showed that none provide an open-source, self-hosted platform with
+full data lineage and warehouse capabilities. The identified gap justified building
+\nutritrack{} as a data engineering demonstration project.
+
+\subsubsection{Feasibility Study}
+
+\begin{itemize}[nosep]
+  \item \textbf{Technical feasibility:} The \off{} API and Parquet dump are freely
+        available. DuckDB can query the 4.2~GB Parquet file in $\sim$12 seconds.
+        Docker Compose enables reproducible deployment of 15 services on a single
+        machine.
+  \item \textbf{Data feasibility:} 798\,177 French products with sufficient
+        nutritional coverage (95\,\%+ on energy, proteins, fat, carbohydrates).
+  \item \textbf{Organizational feasibility:} Solo developer project over 12 sprints;
+        all tools are open-source with extensive documentation.
+  \item \textbf{Financial feasibility:} Zero infrastructure cost (Docker, open-source);
+        see CAPEX analysis in Section~\ref{sec:capex}.
+\end{itemize}
+
+\subsubsection{RICE Analysis}
+
+\begin{table}[H]
+\centering
+\caption{RICE scoring for feature prioritization}
+\label{tab:rice}
+\begin{tabularx}{\textwidth}{L{3.5cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.5cm}}
+\toprule
+\textbf{Feature} & \textbf{Reach} & \textbf{Impact} & \textbf{Conf.} & \textbf{Effort} & \textbf{RICE} \\
+\midrule
+Product search + alternatives & 5 & 3 & 0.9 & 2 & 6.75 \\
+ETL pipeline (full) & 4 & 3 & 1.0 & 3 & 4.00 \\
+Star schema DW & 3 & 3 & 0.8 & 3 & 2.40 \\
+Medallion data lake & 3 & 2 & 0.8 & 2 & 2.40 \\
+Meal tracking + nutrition & 4 & 2 & 0.9 & 2 & 3.60 \\
+SCD historization & 2 & 2 & 0.7 & 1 & 2.80 \\
+Monitoring (Prometheus/Grafana) & 2 & 2 & 0.8 & 2 & 1.60 \\
+RBAC governance & 3 & 2 & 0.9 & 1 & 5.40 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+{\footnotesize \textbf{Scale:} Reach (1--5 stakeholder groups), Impact (1--3),
+Confidence (0--1), Effort (1--3 sprints). RICE = (Reach $\times$ Impact
+$\times$ Confidence) / Effort.}
+
+\subsubsection{Pre-Project}
+
+\textbf{Macro technical recommendations:}
+\begin{itemize}[nosep]
+  \item PostgreSQL 16 for both OLTP and OLAP (schema isolation), with migration
+        path to dedicated OLAP engine at scale
+  \item Apache Airflow 2.8 with CeleryExecutor for ETL orchestration
+  \item PySpark 3.5 for distributed data cleaning on 800K+ records
+  \item MinIO for S3-compatible object storage (medallion architecture)
+  \item FastAPI for async REST API with JWT authentication
+  \item Docker Compose for reproducible deployment
+\end{itemize}
+
+\textbf{Accessibility accommodations:}
+\begin{itemize}[nosep]
+  \item Streamlit UI with high-contrast Nutri-Score color coding
+  \item All API documentation accessible via Swagger UI and ReDoc (keyboard-navigable)
+  \item MkDocs documentation site with responsive layout and search
+  \item Grafana dashboards with colorblind-friendly palettes
+  \item Workstation adaptation: the platform runs entirely in Docker, deployable
+        on any OS (macOS, Linux, Windows) without native dependencies
+\end{itemize}
+
+\textbf{\rgpd{} compliance actions:}
+\begin{itemize}[nosep]
+  \item Consent-based registration with explicit opt-in
+  \item Data retention limits: user accounts 3 years, meal tracking 2 years
+  \item SHA256 pseudonymization of user identifiers in the data warehouse
+  \item Automated cleanup via \texttt{rgpd\_cleanup\_expired\_data()} PL/pgSQL function
+  \item Personal data registry maintained (Table~\ref{tab:rgpd})
+  \item No personal data in the data lake (gold layer uses anonymized aggregates)
+  \item Data lake lifecycle rules: Bronze 90 days, backups 30 days
+\end{itemize}
 
 
 % -----------------------------------------------------------
@@ -455,7 +564,28 @@ Meal Item & Product within a meal & product\_id, quantity, computed nutrition \\
 \end{tabularx}
 \end{table}
 
-\subsubsection{Flux Matrix}
+\subsubsection{Data Models}
+
+The project uses multiple data modeling approaches adapted to each storage layer:
+
+\begin{table}[H]
+\centering
+\caption{Data models by storage layer}
+\label{tab:data-models-topo}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2cm} L{3.5cm} L{4.5cm}}
+\toprule
+\textbf{Layer} & \textbf{Type} & \textbf{Model} & \textbf{Description} \\
+\midrule
+Operational (app) & Structured & Relational (3NF) & Products, brands, categories, users, meals, meal\_items with FK constraints \\
+Data Warehouse (dw) & Structured & Star schema (Kimball) & 7 dimensions (time, product, brand, category, country, user, nutriscore) + 2 fact tables \\
+Data Lake (bronze) & Semi-structured & Raw files & JSON (API, scraping), Parquet (bulk export), unmodified from source \\
+Data Lake (silver) & Semi-structured & Cleaned Parquet & Unified schema, validated and deduplicated \\
+Data Lake (gold) & Semi-structured & Analytical Parquet & Pre-aggregated datasets for analytics consumption \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Treatments and Data Flows --- Flux Matrix}
 
 \begin{figure}[H]
 \centering
@@ -518,6 +648,29 @@ Meal Item & Product within a meal & product\_id, quantity, computed nutrition \\
 \end{figure}
 
 
+\subsubsection{Access and Usage Conditions}
+
+\begin{table}[H]
+\centering
+\caption{Data access and usage conditions}
+\label{tab:access-conditions}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{3cm} L{4.5cm}}
+\toprule
+\textbf{Data Source} & \textbf{Access Method} & \textbf{License} & \textbf{Conditions} \\
+\midrule
+OFF REST API & HTTP GET & ODbL v1.0 & Rate limit: 100 req/min; User-Agent required \\
+OFF Parquet & HuggingFace download & ODbL v1.0 & 4.2~GB bulk file; updated weekly \\
+ANSES/EFSA & Web scraping & Public domain & Respectful crawling; robots.txt compliance \\
+PostgreSQL (app) & SQL connection & Internal & Authentication required; role-based access \\
+DuckDB analytics & Embedded SQL & Internal & Read-only on Parquet files \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Data availability:} The OFF dataset is available 24/7 via both API and bulk
+download. ANSES reference values are static and cached locally. Internal PostgreSQL
+data is available whenever the Docker Compose stack is running.
+
 \subsection{Technical Architecture Study (\competence{C3})}
 
 \subsubsection{Functional Analysis}
@@ -557,14 +710,14 @@ Availability & Health monitoring & Docker healthchecks, Airflow UI, \texttt{/hea
 \toprule
 \textbf{Decision} & \textbf{Choice} & \textbf{Rationale} \\
 \midrule
-OLTP/OLAP DB & Single PostgreSQL & Simplifies deployment; adequate at current scale \\
-ETL orchestrator & Apache Airflow & Industry standard, DAG-based, web UI, Celery \\
-ETL engine & PySpark & Distributed cleaning on 800k+ rows, cluster-ready \\
-Data lake storage & MinIO (S3) & Open-source, self-hosted, AWS S3-compatible API \\
-API framework & FastAPI (async) & Native async support, auto-generated OpenAPI docs \\
-Big data & DuckDB & Direct Parquet reads, SQL interface, zero config \\
-Authentication & JWT + bcrypt & Stateless, scalable, standard REST \\
-DW approach & Bottom-up & Fast value delivery; datamarts first \\
+OLTP/OLAP DB & Single PostgreSQL & Simplifies deployment; adequate at current scale. \textit{Alternatives: MySQL (less analytical), ClickHouse (overkill at this scale)} \\
+ETL orchestrator & Apache Airflow & Industry standard, DAG-based, web UI, Celery. \textit{Alternatives: Prefect (less mature), Luigi (no web UI)} \\
+ETL engine & PySpark 3.5 & Distributed cleaning on 800K+ rows, cluster-ready. \textit{Alternatives: pandas (memory limits), dbt (SQL-only)} \\
+Data lake storage & MinIO (S3) & Open-source, self-hosted, AWS S3-compatible API. \textit{Alternatives: HDFS (heavy), AWS S3 (cost)} \\
+API framework & FastAPI (async) & Native async support, auto-generated OpenAPI docs. \textit{Alternatives: Flask (sync), Django REST (heavy)} \\
+Big data & DuckDB & Direct Parquet reads, SQL interface, zero config. \textit{Alternatives: Spark SQL (heavy), Trino (complex)} \\
+Authentication & JWT + bcrypt & Stateless, scalable, standard REST. \textit{Alternatives: OAuth2 (complex), session-based (stateful)} \\
+DW approach & Bottom-up & Fast value delivery; datamarts first. \textit{Alternative: top-down (Inmon, longer initial setup)} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -646,6 +799,57 @@ Following the French RGESN framework:
   \item \textbf{Batch processing}: ETL during off-peak hours (02:00--06:00 UTC)
 \end{enumerate}
 
+\subsubsection{Risks and Costs}
+\label{sec:capex}
+
+\textbf{CAPEX / Infrastructure Cost Analysis:}
+
+\begin{table}[H]
+\centering
+\caption{Infrastructure cost comparison --- On-premise (Docker) vs.\ Cloud (AWS)}
+\label{tab:capex}
+\begin{tabularx}{\textwidth}{L{4cm} C{2.5cm} C{2.5cm} L{3.5cm}}
+\toprule
+\textbf{Component} & \textbf{Docker (actual)} & \textbf{AWS equivalent} & \textbf{Notes} \\
+\midrule
+Compute (15 services) & 0~EUR & $\sim$2\,400~EUR/yr & t3.xlarge (4 vCPU, 16~GB) \\
+PostgreSQL 16 & 0~EUR & $\sim$1\,800~EUR/yr & RDS db.t3.medium \\
+Object storage (6~GB) & 0~EUR & $\sim$50~EUR/yr & S3 Standard \\
+ETL orchestration & 0~EUR & $\sim$2\,400~EUR/yr & MWAA (managed Airflow) \\
+Monitoring & 0~EUR & $\sim$1\,200~EUR/yr & CloudWatch + Grafana Cloud \\
+Networking / data transfer & 0~EUR & $\sim$150~EUR/yr & Outbound data transfer \\
+\midrule
+\textbf{Total annual} & \textbf{0~EUR} & \textbf{$\sim$8\,000~EUR/yr} & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Licensing:} All software components are open-source (PostgreSQL, Airflow,
+MinIO, FastAPI, PySpark, DuckDB, Streamlit, Prometheus, Grafana, Redis).
+Total licensing cost: 0~EUR.
+
+\textbf{Risk Evaluation per Phase:}
+
+\begin{table}[H]
+\centering
+\caption{Risk evaluation by project phase}
+\label{tab:risks}
+\begin{tabularx}{\textwidth}{C{1cm} L{3.5cm} C{1.2cm} C{1.2cm} L{4.5cm}}
+\toprule
+\textbf{Phase} & \textbf{Risk} & \textbf{Prob.} & \textbf{Impact} & \textbf{Mitigation} \\
+\midrule
+1 & Incomplete requirements & Medium & High & Interview grids with all stakeholder groups; iterative validation \\
+2 & API rate limiting / data unavailability & Medium & High & Multiple source strategy (API + Parquet + scraping); local caching \\
+2 & Data quality issues in OFF & High & Medium & 7-rule cleaning pipeline; 6 data quality checks; cleaning report \\
+3 & Schema evolution breaking API & Low & High & Versioned API (\texttt{/api/v1/}); migration scripts \\
+4 & ETL failures blocking analytics & Medium & High & Airflow retries (2--3 attempts); MailHog alerting; SLA monitoring \\
+4 & SCD complexity causing data inconsistencies & Medium & Medium & Unit tests for SCD logic; \texttt{IS DISTINCT FROM} for NULL handling \\
+5 & MinIO storage exhaustion & Low & Medium & Lifecycle rules (bronze 90d, backups 30d); storage monitoring \\
+6 & Integration issues between services & Medium & Medium & Docker Compose healthchecks; end-to-end pipeline testing \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Technical Monitoring (\competence{C4})}
 
 \textbf{Theme:} Apache Airflow --- ETL orchestration and observability.\\
@@ -704,7 +908,98 @@ Deliverable: kickoff meeting simulation}
 \end{table}
 
 \textbf{Effort weighting method:} Fibonacci story points via team
-estimation (poker planning).
+estimation (poker planning). Each user story is estimated by the team during
+sprint planning using the Fibonacci sequence (1, 2, 3, 5, 8, 13). The total
+of 116 story points is distributed across 6 phases as shown above.
+
+\subsection{Team Composition and Budget (\competence{C5})}
+
+\begin{table}[H]
+\centering
+\caption{Team composition and required skills}
+\label{tab:team}
+\begin{tabularx}{\textwidth}{L{3cm} L{3.5cm} L{3cm} C{2cm}}
+\toprule
+\textbf{Role} & \textbf{Skills Required} & \textbf{Phases Active} & \textbf{Allocation} \\
+\midrule
+Project Lead / Data Engineer & Python, SQL, ETL, Docker, Airflow & All (1--6) & 100\,\% \\
+Data Architect & PostgreSQL, star schema, SCD & Phases 1, 3, 4 & 50\,\% \\
+Backend Developer & FastAPI, JWT, REST API design & Phases 3, 6 & 50\,\% \\
+DevOps Engineer & Docker, CI/CD, monitoring & Phases 1, 5, 6 & 25\,\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Budget allocation:} In this project context (certification demonstration),
+all roles are fulfilled by the candidate. The theoretical budget based on market
+rates would be approximately 45\,000~EUR for 3 months (1 FTE senior data engineer
+at 550~EUR/day $\times$ 60 days + 0~EUR infrastructure).
+
+\subsection{Gantt Calendar (\competence{C5})}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  x=0.85cm, y=0.8cm,
+  phase/.style={fill=#1!30, draw=#1!60, rounded corners=2pt, minimum height=0.55cm},
+]
+% Header
+\node[font=\scriptsize\bfseries] at (-2, 0.5) {Phase};
+\foreach \w in {1,...,12} {
+  \node[font=\tiny] at (\w, 1) {W\w};
+}
+
+% Phase bars
+\node[font=\scriptsize, anchor=east] at (-0.2, 0) {1 - Feasibility};
+\fill[ntblue!30, rounded corners=2pt] (0.5,-0.25) rectangle (2.5,0.25);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -0.8) {2 - Extraction};
+\fill[ntorange!30, rounded corners=2pt] (2.5,-1.05) rectangle (5.5,-0.55);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -1.6) {3 - DB + API};
+\fill[ntgreen!30, rounded corners=2pt] (5.5,-1.85) rectangle (7.5,-1.35);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -2.4) {4 - DW + ETL};
+\fill[ntred!30, rounded corners=2pt] (7.5,-2.65) rectangle (9.5,-2.15);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -3.2) {5 - Data Lake};
+\fill[gold!30, rounded corners=2pt] (9.5,-3.45) rectangle (11.5,-2.95);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -4.0) {6 - Frontend};
+\fill[ntgray!30, rounded corners=2pt] (11.5,-4.25) rectangle (12.5,-3.75);
+
+% Milestones
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (2.5, 0) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (5.5, -0.8) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (7.5, -1.6) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (9.5, -2.4) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (11.5, -3.2) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (12.5, -4.0) {};
+
+% Rituals bar
+\node[font=\scriptsize, anchor=east] at (-0.2, -5.0) {\textit{Rituals}};
+\foreach \w in {1,...,12} {
+  \node[font=\tiny\color{ntblue}, circle, fill=ntblue!20, inner sep=1pt] at (\w, -5.0) {S};
+}
+
+\end{tikzpicture}
+\caption{Gantt calendar --- 12-week sprint plan with milestones (diamonds) and weekly standups (S)}
+\label{fig:gantt}
+\end{figure}
+
+\textbf{Collaborative rituals:}
+\begin{itemize}[nosep]
+  \item \textbf{Daily standup} (15 min): progress, blockers, plan for the day
+  \item \textbf{Sprint planning} (1h, bi-weekly): backlog grooming, poker planning estimation
+  \item \textbf{Sprint review} (30 min, bi-weekly): demo of completed work to stakeholders
+  \item \textbf{Sprint retrospective} (30 min, bi-weekly): what went well, what to improve
+  \item \textbf{Phase milestone demo} (1h, end of each phase): formal milestone validation
+\end{itemize}
+
+\textbf{Tracking tool configuration:} GitHub Projects board with columns
+(Backlog, Sprint, In Progress, Review, Done). Issues tagged with competency
+labels (C1--C21) and phase labels. Board accessible to all stakeholders via
+the repository at \url{https://github.com/Reetika12795/NutriTrack}.
 
 \subsection{Communication Strategy (\competence{C7})}
 
@@ -724,6 +1019,33 @@ Final delivery & Jury & Oral + report & End of project & Full demo \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\textbf{User documentation:} Production of user documentation is planned in
+Phase~6 and includes: MkDocs technical documentation site (auto-deployed via
+GitHub Actions), OpenAPI/Swagger interactive API docs, and a quick-start guide
+in the repository README.
+
+\textbf{End-user onboarding plan:}
+\begin{enumerate}[nosep]
+  \item \textbf{Onboarding session 1} (Phase 6, Week 11): Nutritionists ---
+        walkthrough of Streamlit dashboard, data warehouse datamarts, and
+        Superset BI dashboards
+  \item \textbf{Onboarding session 2} (Phase 6, Week 12): Administrators ---
+        Airflow DAG management, MinIO console, Grafana monitoring, backup procedures
+  \item \textbf{Self-service documentation}: MkDocs site with architecture overview,
+        API reference, and troubleshooting guide
+\end{enumerate}
+
+\textbf{Feedback collection process:}
+\begin{itemize}[nosep]
+  \item \textbf{Sprint reviews}: Stakeholder feedback collected during bi-weekly demos;
+        action items logged in GitHub Issues
+  \item \textbf{Phase milestone surveys}: Short feedback form (5 questions) distributed
+        after each phase demo to assess satisfaction and identify gaps
+  \item \textbf{Post-deployment feedback}: GitHub Issues template for bug reports and
+        feature requests, integrated into sprint backlog
+  \item \textbf{Continuous}: Slack channel for real-time questions and feedback
+\end{itemize}
 
 
 % =============================================================
@@ -908,6 +1230,30 @@ product\_name)} for sub-second search across 100\,000+ products.
 \label{fig:mcd}
 \end{figure}
 
+\subsection{Logical Data Model (MLD)}
+
+The logical model translates the conceptual model into relational tables with
+primary keys, foreign keys, and data types, without implementation-specific
+details:
+
+\begin{table}[H]
+\centering
+\caption{Logical Data Model (MLD) --- Table structure}
+\label{tab:mld}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{10cm}}
+\toprule
+\textbf{Table} & \textbf{Attributes} \\
+\midrule
+BRAND & \underline{brand\_id} (PK), brand\_name (VARCHAR, NOT NULL) \\
+CATEGORY & \underline{category\_id} (PK), category\_name (VARCHAR, NOT NULL), parent\_id (FK $\to$ CATEGORY) \\
+PRODUCT & \underline{barcode} (PK), product\_name (VARCHAR, NOT NULL), brand\_id (FK $\to$ BRAND), category\_id (FK $\to$ CATEGORY), energy\_kcal (NUMERIC), fat\_g (NUMERIC), proteins\_g (NUMERIC), carbs\_g (NUMERIC), fiber\_g (NUMERIC), salt\_g (NUMERIC), nutriscore\_grade (CHAR(1)), nova\_group (INT), ecoscore\_grade (CHAR(1)) \\
+USER & \underline{user\_id} (PK, UUID), email (VARCHAR, UNIQUE), password\_hash (VARCHAR), full\_name (VARCHAR), role (ENUM), dietary\_goal (VARCHAR), activity\_level (VARCHAR), created\_at (TIMESTAMP) \\
+MEAL & \underline{meal\_id} (PK), user\_id (FK $\to$ USER), meal\_type (VARCHAR), meal\_date (DATE) \\
+MEAL\_ITEM & \underline{meal\_item\_id} (PK), meal\_id (FK $\to$ MEAL), barcode (FK $\to$ PRODUCT), quantity\_g (NUMERIC) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Physical Data Model (MPD)}
 
 \textbf{File:} \texttt{sql/init/01\_schema\_operational.sql} (279 lines)
@@ -949,6 +1295,74 @@ GET & /api/v1/meals/weekly-trends & Bearer & Weekly trends \\
 
 Auto-generated documentation: \texttt{/docs} (Swagger UI), \texttt{/redoc}
 (ReDoc), \texttt{/api/v1/openapi.json} (machine-readable schema).
+
+\textbf{Authentication and authorization rules:}
+\begin{itemize}[nosep]
+  \item \textbf{JWT HS256} tokens with 30-minute expiration
+  \item \textbf{3 roles}: \texttt{user} (search, meal tracking),
+        \texttt{nutritionist} (analytics, datamart access),
+        \texttt{admin} (full access, user management)
+  \item \textbf{bcrypt} password hashing with salt
+  \item All endpoints except \texttt{/register} and \texttt{/login} require
+        \texttt{Bearer} token
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{Data Quality Checks (\competence{C10})}
+\label{sec:dq}
+
+Six data quality checks are implemented in the staging pipeline and logged
+to the \texttt{staging.data\_quality\_checks} table:
+
+\begin{table}[H]
+\centering
+\caption{Data quality checks --- 6 automated validations}
+\label{tab:dq-checks}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{3cm} L{4cm} L{5cm}}
+\toprule
+\textbf{\#} & \textbf{Check} & \textbf{Rule} & \textbf{Action on Failure} \\
+\midrule
+1 & Barcode format & 8--14 digits, no letters & Record rejected \\
+2 & Product name present & \texttt{product\_name IS NOT NULL} and non-empty & Record rejected \\
+3 & Numeric range & energy $\leq$ 1000, fat $\leq$ 100, proteins $\leq$ 100, carbs $\leq$ 100 & Value set to NULL \\
+4 & Nutri-Score valid & Grade in \{A, B, C, D, E\} & Value set to NULL \\
+5 & NOVA group valid & Group in \{1, 2, 3, 4\} & Value set to NULL \\
+6 & Duplicate detection & Unique barcode (keep most complete record) & Duplicate removed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{\rgpd{} Compliance Analysis}
+\label{sec:rgpd-e4}
+
+\textbf{Personal data identification:} The operational database contains
+personal data in the \texttt{app.users} table (email, full name, dietary
+preferences) and indirectly in \texttt{app.meals} (eating habits linked to
+user\_id). Product data from \off{} contains no personal data.
+
+\textbf{Compliance measures implemented:}
+\begin{enumerate}[nosep]
+  \item \textbf{Personal data registry:} All personal data categories
+        documented with legal basis, retention period, and security measures
+        (Table~\ref{tab:rgpd})
+  \item \textbf{Consent management:} User registration requires explicit
+        consent (Art.~6.1.a); consent status stored in user profile
+  \item \textbf{Data minimization:} Only necessary fields collected; no
+        tracking beyond nutritional analysis
+  \item \textbf{Pseudonymization:} SHA256 hashing of user identifiers in
+        the data warehouse (\texttt{dim\_user.user\_hash})
+  \item \textbf{Right to deletion:} \texttt{CASCADE DELETE} on
+        users $\to$ meals $\to$ meal\_items; API endpoint planned for
+        self-service account deletion
+  \item \textbf{Automated retention:} PL/pgSQL function
+        \texttt{rgpd\_cleanup\_expired\_data()} deletes meals older than
+        2 years and deactivates accounts past 3-year retention
+  \item \textbf{Data lake isolation:} No personal data enters the data lake;
+        gold layer contains only anonymized aggregates
+\end{enumerate}
 
 
 % =============================================================
@@ -1173,6 +1587,29 @@ Schema isolation & Clean separation & No operational/analytical contamination & 
 \label{sec:c15}
 {\small\evaluation{E5} | ETL for data warehouse input/output}
 
+\textbf{Data formats and volumes:}
+\begin{itemize}[nosep]
+  \item \textbf{Input:} 798\,177 raw products from 5 sources ($\sim$4.2~GB Parquet
+        + JSON + CSV), totaling $\sim$6~GB across all storage layers
+  \item \textbf{Processing:} PySpark 3.5 applies 7 cleaning rules, producing
+        777\,116 validated records (97.4\,\% retention)
+  \item \textbf{Output:} Star schema in PostgreSQL DW (7 dimensions + 2 facts),
+        Gold layer analytics in MinIO Parquet
+\end{itemize}
+
+\textbf{Pipeline overview:} 7 Airflow DAGs with 25 total tasks, orchestrated
+via ExternalTaskSensor dependencies for cross-DAG coordination:
+
+\begin{enumerate}[nosep]
+  \item \texttt{etl\_datalake\_ingest} --- Ingest raw data to bronze layer
+  \item \texttt{etl\_aggregate\_clean} --- PySpark cleaning (bronze $\to$ silver)
+  \item \texttt{etl\_import\_to\_db} --- Load cleaned data to operational DB
+  \item \texttt{etl\_load\_warehouse} --- Populate star schema (dimensions + facts)
+  \item \texttt{etl\_gold\_aggregates} --- Generate gold analytics (silver $\to$ gold)
+  \item \texttt{etl\_data\_quality} --- Run 6 quality checks
+  \item \texttt{etl\_backup\_maintenance} --- Weekly backups + cleanup
+\end{enumerate}
+
 \subsection{ETL Workflow}
 
 \begin{figure}[H]
@@ -1391,6 +1828,100 @@ runs weekly and includes tasks for DW schema backup, storage health
 checks, and cleanup of old backup files.
 
 
+\subsection{New Source Integration Procedure}
+
+When a new data source must be integrated into the platform, the following
+6-step procedure is applied:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Source assessment:} Document the new source in the data
+        topography --- format (JSON, CSV, Parquet, API), volume, update
+        frequency, access method, license, and \rgpd{} implications.
+  \item \textbf{Extraction script:} Create a new extraction script following
+        the standard structure (entry point, dependency init, connection
+        config, business logic, error handling, result saving). Add to
+        Git with documentation.
+  \item \textbf{Bronze ingestion:} Configure a new Airflow DAG (or add tasks
+        to an existing DAG) to upload raw data to MinIO bronze bucket under
+        a new prefix (\texttt{new\_source/\{ds\}/*.format}).
+  \item \textbf{Silver transformation:} Update the PySpark cleaning pipeline
+        to include the new source. Add source-specific cleaning rules if needed.
+        Update the schema mapping configuration.
+  \item \textbf{DW integration:} Add or update dimension and fact table
+        loading tasks in \texttt{etl\_load\_warehouse} DAG. If new dimensions
+        are required, create migration scripts and update the star schema.
+  \item \textbf{Validation and monitoring:} Add data quality checks for the
+        new source. Configure alerting for the new DAG tasks. Update the
+        data catalog metadata in MinIO. Run end-to-end test.
+\end{enumerate}
+
+\subsection{New Access Creation Procedure}
+
+To grant a new user or group access to the data warehouse or data lake:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Define access scope:} Identify which schemas (app, dw),
+        tables, and MinIO buckets the new user/group needs. Apply the
+        principle of least privilege. Document in the access rights matrix
+        (Table~\ref{tab:access-matrix}).
+  \item \textbf{Configure database access:} Create a PostgreSQL role with
+        appropriate permissions:
+        \begin{lstlisting}[language=SQL, numbers=none, frame=none, xleftmargin=0em, framexleftmargin=0em]
+-- Example: new analyst role
+CREATE ROLE new_analyst_role LOGIN PASSWORD 'secure_pwd';
+GRANT USAGE ON SCHEMA dw TO new_analyst_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA dw TO new_analyst_role;
+        \end{lstlisting}
+  \item \textbf{Configure data lake access:} Create a MinIO policy scoped
+        to the required buckets and apply it to the user/group:
+        \begin{lstlisting}[language=bash, numbers=none, frame=none, xleftmargin=0em, framexleftmargin=0em]
+# Example: read-only access to gold bucket
+mc admin policy create myminio gold-readonly gold-policy.json
+mc admin user add myminio new_analyst secure_pwd
+mc admin policy attach myminio gold-readonly --user new_analyst
+        \end{lstlisting}
+\end{enumerate}
+
+\subsection{Scalability Documentation}
+
+\begin{table}[H]
+\centering
+\caption{Scalability procedures for platform evolution}
+\label{tab:scalability}
+\begin{tabularx}{\textwidth}{L{3cm} L{3cm} L{6.5cm}}
+\toprule
+\textbf{Dimension} & \textbf{Current State} & \textbf{Scaling Procedure} \\
+\midrule
+Storage space & PostgreSQL: $\sim$2~GB; MinIO: $\sim$4~GB & PostgreSQL: add tablespaces on new volumes. MinIO: add storage nodes to the cluster (erasure coding supports 4--16 nodes). Docker volume resize via host filesystem. \\
+New datamarts & 6 analytical views & Create new SQL view in \texttt{dw} schema; grant SELECT to target role; add to Superset as dataset; document in data catalog. \\
+Compute capacity & Single Docker host & Migrate to Docker Swarm or Kubernetes for horizontal scaling. Airflow: switch from CeleryExecutor to KubernetesExecutor. PySpark: connect to a standalone or YARN cluster. \\
+New data sources & 5 sources & Follow the 6-step new source integration procedure above. \\
+Additional users & 4 role groups & Follow the 3-step new access creation procedure above. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{\rgpd{} Registry and Sorting Procedures (C16)}
+
+The personal data registry (Table~\ref{tab:rgpd}) is maintained and updated
+whenever new data categories are introduced. Sorting and deletion procedures
+are automated:
+
+\begin{itemize}[nosep]
+  \item \textbf{Automated sorting:} The \texttt{rgpd\_cleanup\_expired\_data()}
+        function runs monthly (scheduled via Airflow) and performs:
+        (1)~deletion of meal records older than 2 years,
+        (2)~deactivation of user accounts past 3-year retention,
+        (3)~logging of all deletions to the activity log.
+  \item \textbf{Manual right-to-deletion:} Upon user request, an admin can
+        execute \texttt{DELETE FROM app.users WHERE user\_id = \$UUID} which
+        cascades to all associated meals and meal items.
+  \item \textbf{Data lake compliance:} No personal data is stored in the data
+        lake. MinIO lifecycle rules enforce automatic deletion of bronze data
+        at 90 days and backups at 30 days.
+\end{itemize}
+
+
 % -----------------------------------------------------------
 \section{SCD Dimension Variations (\competence{C17})}
 \label{sec:c17}
@@ -1573,15 +2104,23 @@ overhead, direct MinIO integration, and sufficiency at project scale.
 {\small\evaluation{E7} | Installation and configuration}
 
 The entire infrastructure is deployable in a development environment
-via Docker Compose:
+via Docker Compose. The installation has been tested on macOS (Apple Silicon)
+and Linux (Ubuntu 22.04) without errors.
+
+\textbf{Prerequisites:} Docker Engine 24+, Docker Compose v2, 8~GB RAM minimum,
+10~GB free disk space.
 
 \begin{lstlisting}[language=bash, caption={Infrastructure deployment}]
+# Clone repository
+git clone https://github.com/Reetika12795/NutriTrack.git
+cd nutritrack
+
 # Full platform startup
 docker compose up -d
 
 # Verify service health
 docker compose ps
-# Expected output: 14 services running
+# Expected output: 15 services running
 
 # Makefile commands for testing
 make up            # Start all services
@@ -1589,6 +2128,56 @@ make pipeline      # Run extraction -> cleaning -> import
 make setup-lake    # Initialize MinIO buckets
 make lake-status   # Check storage status
 \end{lstlisting}
+
+\textbf{Service inventory (15 services):}
+
+\begin{table}[H]
+\centering
+\caption{Docker Compose service inventory}
+\label{tab:services}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{3cm} L{2.5cm} C{1.5cm} L{4.5cm}}
+\toprule
+\textbf{\#} & \textbf{Service} & \textbf{Image} & \textbf{Port} & \textbf{Purpose} \\
+\midrule
+1 & PostgreSQL & postgres:16-alpine & 5432 & OLTP + OLAP database \\
+2 & Redis & redis:7-alpine & 6379 & Cache + Celery broker \\
+3 & MinIO & minio/minio:latest & 9000/9001 & S3-compatible object storage \\
+4 & Airflow Webserver & custom (Python 3.11) & 8080 & ETL web interface \\
+5 & Airflow Scheduler & custom (Python 3.11) & --- & DAG scheduling \\
+6 & Airflow Worker & custom (Python 3.11) & --- & Task execution (Celery) \\
+7 & Airflow Init & custom (Python 3.11) & --- & DB migration + user creation \\
+8 & FastAPI & custom (Python 3.11) & 8000 & REST API \\
+9 & Streamlit & custom (Python 3.11) & 8501 & Frontend UI \\
+10 & Prometheus & prom/prometheus & 9090 & Metrics collection \\
+11 & Grafana & grafana/grafana & 3000 & Dashboards + alerting \\
+12 & MailHog & mailhog/mailhog & 8025 & Dev email server \\
+13 & postgres-exporter & prometheuscommunity & 9187 & PostgreSQL metrics \\
+14 & MinIO createbuckets & minio/mc & --- & Bucket initialization \\
+15 & Superset & custom (Python 3.9) & 8088 & BI dashboards \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Storage system configuration:}
+\begin{itemize}[nosep]
+  \item \textbf{PostgreSQL:} 4 schemas (\texttt{app}, \texttt{raw}, \texttt{staging},
+        \texttt{dw}), initialized via SQL migration scripts in \texttt{sql/init/}
+  \item \textbf{MinIO:} 4 buckets (\texttt{bronze}, \texttt{silver}, \texttt{gold},
+        \texttt{backups}), created automatically by the \texttt{createbuckets}
+        init container with lifecycle rules applied
+  \item \textbf{Redis:} In-memory cache for Airflow Celery broker and API
+        session management
+\end{itemize}
+
+\textbf{Batch and real-time tools:}
+\begin{itemize}[nosep]
+  \item \textbf{Batch:} Airflow DAGs (7 DAGs, 25 tasks) orchestrate all
+        ETL workflows on configurable schedules (daily, weekly)
+  \item \textbf{Real-time:} FastAPI provides synchronous query access to
+        the database; Streamlit provides real-time dashboard updates
+  \item \textbf{Catalog:} The JSON catalog in MinIO is connected to the
+        storage system and updated automatically by ETL pipelines
+\end{itemize}
 
 
 % -----------------------------------------------------------
@@ -1601,13 +2190,95 @@ MinIO bucket, updated daily by the ETL pipeline. It documents for each
 dataset: description, format, update frequency, source, schema, owner,
 quality and lineage.
 
-\textbf{Lifecycle-based deletion:}
+\subsection{Feed Method per Source}
+
+\begin{table}[H]
+\centering
+\caption{Feed method selection per data source}
+\label{tab:feed-methods}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2cm} L{3cm} L{5cm}}
+\toprule
+\textbf{Source} & \textbf{Method} & \textbf{Frequency} & \textbf{Justification} \\
+\midrule
+OFF REST API & Batch (API pull) & Daily & Limited to category-based queries; rate-limited; suitable for incremental updates \\
+OFF Parquet & Batch (file download) & Weekly & Full dataset refresh; 4.2~GB file too large for frequent downloads \\
+ANSES/EFSA & Batch (scraping) & Monthly & Reference values change rarely; respectful crawling \\
+PostgreSQL (app) & Batch (SQL extract) & Daily & Extract new/modified records since last run via \texttt{updated\_at} timestamp \\
+DuckDB analytics & On-demand & As needed & Analytical queries triggered by user request or scheduled report \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Catalog Metadata Updates}
+
+The data catalog metadata is updated at each ETL run through the following process:
+\begin{enumerate}[nosep]
+  \item Each DAG task writes a manifest file (\texttt{\_manifests/\{ds\}.json})
+        containing: source, record count, file sizes, schema hash, and timestamp.
+  \item The catalog update task aggregates manifests and updates
+        \texttt{\_catalog/metadata.json} with: last update time, total records,
+        schema version, data lineage (source $\to$ bronze $\to$ silver $\to$ gold),
+        and quality metrics from the cleaning report.
+  \item The Streamlit data catalog browser provides a read-only UI for exploring
+        catalog metadata, dataset schemas, and lineage.
+\end{enumerate}
+
+\subsection{Lifecycle-Based Deletion and Update Procedures}
+
+\begin{table}[H]
+\centering
+\caption{Data lifecycle rules per bucket}
+\label{tab:lifecycle}
+\begin{tabularx}{\textwidth}{L{2cm} L{2cm} L{3cm} L{5.5cm}}
+\toprule
+\textbf{Bucket} & \textbf{Retention} & \textbf{Deletion Method} & \textbf{Procedure} \\
+\midrule
+Bronze & 90 days & MinIO lifecycle rule & Automatic expiration; old snapshots deleted after 90 days to free storage \\
+Silver & 1 year & Manual / lifecycle & Outdated cleaned datasets replaced by new runs; old versions expire after 1 year \\
+Gold & Indefinite & Manual only & Aggregated analytics retained indefinitely; deletion requires admin approval \\
+Backups & 30 days & MinIO lifecycle rule & Old backups automatically purged; most recent 4 weekly backups always retained \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Update procedures:}
 \begin{itemize}[nosep]
-  \item Bronze \texttt{api/} and \texttt{scraping/}: automatic
-        expiration at 90 days
-  \item Backups: expiration at 30 days
-  \item Silver: 1 year retention; Gold: indefinite retention
+  \item \textbf{Data refresh:} New ETL runs write to date-partitioned paths
+        (\texttt{\{ds\}/}), preserving previous versions until lifecycle expiration.
+  \item \textbf{Schema evolution:} If the source schema changes, the cleaning pipeline
+        is updated, a new schema version is recorded in the catalog, and old silver
+        data is marked as deprecated.
+  \item \textbf{Regulatory deletion:} For \rgpd{} compliance, any personal data
+        inadvertently ingested into bronze is immediately deleted and logged
+        as a CRITICAL event in the activity log.
 \end{itemize}
+
+\subsection{Monitoring with Alerts}
+
+The data lake is monitored through Prometheus metrics and Grafana dashboards
+with automated alerting:
+
+\begin{table}[H]
+\centering
+\caption{Data lake monitoring --- alerts and thresholds}
+\label{tab:lake-monitoring}
+\begin{tabularx}{\textwidth}{L{3.5cm} C{2cm} L{3cm} L{4cm}}
+\toprule
+\textbf{Metric} & \textbf{Threshold} & \textbf{Alert Channel} & \textbf{Action} \\
+\midrule
+MinIO disk usage & $>$~85\,\% & Grafana $\to$ MailHog & Trigger lifecycle cleanup; expand storage \\
+MinIO server status & DOWN & Grafana $\to$ MailHog & Restart container; escalate if persistent \\
+ETL feed failure & 2 consecutive & Airflow $\to$ MailHog & Retry; check source availability; log CRITICAL \\
+Catalog update age & $>$~48h & Grafana $\to$ MailHog & Investigate ETL pipeline; check DAG scheduler \\
+Bronze data volume & $>$~10~GB & Grafana panel & Review lifecycle rules; archive old snapshots \\
+Memory usage & $>$~90\,\% & Grafana $\to$ MailHog & Scale compute; optimize PySpark memory settings \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Grafana alert rules are defined in \texttt{monitoring/grafana/provisioning/alerting/}
+and configured to send notifications via MailHog SMTP for development
+and via email/Slack for production deployment.
 
 
 % -----------------------------------------------------------
@@ -1631,12 +2302,56 @@ ETL Service & etl\_service & bronze/silver/gold: write & --- & Automated pipelin
 \end{tabularx}
 \end{table}
 
-\textbf{Principles:}
+\textbf{Governance principles:}
 \begin{itemize}[nosep]
   \item Rights applied to groups (not individuals) when possible
-  \item Access limited to necessary resources per group
+  \item Access limited to necessary resources per group (least privilege)
   \item No personal data in the data lake
   \item Gold bucket publicly readable for anonymous analytics
+  \item All access changes documented and logged
+\end{itemize}
+
+\subsection{Groups and Rights Documentation}
+
+\begin{table}[H]
+\centering
+\caption{Detailed access rights per group and resource}
+\label{tab:detailed-rights}
+\begin{tabularx}{\textwidth}{L{2.2cm} L{2.5cm} C{1.5cm} C{1.5cm} C{1.5cm} C{1.5cm}}
+\toprule
+\textbf{Resource} & \textbf{Permission} & \textbf{Users} & \textbf{Nutri.} & \textbf{Admin} & \textbf{ETL} \\
+\midrule
+PG: app schema & SELECT & Yes & Yes & Yes & Yes \\
+PG: app schema & INSERT/UPDATE & --- & --- & Yes & Yes \\
+PG: dw schema & SELECT & --- & Yes & Yes & Yes \\
+PG: dw schema & INSERT/UPDATE & --- & --- & Yes & Yes \\
+PG: staging schema & ALL & --- & --- & Yes & Yes \\
+MinIO: bronze & READ & --- & --- & Yes & Yes \\
+MinIO: bronze & WRITE & --- & --- & Yes & Yes \\
+MinIO: silver & READ & --- & Yes & Yes & Yes \\
+MinIO: silver & WRITE & --- & --- & Yes & Yes \\
+MinIO: gold & READ & Yes & Yes & Yes & Yes \\
+MinIO: gold & WRITE & --- & --- & Yes & Yes \\
+MinIO: backups & READ/WRITE & --- & --- & Yes & Yes \\
+API endpoints & Public (/register, /login) & Yes & Yes & Yes & --- \\
+API endpoints & Authenticated (/products, /meals) & Yes & Yes & Yes & --- \\
+API endpoints & Admin (/admin/*) & --- & --- & Yes & --- \\
+Airflow UI & View DAGs & --- & --- & Yes & Yes \\
+Grafana & View dashboards & --- & Yes & Yes & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Access update procedures:}
+\begin{itemize}[nosep]
+  \item \textbf{Adding a user to a group:} Assign the appropriate PostgreSQL role
+        (\texttt{GRANT role\_name TO username}) and MinIO policy
+        (\texttt{mc admin policy attach}). Update the access matrix documentation.
+  \item \textbf{Removing access:} Revoke PostgreSQL role (\texttt{REVOKE role\_name
+        FROM username}) and detach MinIO policy. Log the change.
+  \item \textbf{Audit:} Quarterly review of all access grants against the access
+        matrix to ensure compliance with least-privilege principle and \rgpd{}
+        requirements.
 \end{itemize}
 
 
@@ -1710,7 +2425,7 @@ The live demo follows this sequence (32~minutes):
 \toprule
 \textbf{Step} & \textbf{Duration} & \textbf{Demonstration} \\
 \midrule
-1 & 3 min & Launch \texttt{docker compose up -d}, verify 14 services \\
+1 & 3 min & Launch \texttt{docker compose up -d}, verify 15 services \\
 2 & 5 min & Full pipeline execution: extraction $\rightarrow$ cleaning $\rightarrow$ import \\
 3 & 3 min & Airflow interface: DAG history, logs, dependencies \\
 4 & 3 min & PostgreSQL: \texttt{app} schema, SQL queries, GIN index \\
@@ -1732,27 +2447,27 @@ The live demo follows this sequence (32~minutes):
 \textbf{Comp.} & \textbf{Eval.} & \textbf{Artifacts} & \textbf{Section} \\
 \midrule
 \endhead
-C1 & E1, E2 & Interview grids, synthesis note & \S\ref{sec:e1}, \S\ref{sec:e2} \\
-C2 & E2 & Topography (4 parts), flux matrix & \S\ref{sec:e2} \\
-C3 & E2 & Architecture study, Docker Compose & \S\ref{sec:e2} \\
+C1 & E1, E2 & Interview grids, synthesis note (RICE, feasibility, pre-project) & \S\ref{sec:e1}, \S\ref{sec:e2} \\
+C2 & E2 & Topography (4 parts: glossary, models, flows, access), flux matrix & \S\ref{sec:e2} \\
+C3 & E2 & Architecture study, CAPEX, risks, eco-responsibility & \S\ref{sec:e2} \\
 C4 & E2 & Airflow monitoring, extraction\_log, veille newsletter & \S\ref{sec:e2} \\
-C5 & E3 & Roadmap, calendar, effort weighting & \S\ref{sec:e3} \\
+C5 & E3 & Roadmap, Gantt calendar, team, budget, poker planning & \S\ref{sec:e3} \\
 C6 & E2, E3 & Makefile, Airflow UI, indicators, activity log & \S\ref{sec:e2}, \S\ref{sec:e3} \\
-C7 & E3 & Communication strategy, Swagger docs & \S\ref{sec:e3} \\
+C7 & E3 & Communication strategy, onboarding, feedback collection & \S\ref{sec:e3} \\
 C8 & E4 & 5 extraction scripts (API, Parquet, scraping, DB, DuckDB) & \S\ref{sec:c8} \\
 C9 & E4 & 7 SQL queries with optimizations & \S\ref{sec:c9} \\
-C10 & E4 & aggregate\_clean.py, quality report & \S\ref{sec:c10} \\
+C10 & E4 & PySpark pipeline (798K $\to$ 777K), 6 quality checks & \S\ref{sec:c10}, \S\ref{sec:dq} \\
 C11 & E4 & MCD/MLD/MPD, \rgpd{} registry, import & \S\ref{sec:c11} \\
-C12 & E4 & FastAPI API, JWT, OpenAPI docs & \S\ref{sec:c12} \\
-C13 & E5 & Star schema (2 facts, 7 dimensions) & \S\ref{sec:c13} \\
-C14 & E5 & DW creation, access config, tests & \S\ref{sec:c14} \\
-C15 & E5 & 6 Airflow DAGs, ETL logic & \S\ref{sec:c15} \\
-C16 & E6 & Activity log, MailHog alerts, SLA dashboard, ITIL matrix, backups & \S\ref{sec:c16} \\
-C17 & E6 & SCD Type 1/2/3 procedures & \S\ref{sec:c17} \\
+C12 & E4 & FastAPI 8 endpoints, JWT HS256, 3 roles, OpenAPI docs & \S\ref{sec:c12} \\
+C13 & E5 & Star schema (2 facts, 7 dimensions), bottom-up justified & \S\ref{sec:c13} \\
+C14 & E5 & DW creation, access config, tests, tech stack feedback & \S\ref{sec:c14} \\
+C15 & E5 & 7 Airflow DAGs, 25 tasks, PySpark ETL logic & \S\ref{sec:c15} \\
+C16 & E6 & Activity log, alerts, SLA, ITIL, backups, new source/access procedures, scalability & \S\ref{sec:c16} \\
+C17 & E6 & SCD Type 1/2/3 with examples & \S\ref{sec:c17} \\
 C18 & E7 & Medallion architecture, 3V, catalog comparison & \S\ref{sec:c18} \\
-C19 & E7 & Docker Compose, MinIO, Airflow & \S\ref{sec:c19} \\
-C20 & E7 & Catalog, lifecycle, monitoring & \S\ref{sec:c20} \\
-C21 & E7 & RBAC, group policies, \rgpd{} & \S\ref{sec:c21} \\
+C19 & E7 & 15-service Docker Compose, MinIO, Airflow, installation tested & \S\ref{sec:c19} \\
+C20 & E7 & Catalog, feed methods, lifecycle, monitoring with alerts & \S\ref{sec:c20} \\
+C21 & E7 & RBAC, group policies, detailed rights matrix, \rgpd{} & \S\ref{sec:c21} \\
 \bottomrule
 \end{longtable}
 
