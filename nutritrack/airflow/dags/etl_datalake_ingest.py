@@ -493,6 +493,129 @@ def publish_to_gold(**context):
     print(f"Gold layer published for {ds} (source: silver Parquet)")
 
 
+def publish_anonymized_aggregates(**context):
+    """
+    Export anonymized, aggregated user nutrition data to MinIO gold layer.
+    Covers: C20 (catalog), C21 (governance), C18 (lake architecture).
+
+    RGPD compliance: Only group-level aggregates are exported.
+    No user_id, email, or username leaves PostgreSQL. Groups with fewer
+    than 3 users are excluded to prevent individual identification.
+    """
+    import os
+    import tempfile
+
+    import pandas as pd
+    from sqlalchemy import create_engine
+
+    client = _get_minio_client()
+    ds = context["ds"]
+
+    db_url = (
+        f"postgresql+psycopg2://"
+        f"{os.getenv('NUTRITRACK_DB_USER', 'nutritrack')}:"
+        f"{os.getenv('NUTRITRACK_DB_PASSWORD', 'nutritrack')}@"
+        f"{os.getenv('NUTRITRACK_DB_HOST', 'postgres')}:"
+        f"{os.getenv('NUTRITRACK_DB_PORT', '5432')}/"
+        f"{os.getenv('NUTRITRACK_DB_NAME', 'nutritrack')}"
+    )
+    engine = create_engine(db_url)
+
+    queries = {
+        "nutrition_patterns": """
+            SELECT
+                du.activity_level,
+                du.dietary_goal,
+                dt.year,
+                dt.month_name AS month,
+                COUNT(DISTINCT du.user_key) AS user_count,
+                ROUND(AVG(f.energy_kcal)::numeric, 1) AS avg_kcal_per_meal,
+                ROUND(AVG(f.proteins_g)::numeric, 1) AS avg_protein_per_meal,
+                ROUND(AVG(f.fat_g)::numeric, 1) AS avg_fat_per_meal,
+                ROUND(AVG(f.carbohydrates_g)::numeric, 1) AS avg_carbs_per_meal,
+                COUNT(*) AS total_meal_items
+            FROM dw.fact_daily_nutrition f
+            JOIN dw.dim_user du ON f.user_key = du.user_key
+            JOIN dw.dim_time dt ON f.time_key = dt.time_key
+            WHERE du.is_current = true
+            GROUP BY du.activity_level, du.dietary_goal, dt.year, dt.month_name
+            HAVING COUNT(DISTINCT du.user_key) >= 3
+            ORDER BY dt.year, du.dietary_goal, du.activity_level
+        """,
+        "popular_products": """
+            SELECT
+                du.dietary_goal,
+                dp.product_name,
+                dp.barcode,
+                COUNT(*) AS times_consumed,
+                ROUND(AVG(f.quantity_g)::numeric, 0) AS avg_quantity_g,
+                ROUND(AVG(f.energy_kcal)::numeric, 1) AS avg_kcal
+            FROM dw.fact_daily_nutrition f
+            JOIN dw.dim_user du ON f.user_key = du.user_key
+            JOIN dw.dim_product dp ON f.product_key = dp.product_key
+            WHERE du.is_current = true AND dp.product_name IS NOT NULL
+            GROUP BY du.dietary_goal, dp.product_name, dp.barcode
+            HAVING COUNT(*) >= 3
+            ORDER BY du.dietary_goal, times_consumed DESC
+        """,
+        "brand_rankings": """
+            SELECT
+                b.brand_name,
+                COUNT(*) AS product_count,
+                ROUND(AVG(fpm.nutriscore_score)::numeric, 1) AS avg_nutriscore_score,
+                ROUND(AVG(fpm.nova_group)::numeric, 1) AS avg_nova_group,
+                ROUND(AVG(fpm.energy_kcal_per_100g)::numeric, 0) AS avg_energy_kcal,
+                ROUND(AVG(fpm.proteins_per_100g)::numeric, 1) AS avg_proteins_g
+            FROM dw.fact_product_market fpm
+            JOIN dw.dim_brand b ON fpm.brand_key = b.brand_key
+            WHERE b.brand_name IS NOT NULL AND fpm.nutriscore_score IS NOT NULL
+            GROUP BY b.brand_name
+            HAVING COUNT(*) >= 5
+            ORDER BY avg_nutriscore_score ASC
+        """,
+        "category_stats": """
+            SELECT
+                c.category_name,
+                COUNT(*) AS product_count,
+                ROUND(AVG(fpm.energy_kcal_per_100g)::numeric, 0) AS avg_energy_kcal,
+                ROUND(AVG(fpm.proteins_per_100g)::numeric, 1) AS avg_proteins_g,
+                ROUND(AVG(fpm.fat_per_100g)::numeric, 1) AS avg_fat_g,
+                ROUND(AVG(fpm.sugars_per_100g)::numeric, 1) AS avg_sugars_g,
+                ROUND(AVG(fpm.fiber_per_100g)::numeric, 1) AS avg_fiber_g,
+                ROUND(AVG(fpm.nutriscore_score)::numeric, 1) AS avg_nutriscore_score,
+                ROUND(AVG(fpm.nova_group)::numeric, 1) AS avg_nova_group
+            FROM dw.fact_product_market fpm
+            JOIN dw.dim_category c ON fpm.category_key = c.category_key
+            WHERE c.category_name IS NOT NULL
+            GROUP BY c.category_name
+            HAVING COUNT(*) >= 3
+            ORDER BY product_count DESC
+        """,
+    }
+
+    raw_conn = engine.raw_connection()
+    try:
+        for dataset_name, query in queries.items():
+            try:
+                df = pd.read_sql(query, raw_conn)
+                if df.empty:
+                    print(f"  {dataset_name}: no data returned, skipping")
+                    continue
+
+                with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
+                    df.to_parquet(tmp.name, index=False)
+                    object_name = f"{dataset_name}/{ds}/{dataset_name}.parquet"
+                    client.fput_object("gold", object_name, tmp.name)
+                    print(f"  {dataset_name}: {len(df)} rows -> gold/{object_name}")
+                    os.unlink(tmp.name)
+            except Exception as e:
+                print(f"  {dataset_name}: ERROR - {e}")
+    finally:
+        raw_conn.close()
+        engine.dispose()
+    print(f"Anonymized gold aggregates published for {ds}")
+
+
 def update_catalog_metadata(**context):
     """
     Update data catalog metadata in MinIO.
@@ -680,9 +803,13 @@ with DAG(
     bronze = PythonOperator(task_id="ingest_to_bronze", python_callable=ingest_to_bronze)
     silver = PythonOperator(task_id="transform_to_silver", python_callable=transform_to_silver)
     gold = PythonOperator(task_id="publish_to_gold", python_callable=publish_to_gold)
+    gold_aggregates = PythonOperator(
+        task_id="publish_anonymized_aggregates", python_callable=publish_anonymized_aggregates
+    )
     catalog = PythonOperator(task_id="update_catalog_metadata", python_callable=update_catalog_metadata)
 
     # Bronze runs in parallel with the sensor wait.
     # Silver needs both bronze and cleaned data to be ready.
+    # Gold aggregates (user analytics from DW) run in parallel with product gold.
     wait_for_clean >> silver
-    bronze >> silver >> gold >> catalog
+    bronze >> silver >> [gold, gold_aggregates] >> catalog
