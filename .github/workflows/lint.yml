@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: nutritrack/requirements-dev.txt
 
       - name: Install ruff
         run: pip install ruff
@@ -41,6 +43,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install sqlfluff
         run: pip install sqlfluff
