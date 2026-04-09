@@ -10,12 +10,12 @@ Output: NutriTrack_Defense_Visual.pptx
 from __future__ import annotations
 
 import os
+
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.chart import XL_CHART_TYPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 # ---------------------------------------------------------------------------
 # Theme colors
@@ -220,8 +220,8 @@ def add_demo_callout(slide, text, top):
     """Add a LIVE DEMO callout box."""
     left = Inches(2.5)
     width = SLIDE_WIDTH - Inches(5)
-    box = add_rounded_box(slide, left, top, width, Inches(0.55),
-                          RGBColor(0xFF, 0xF3, 0xE0), ACCENT)
+    add_rounded_box(slide, left, top, width, Inches(0.55),
+                    RGBColor(0xFF, 0xF3, 0xE0), ACCENT)
     add_textbox(slide, f"LIVE DEMO: {text}",
                 left + Inches(0.2), top + Inches(0.08),
                 width - Inches(0.4), Inches(0.4),
@@ -232,8 +232,8 @@ def add_why_callout(slide, text, top):
     """Add a 'Why?' callout box."""
     left = Inches(0.5)
     width = SLIDE_WIDTH - Inches(1)
-    box = add_rounded_box(slide, left, top, width, Inches(0.6),
-                          RGBColor(0xE3, 0xF2, 0xFD), BLUE)
+    add_rounded_box(slide, left, top, width, Inches(0.6),
+                    RGBColor(0xE3, 0xF2, 0xFD), BLUE)
     add_textbox(slide, f"Why? {text}",
                 left + Inches(0.2), top + Inches(0.05),
                 width - Inches(0.4), Inches(0.5),
