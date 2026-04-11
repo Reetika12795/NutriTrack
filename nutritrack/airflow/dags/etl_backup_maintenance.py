@@ -14,10 +14,10 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
+from airflow.operators.python import PythonOperator
 from alerting import ALERTING_DEFAULT_ARGS, sla_miss_callback
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 
 default_args = {
     **ALERTING_DEFAULT_ARGS,

@@ -15,8 +15,9 @@ in the hot path — ensuring consistent multi-threaded execution across the pipe
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",

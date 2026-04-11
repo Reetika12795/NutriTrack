@@ -11,9 +11,10 @@ Both paths are independent. The gold layer reads from silver, not from PostgreSQ
 
 from datetime import datetime, timedelta
 
-from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.sensors.external_task import ExternalTaskSensor
+
+from airflow import DAG
 
 default_args = {
     "owner": "nutritrack",
