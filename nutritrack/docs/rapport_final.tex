@@ -2,7 +2,7 @@
 % NutriTrack — Final Certification Report
 % Expert in Massive Data Infrastructures (RNCP37638)
 % =============================================================
-\documentclass[a4paper,12pt,twoside,openright]{report}
+\documentclass[a4paper,11pt,oneside,openany]{report}
 
 % ---- Encoding and language ----
 \usepackage[utf8]{inputenc}
@@ -21,11 +21,12 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[LE]{\leftmark}
-\fancyhead[RO]{\rightmark}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\nouppercase{\rightmark}}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{14pt}
 
 % ---- Graphics and colours ----
 \usepackage{graphicx}
@@ -160,13 +161,9 @@
 \begin{center}
 \vspace*{1cm}
 
-\begin{tikzpicture}
-  \node[circle, fill=ntgreen, minimum size=2.5cm, text=white,
-        font=\Huge\bfseries] {NT};
-\end{tikzpicture}
+\includegraphics[width=0.55\textwidth]{nutri_track_logo.pdf}
 
-\vspace{1cm}
-{\huge\bfseries\color{ntdarkgreen} NutriTrack}\\[0.5cm]
+\vspace{0.8cm}
 {\Large Nutritional Data Engineering Platform}
 
 \vspace{1.5cm}
@@ -265,53 +262,48 @@ single coherent project.
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.8cm and 1.2cm,
+  node distance=0.6cm and 0.8cm,
   service/.style={
-    rectangle, rounded corners=4pt, draw=ntgray, fill=#1!15,
-    minimum width=2.8cm, minimum height=1.4cm,
-    font=\footnotesize\bfseries, align=center,
-    drop shadow={shadow xshift=1pt, shadow yshift=-1pt, opacity=0.2}
+    rectangle, rounded corners=3pt, draw=ntgray, fill=#1!15,
+    minimum width=2.4cm, minimum height=1.1cm,
+    font=\scriptsize\bfseries, align=center,
   },
   service/.default=ntblue,
   ext/.style={
-    rectangle, rounded corners=4pt, draw=ntgray, dashed,
-    fill=ntlightgray!40, minimum width=2.5cm, minimum height=1cm,
-    font=\footnotesize, align=center
+    rectangle, rounded corners=3pt, draw=ntgray, dashed,
+    fill=ntlightgray!40, minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize, align=center
   },
-  arrow/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
-  label/.style={font=\tiny\color{ntgray}, midway},
+  arrow/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
 ]
 
 % --- Row 1: External sources ---
 \node[ext] (off) {Open Food\\Facts API};
-\node[ext, right=1.5cm of off] (parquet) {OFF Parquet\\(HuggingFace)};
-\node[ext, right=1.5cm of parquet] (anses) {ANSES /\\EFSA};
+\node[ext, right=1cm of off] (parquet) {OFF Parquet\\(HuggingFace)};
+\node[ext, right=1cm of parquet] (anses) {ANSES /\\EFSA};
 
 % --- Row 2: ETL Orchestration ---
-\node[service=ntorange, below=1.5cm of parquet, minimum width=8cm] (airflow)
+\node[service=ntorange, below=1cm of parquet, minimum width=7cm] (airflow)
   {Apache Airflow 2.8\\{\tiny Webserver :8080 | Scheduler | Worker (Celery)}};
 
 % --- Row 3: Storage ---
-\node[service=ntblue, below left=1.5cm and 1.5cm of airflow] (postgres)
-  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | dw | airflow}};
-\node[service=ntgreen, below=1.5cm of airflow] (minio)
+\node[service=ntblue, below left=1cm and 0.6cm of airflow] (postgres)
+  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | dw | raw | staging}};
+\node[service=ntgreen, below=1cm of airflow] (minio)
   {MinIO (S3)\\{\tiny :9000 / :9001}\\{\tiny bronze | silver | gold}};
-\node[service=ntred, below right=1.5cm and 1.5cm of airflow] (redis)
+\node[service=ntred, below right=1cm and 0.6cm of airflow] (redis)
   {Redis 7\\{\tiny :6379}\\{\tiny Cache + Broker}};
 
 % --- Row 4: Applications ---
-\node[service=ntgreen, below left=1.5cm and 0cm of postgres] (fastapi)
+\node[service=ntgreen, below=1.2cm of postgres] (fastapi)
   {FastAPI\\{\tiny :8000}\\{\tiny REST API + JWT}};
-\node[service=ntblue, below right=1.5cm and 0cm of postgres] (superset)
-  {Superset 6.0\\{\tiny :8088}\\{\tiny BI Dashboards}};
-
-% --- Row 5: Frontend ---
-\node[service=ntgreen, below=1.2cm of fastapi] (streamlit)
-  {Streamlit\\{\tiny :8501}\\{\tiny Frontend UI}};
+\node[service=ntgreen, below=1.2cm of minio] (streamlit)
+  {Streamlit\\{\tiny :8501}\\{\tiny 4-role Frontend}};
 
 % --- Monitoring ---
-\node[service=ntgold, right=1cm of redis] (monitoring)
+\node[service=ntgold, below=1.2cm of redis] (monitoring)
   {Monitoring\\{\tiny Prometheus :9090}\\{\tiny Grafana :3000}};
 
 % --- Arrows ---
@@ -322,23 +314,24 @@ single coherent project.
 \draw[arrow] (airflow) -- (minio);
 \draw[arrow] (airflow) -- (redis);
 \draw[arrow] (postgres) -- (fastapi);
-\draw[arrow] (postgres) -- (superset);
 \draw[arrow] (redis) -- (fastapi);
 \draw[arrow] (fastapi) -- (streamlit);
+\draw[arrow] (minio) -- (streamlit);
 \draw[arrow, dashed] (monitoring) -- (redis);
-\draw[arrow, dashed] (monitoring) |- (postgres);
+\draw[arrow, dashed] (monitoring) -| (postgres);
 
 % --- Docker frame ---
 \begin{scope}[on background layer]
-  \node[draw=ntgray, dashed, rounded corners=8pt,
-        fill=ntlightgray!10, inner sep=12pt,
-        fit=(airflow)(postgres)(minio)(redis)(fastapi)(superset)
+  \node[draw=ntgray, dashed, rounded corners=6pt,
+        fill=ntlightgray!10, inner sep=8pt,
+        fit=(airflow)(postgres)(minio)(redis)(fastapi)
             (streamlit)(monitoring),
-        label={[font=\small\bfseries\color{ntgray}]above:
+        label={[font=\scriptsize\bfseries\color{ntgray}]above:
           docker-compose.yml --- 15 services}] {};
 \end{scope}
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{\nutritrack{} system architecture --- Docker service overview}
 \label{fig:arch-system}
 \end{figure}
@@ -589,6 +582,7 @@ Data Lake (gold) & Semi-structured & Analytical Parquet & Pre-aggregated dataset
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   node distance=0.6cm,
   source/.style={
@@ -642,7 +636,8 @@ Data Lake (gold) & Semi-structured & Analytical Parquet & Pre-aggregated dataset
 \draw[arr] (import) -- (dw);
 \draw[arr] (silverT) -- (goldT);
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Data pipeline --- From sources to analytical layers}
 \label{fig:data-pipeline}
 \end{figure}
@@ -751,9 +746,10 @@ Product data & Legitimate interest (Art.~6.1.f) & Indefinite & Public data \\
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   node distance=0.7cm and 1.5cm,
-  step/.style={
+  procstep/.style={
     rectangle, rounded corners=4pt, draw=ntblue, fill=ntlightblue!20,
     minimum width=3.2cm, minimum height=0.9cm,
     font=\scriptsize\bfseries, align=center
@@ -767,13 +763,13 @@ Product data & Legitimate interest (Art.~6.1.f) & Indefinite & Public data \\
 ]
 
 % Steps
-\node[step] (collect) {Data collection\\{\tiny with consent}};
-\node[step, right=2cm of collect] (registry) {Register in\\\rgpd{} registry};
-\node[step, below=1cm of registry] (hash) {Pseudonymization\\{\tiny SHA256 in DW}};
-\node[step, below=1cm of hash] (retention) {Retention\\check};
+\node[procstep] (collect) {Data collection\\{\tiny with consent}};
+\node[procstep, right=2cm of collect] (registry) {Register in\\\rgpd{} registry};
+\node[procstep, below=1cm of registry] (hash) {Pseudonymization\\{\tiny SHA256 in DW}};
+\node[procstep, below=1cm of hash] (retention) {Retention\\check};
 \node[decision, below=1cm of retention] (expired) {Expired?};
-\node[step, below left=1cm and 1.5cm of expired] (keep) {Keep\\{\tiny controlled access}};
-\node[step, below right=1cm and 1.5cm of expired] (delete) {Delete /\\Deactivate};
+\node[procstep, below left=1cm and 1.5cm of expired] (keep) {Keep\\{\tiny controlled access}};
+\node[procstep, below right=1cm and 1.5cm of expired] (delete) {Delete /\\Deactivate};
 
 % Arrows
 \draw[arr] (collect) -- (registry);
@@ -783,7 +779,8 @@ Product data & Legitimate interest (Art.~6.1.f) & Indefinite & Public data \\
 \draw[arr] (expired) -- node[font=\tiny, left] {No} (keep);
 \draw[arr] (expired) -- node[font=\tiny, right] {Yes} (delete);
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{\rgpd{} process --- From consent to deletion}
 \label{fig:rgpd-process}
 \end{figure}
@@ -939,6 +936,7 @@ at 550~EUR/day $\times$ 60 days + 0~EUR infrastructure).
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   x=0.85cm, y=0.8cm,
   phase/.style={fill=#1!30, draw=#1!60, rounded corners=2pt, minimum height=0.55cm},
@@ -982,7 +980,8 @@ at 550~EUR/day $\times$ 60 days + 0~EUR infrastructure).
   \node[font=\tiny\color{ntblue}, circle, fill=ntblue!20, inner sep=1pt] at (\w, -5.0) {S};
 }
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Gantt calendar --- 12-week sprint plan with milestones (diamonds) and weekly standups (S)}
 \label{fig:gantt}
 \end{figure}
@@ -1154,34 +1153,36 @@ product\_name)} for sub-second search across 100\,000+ products.
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   node distance=0.5cm,
-  step/.style={
+  procstep/.style={
     rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
     minimum width=6cm, minimum height=0.7cm,
     font=\scriptsize, align=center
   },
   arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
 ]
-\node[step] (s1) {Standardize columns (30+ mappings)};
-\node[step, below=of s1] (s2) {Clean barcodes (8--14 digits)};
-\node[step, below=of s2] (s3) {Clean text (normalize, remove control characters)};
-\node[step, below=of s3] (s4) {Remove entries without product\_name};
-\node[step, below=of s4] (s5) {Convert kJ $\rightarrow$ kcal if kcal missing};
-\node[step, below=of s5] (s6) {Validate numeric ranges (energy $\leq$ 1000, etc.)};
-\node[step, below=of s6] (s7) {Normalize Nutri-Score (A--E) and NOVA (1--4)};
-\node[step, below=of s7] (s8) {Deduplicate by barcode (keep most complete)};
+\node[procstep] (s1) {Standardize columns (30+ mappings)};
+\node[procstep, below=of s1] (s2) {Clean barcodes (8--14 digits)};
+\node[procstep, below=of s2] (s3) {Clean text (normalize, remove control characters)};
+\node[procstep, below=of s3] (s4) {Remove entries without product\_name};
+\node[procstep, below=of s4] (s5) {Convert kJ $\rightarrow$ kcal if kcal missing};
+\node[procstep, below=of s5] (s6) {Validate numeric ranges (energy $\leq$ 1000, etc.)};
+\node[procstep, below=of s6] (s7) {Normalize Nutri-Score (A--E) and NOVA (1--4)};
+\node[procstep, below=of s7] (s8) {Deduplicate by barcode (keep most complete)};
 
 \foreach \i/\j in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6, s6/s7, s7/s8} {
   \draw[arr] (\i) -- (\j);
 }
 
 % Input/output labels
-\node[font=\scriptsize\bfseries\color{ntgreen}, above=0.3cm of s1]
+\node[font=\scriptsize\bfseries, text=ntgreen, above=0.3cm of s1]
   {798\,177 raw products (5 sources)};
-\node[font=\scriptsize\bfseries\color{ntgreen}, below=0.3cm of s8]
+\node[font=\scriptsize\bfseries, text=ntgreen, below=0.3cm of s8]
   {777\,126 clean products (97.4\,\% retention)};
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Data cleaning pipeline}
 \label{fig:cleaning-pipeline}
 \end{figure}
@@ -1195,6 +1196,7 @@ product\_name)} for sub-second search across 100\,000+ products.
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   entity/.style={
     rectangle, draw=ntblue, fill=ntlightblue!20,
@@ -1225,7 +1227,8 @@ product\_name)} for sub-second search across 100\,000+ products.
 \draw[arr] (mealitem) -- node[card, right] {N,1} (meal);
 \draw[arr] (meal) -- node[card, above] {N,1} (user);
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Conceptual Data Model (MCD)}
 \label{fig:mcd}
 \end{figure}
@@ -1387,6 +1390,7 @@ extensibility without restructuring.
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   dim/.style={
     rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
@@ -1480,7 +1484,8 @@ extensibility without restructuring.
 \draw[arr] (dimproduct) -- (fact);
 \draw[arr] (dimns) -- (fact);
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Star schema --- fact\_daily\_nutrition with 6 dimensions}
 \label{fig:star-schema}
 \end{figure}
@@ -1614,6 +1619,7 @@ via ExternalTaskSensor dependencies for cross-DAG coordination:
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   task/.style={
     rectangle, rounded corners=3pt, draw=ntorange, fill=ntorange!15,
@@ -1647,7 +1653,8 @@ via ExternalTaskSensor dependencies for cross-DAG coordination:
   {Dimensions (parallel)};
 \node[font=\scriptsize\color{ntgray}, below=0.3cm of $(factmarket)!0.5!(factnutri)$]
   {Facts (after dimensions)};
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{ETL DAG dependencies --- \texttt{etl\_load\_warehouse}}
 \label{fig:etl-dag}
 \end{figure}
@@ -1929,6 +1936,7 @@ are automated:
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   scd/.style={
     rectangle, rounded corners=5pt, draw=#1, fill=#1!10,
@@ -1971,7 +1979,8 @@ are automated:
   {\tiny \texttt{= old country\_name}}
 };
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Three Slowly Changing Dimension types implemented}
 \label{fig:scd-types}
 \end{figure}
@@ -1992,6 +2001,7 @@ are automated:
 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   layer/.style={
     rectangle, rounded corners=8pt, draw=#1!80!black, fill=#1!20,
@@ -2054,7 +2064,8 @@ are automated:
 \node[font=\footnotesize\bfseries\color{ntgray},
       above=0.8cm of sv] {MinIO (S3-compatible) --- Medallion Architecture};
 
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Data lake medallion architecture (Bronze / Silver / Gold)}
 \label{fig:medallion}
 \end{figure}
