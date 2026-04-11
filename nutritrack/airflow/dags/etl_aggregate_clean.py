@@ -15,9 +15,8 @@ in the hot path — ensuring consistent multi-threaded execution across the pipe
 
 from datetime import datetime, timedelta
 
-from airflow.operators.python import PythonOperator
-
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 
 default_args = {
     "owner": "nutritrack",
@@ -256,12 +255,30 @@ def clean_data_spark(**context):
 
         # --- Select output columns ---
         keep_cols = [
-            "barcode", "product_name", "generic_name", "brands", "brand_name",
-            "categories", "category_name", "countries", "quantity", "packaging",
-            "ingredients_text", "energy_kcal", "fat_g", "proteins_g",
-            "carbohydrates_g", "sugars_g", "fiber_g", "salt_g",
-            "nutriscore_grade", "nutriscore_score", "nova_group",
-            "ecoscore_grade", "completeness_score", "data_source",
+            "barcode",
+            "product_name",
+            "generic_name",
+            "brands",
+            "brand_name",
+            "categories",
+            "category_name",
+            "countries",
+            "quantity",
+            "packaging",
+            "ingredients_text",
+            "energy_kcal",
+            "fat_g",
+            "proteins_g",
+            "carbohydrates_g",
+            "sugars_g",
+            "fiber_g",
+            "salt_g",
+            "nutriscore_grade",
+            "nutriscore_score",
+            "nova_group",
+            "ecoscore_grade",
+            "completeness_score",
+            "data_source",
         ]
         existing_cols = [c for c in keep_cols if c in df.columns]
         df = df.select(existing_cols)
@@ -339,63 +356,75 @@ def validate_data_quality(**context):
     df = pd.read_parquet(cleaned_path)
     checks = []
 
-    checks.append({
-        "check_name": "row_count_positive",
-        "check_type": "row_count",
-        "expected": "> 0",
-        "actual": str(len(df)),
-        "passed": len(df) > 0,
-    })
+    checks.append(
+        {
+            "check_name": "row_count_positive",
+            "check_type": "row_count",
+            "expected": "> 0",
+            "actual": str(len(df)),
+            "passed": len(df) > 0,
+        }
+    )
 
     barcode_nulls = df["barcode"].isna().sum() if "barcode" in df.columns else 0
-    checks.append({
-        "check_name": "barcode_not_null",
-        "check_type": "null_rate",
-        "expected": "0",
-        "actual": str(barcode_nulls),
-        "passed": barcode_nulls == 0,
-    })
+    checks.append(
+        {
+            "check_name": "barcode_not_null",
+            "check_type": "null_rate",
+            "expected": "0",
+            "actual": str(barcode_nulls),
+            "passed": barcode_nulls == 0,
+        }
+    )
 
     name_nulls = df["product_name"].isna().sum() if "product_name" in df.columns else 0
-    checks.append({
-        "check_name": "product_name_not_null",
-        "check_type": "null_rate",
-        "expected": "0",
-        "actual": str(name_nulls),
-        "passed": name_nulls == 0,
-    })
+    checks.append(
+        {
+            "check_name": "product_name_not_null",
+            "check_type": "null_rate",
+            "expected": "0",
+            "actual": str(name_nulls),
+            "passed": name_nulls == 0,
+        }
+    )
 
     if "energy_kcal" in df.columns:
         max_energy = df["energy_kcal"].max()
-        checks.append({
-            "check_name": "energy_kcal_range",
-            "check_type": "range",
-            "expected": "<= 1000",
-            "actual": str(round(max_energy, 1)) if pd.notna(max_energy) else "null",
-            "passed": pd.isna(max_energy) or max_energy <= 1000,
-        })
+        checks.append(
+            {
+                "check_name": "energy_kcal_range",
+                "check_type": "range",
+                "expected": "<= 1000",
+                "actual": str(round(max_energy, 1)) if pd.notna(max_energy) else "null",
+                "passed": pd.isna(max_energy) or max_energy <= 1000,
+            }
+        )
 
     if "nutriscore_grade" in df.columns:
         valid_grades = {"A", "B", "C", "D", "E"}
         non_null_grades = df["nutriscore_grade"].dropna().unique()
         invalid = set(non_null_grades) - valid_grades
-        checks.append({
-            "check_name": "nutriscore_valid_grades",
-            "check_type": "schema",
-            "expected": "only A,B,C,D,E",
-            "actual": f"{len(invalid)} invalid" if invalid else "all valid",
-            "passed": len(invalid) == 0,
-        })
+        checks.append(
+            {
+                "check_name": "nutriscore_valid_grades",
+                "check_type": "schema",
+                "expected": "only A,B,C,D,E",
+                "actual": f"{len(invalid)} invalid" if invalid else "all valid",
+                "passed": len(invalid) == 0,
+            }
+        )
 
     if "barcode" in df.columns:
         dup_count = df.duplicated(subset=["barcode"]).sum()
-        checks.append({
-            "check_name": "barcode_unique",
-            "check_type": "uniqueness",
-            "expected": "0 duplicates",
-            "actual": str(dup_count),
-            "passed": dup_count == 0,
-        })
+        checks.append(
+            {
+                "check_name": "barcode_unique",
+                "check_type": "uniqueness",
+                "expected": "0 duplicates",
+                "actual": str(dup_count),
+                "passed": dup_count == 0,
+            }
+        )
 
     # Log results to staging.data_quality_checks
     try:
@@ -412,7 +441,14 @@ def validate_data_quality(**context):
                 """INSERT INTO staging.data_quality_checks
                    (pipeline_name, check_name, check_type, expected_value, actual_value, passed)
                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                ("etl_aggregate_clean", c["check_name"], c["check_type"], c["expected"], c["actual"], bool(c["passed"])),
+                (
+                    "etl_aggregate_clean",
+                    c["check_name"],
+                    c["check_type"],
+                    c["expected"],
+                    c["actual"],
+                    bool(c["passed"]),
+                ),
             )
         conn.commit()
         cur.close()

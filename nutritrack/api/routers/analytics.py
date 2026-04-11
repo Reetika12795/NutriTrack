@@ -141,8 +141,9 @@ async def get_analytics_summary(
             func.avg(cast(Product.energy_kcal, Float)).label("avg_energy"),
             func.avg(cast(Product.proteins_g, Float)).label("avg_proteins"),
             func.avg(cast(Product.nutriscore_score, Float)).label("avg_ns"),
-            (func.sum(case((Product.nutriscore_grade.in_(["A", "B"]), 1), else_=0))
-             * 100.0 / func.count()).label("pct_ab"),
+            (func.sum(case((Product.nutriscore_grade.in_(["A", "B"]), 1), else_=0)) * 100.0 / func.count()).label(
+                "pct_ab"
+            ),
         )
         .join(Product, Category.category_id == Product.category_id)
         .group_by(Category.category_name)
@@ -236,12 +237,8 @@ async def get_analytics_summary(
         .where(Product.nutriscore_score.isnot(None), Product.product_name.isnot(None))
     )
 
-    healthiest_result = await db.execute(
-        product_base.order_by(Product.nutriscore_score.asc()).limit(10)
-    )
-    least_result = await db.execute(
-        product_base.order_by(Product.nutriscore_score.desc()).limit(10)
-    )
+    healthiest_result = await db.execute(product_base.order_by(Product.nutriscore_score.asc()).limit(10))
+    least_result = await db.execute(product_base.order_by(Product.nutriscore_score.desc()).limit(10))
 
     def product_rows_to_list(rows):
         return [

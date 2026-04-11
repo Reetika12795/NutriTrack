@@ -6,9 +6,8 @@ Covers: C8 (REST API extraction), C15 (ETL pipeline)
 
 from datetime import datetime, timedelta
 
-from airflow.operators.python import PythonOperator
-
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 
 default_args = {
     "owner": "nutritrack",
