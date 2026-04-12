@@ -55,6 +55,8 @@
 \definecolor{ntlightblue}{HTML}{90CAF9}
 \definecolor{ntorange}{HTML}{EF6C00}
 \definecolor{ntred}{HTML}{C62828}
+\definecolor{ntpurple}{HTML}{6A1B9A}
+\definecolor{ntlightpurple}{HTML}{CE93D8}
 \definecolor{ntgold}{HTML}{F9A825}
 \definecolor{ntgray}{HTML}{616161}
 \definecolor{ntlightgray}{HTML}{E0E0E0}
@@ -244,44 +246,41 @@
 \vspace*{0.2cm}
 
 % ---- NutriTrack logo ----
-\includegraphics[width=0.75\textwidth]{../assets/logos/nutri_track_logo_v8.pdf}
-
-\vspace{0.4cm}
-
-% ---- Title band (colored bar with title) ----
-\begin{tikzpicture}
-  \node[fill=ntgreen, text=white, minimum width=0.95\textwidth,
-        minimum height=1.1cm, rounded corners=4pt, align=center,
-        inner sep=6pt]
-    {\Large\bfseries Final Certification Report};
-\end{tikzpicture}
+\includegraphics[width=0.65\textwidth]{../assets/logos/nutri_track_logo_v8.pdf}
 
 \vspace{0.3cm}
 
-% ---- Subtitle lines ----
-{\large\color{ntdarkgreen}\bfseries Expert in Massive Data Infrastructures}\\[0.1cm]
-{\normalsize\color{ntgray} RNCP37638 \textbullet\ Level 7 (Master's equivalent)}
+% ---- Title band ----
+\begin{tikzpicture}
+  \node[fill=ntgreen, text=white, minimum width=0.95\textwidth,
+        minimum height=1cm, rounded corners=4pt, align=center,
+        inner sep=5pt]
+    {\Large\bfseries Final Certification Report};
+\end{tikzpicture}
 
-\vspace{0.7cm}
+\vspace{0.2cm}
 
-% ---- Centered plain-text author info ----
+{\large\color{ntdarkgreen}\bfseries Expert in Massive Data Infrastructures}\\[0.08cm]
+{\normalsize\color{ntgray} RNCP37638 \textbullet\ Level 7}
+
+\vspace{0.4cm}
+
 {\normalsize
 \textbf{\color{ntdarkgreen}Name:} Reetika Gautam \quad\textbullet\quad
-\textbf{\color{ntdarkgreen}Organization:} Simplon \quad\textbullet\quad
 \textbf{\color{ntdarkgreen}Date:} April 2026}
 
-\vspace{0.7cm}
+\vspace{0.4cm}
 
 % ---- Powered-by bar + logos ----
 \begin{tikzpicture}
   \node[fill=ntgreen!10, draw=ntgreen!40, line width=0.5pt,
         rounded corners=4pt, minimum width=0.95\textwidth,
-        minimum height=3.6cm, align=center, inner sep=10pt] {
+        minimum height=3cm, align=center, inner sep=8pt] {
     \begin{tabular}{c}
-      {\small\bfseries\color{ntdarkgreen} Powered by}\\[0.25cm]
+      {\small\bfseries\color{ntdarkgreen} Powered by}\\[0.2cm]
       \begin{tabular}{c @{\hspace{2cm}} c}
-        \includegraphics[height=2.2cm]{../assets/logos/Simplon-HD.png} &
-        \includegraphics[height=2.2cm]{../assets/logos/PublicisGroupelogo-BlackText-300x300.png} \\
+        \includegraphics[height=1.8cm]{../assets/logos/Simplon-HD.png} &
+        \includegraphics[height=1.8cm]{../assets/logos/PublicisGroupelogo-BlackText-300x300.png} \\
       \end{tabular}
     \end{tabular}
   };
@@ -289,16 +288,10 @@
 
 \vfill
 
-% ---- Footer caption band ----
-\begin{tikzpicture}
-  \node[fill=ntblue!10, draw=ntblue!40, line width=0.5pt,
-        rounded corners=4pt, text width=0.9\textwidth,
-        align=center, inner sep=8pt,
-        font=\footnotesize\itshape\color{ntblue}]
-    {This document covers all 21 competencies (C1--C21)
-     distributed across 4 competency blocks, assessed through
-     7 evaluations (E1--E7).};
-\end{tikzpicture}
+% ---- Footer caption ----
+{\footnotesize\itshape\color{ntblue}
+This document covers all 21 competencies (C1--C21) distributed
+across 4 competency blocks, assessed through 7 evaluations (E1--E7).}
 
 \end{center}
 \end{titlepage}
@@ -395,44 +388,60 @@ single coherent project.
 
 % --- Row 1: External sources ---
 \node[ext] (off) {Open Food\\Facts API};
-\node[ext, right=1cm of off] (parquet) {OFF Parquet\\(HuggingFace)};
+\node[ext, right=1cm of off] (parquet) {OFF Parquet\\(DuckDB)};
 \node[ext, right=1cm of parquet] (anses) {ANSES /\\EFSA};
 
 % --- Row 2: ETL Orchestration ---
 \node[service=ntorange, below=1cm of parquet, minimum width=7cm] (airflow)
-  {Apache Airflow 2.8\\{\tiny Webserver :8080 | Scheduler | Worker (Celery)}};
+  {Apache Airflow 2.8\\{\tiny Webserver :8080 | Scheduler | Worker (Celery + PySpark)}};
 
 % --- Row 3: Storage ---
 \node[service=ntblue, below left=1cm and 0.6cm of airflow] (postgres)
-  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | dw | raw | staging}};
+  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | raw | staging | dw}};
 \node[service=ntgreen, below=1cm of airflow] (minio)
   {MinIO (S3)\\{\tiny :9000 / :9001}\\{\tiny bronze | silver | gold}};
 \node[service=ntred, below right=1cm and 0.6cm of airflow] (redis)
   {Redis 7\\{\tiny :6379}\\{\tiny Cache + Broker}};
 
-% --- Row 4: Applications ---
-\node[service=ntgreen, below=1.2cm of postgres] (fastapi)
+% --- Row 4: FastAPI + Monitoring ---
+\node[service=ntblue, below=1.2cm of postgres] (fastapi)
   {FastAPI\\{\tiny :8000}\\{\tiny REST API + JWT}};
-\node[service=ntgreen, below=1.2cm of minio] (streamlit)
-  {Streamlit\\{\tiny :8501}\\{\tiny 4-role Frontend}};
-
-% --- Monitoring ---
 \node[service=ntgold, below=1.2cm of redis] (monitoring)
   {Monitoring\\{\tiny Prometheus :9090}\\{\tiny Grafana :3000}};
 
-% --- Arrows ---
+% --- Row 5: Streamlit (below everything, full width) ---
+\node[service=ntgreen, below=3cm of minio, minimum width=7cm, minimum height=1.8cm] (streamlit) {};
+\node[font=\scriptsize\bfseries, anchor=north] at ([yshift=-0.05cm]streamlit.north)
+  {Streamlit :8501 --- Role-Based Frontend};
+\node[rectangle, rounded corners=2pt, draw=ntgreen!50, fill=ntgreen!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r1) at ([shift={(-2.2,0.15)}]streamlit.south) {\faUser\ user\\6 pages};
+\node[rectangle, rounded corners=2pt, draw=ntblue!50, fill=ntblue!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r2) at ([shift={(-0.7,0.15)}]streamlit.south) {\faUserMd\ nutritionist\\7 pages};
+\node[rectangle, rounded corners=2pt, draw=ntpurple!50, fill=ntpurple!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r3) at ([shift={(0.8,0.15)}]streamlit.south) {\faChartBar\ analyst\\7 pages};
+\node[rectangle, rounded corners=2pt, draw=ntred!50, fill=ntred!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r4) at ([shift={(2.3,0.15)}]streamlit.south) {\faLock\ admin\\8 pages};
+
+% --- Arrows (all normal, none behind) ---
 \draw[arrow] (off) -- (airflow);
 \draw[arrow] (parquet) -- (airflow);
 \draw[arrow] (anses) -- (airflow);
 \draw[arrow] (airflow) -- (postgres);
 \draw[arrow] (airflow) -- (minio);
-\draw[arrow] (airflow) -- (redis);
+\draw[arrow] (airflow) -| (redis);
 \draw[arrow] (postgres) -- (fastapi);
-\draw[arrow] (redis) -- (fastapi);
-\draw[arrow] (fastapi) -- (streamlit);
-\draw[arrow] (minio) -- (streamlit);
+\draw[arrow] (redis) |- (fastapi);
 \draw[arrow, dashed] (monitoring) -- (redis);
 \draw[arrow, dashed] (monitoring) -| (postgres);
+% JWT: FastAPI down then right to Streamlit (clear path, no overlap)
+\draw[arrow, ntblue, thick] (fastapi.south) -- ++(0,-0.5)
+  -| node[font=\tiny\bfseries, pos=0.25, left, color=ntblue] {JWT} (streamlit.west);
+% Catalog: MinIO straight down to Streamlit top
+\draw[arrow, dashed] (minio) -- node[font=\tiny, right] {catalog} (streamlit);
 
 % --- Docker frame ---
 \begin{scope}[on background layer]
@@ -446,7 +455,9 @@ single coherent project.
 
 \end{tikzpicture}%
 }
-\caption{\nutritrack{} system architecture --- Docker service overview}
+\caption{\nutritrack{} system architecture --- PostgreSQL (4 schemas: app/raw/staging/dw),
+MinIO (medallion: bronze/silver/gold), Streamlit (4 role-based dashboards:
+user/nutritionist/analyst/admin). All 15 services via \texttt{docker compose up -d}.}
 \label{fig:arch-system}
 \end{figure}
 
@@ -948,14 +959,19 @@ points (product search and meal/macro tracking) score highest.
 \label{tab:rice}
 \begin{tabularx}{\textwidth}{L{3.5cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.5cm}}
 \toprule
-\textbf{Feature} & \textbf{Reach} & \textbf{Impact} & \textbf{Conf.} & \textbf{Effort} & \textbf{RICE} \\
+\rowcolor{ntgreen!80}
+\textcolor{white}{\textbf{Feature}} & \textcolor{white}{\textbf{Reach}} & \textcolor{white}{\textbf{Impact}} & \textcolor{white}{\textbf{Conf.}} & \textcolor{white}{\textbf{Effort}} & \textcolor{white}{\textbf{RICE}} \\
 \midrule
-Product search + alternatives & 5 & 3 & 0.9 & 2 & 6.75 \\
+\rowcolor{ntlightgreen!30}
+Product search + alternatives & 5 & 3 & 0.9 & 2 & \textbf{\textcolor{ntgreen}{6.75}} \\
 ETL pipeline (full) & 4 & 3 & 1.0 & 3 & 4.00 \\
-RBAC governance & 3 & 2 & 0.9 & 1 & 5.40 \\
+\rowcolor{ntlightgreen!30}
+RBAC governance & 3 & 2 & 0.9 & 1 & \textbf{\textcolor{ntgreen}{5.40}} \\
 Meal tracking + nutrition & 4 & 2 & 0.9 & 2 & 3.60 \\
+\rowcolor{ntlightgreen!30}
 Star schema DW & 3 & 3 & 0.8 & 3 & 2.40 \\
 Medallion data lake & 3 & 2 & 0.8 & 2 & 2.40 \\
+\rowcolor{ntlightgreen!30}
 SCD historization & 2 & 2 & 0.7 & 1 & 2.80 \\
 Monitoring (Prometheus/Grafana) & 2 & 2 & 0.8 & 2 & 1.60 \\
 \bottomrule
@@ -1132,14 +1148,22 @@ and cleaned Parquet at the silver and gold levels.
 \label{tab:data-models-topo}
 \begin{tabularx}{\textwidth}{L{2.5cm} L{2cm} L{3.5cm} L{4.5cm}}
 \toprule
-\textbf{Layer} & \textbf{Type} & \textbf{Model} & \textbf{Description} \\
+\rowcolor{ntblue!80}
+\textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Type}} & \textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Description}} \\
 \midrule
+\rowcolor{ntlightblue!20}
 Operational (app) & Structured & Relational (3NF) & Products, brands, categories, users, meals, meal\_items with FK constraints and RGPD columns \\
+\rowcolor{ntlightblue!20}
 Raw staging (raw) & Structured & 1:1 mirror tables & Untyped landing tables for each source; filled by the ingest DAGs before cleaning \\
+\rowcolor{ntlightblue!20}
 Staging (staging) & Structured & Quality tables & \texttt{data\_quality\_checks}, typed staging of cleaned products before load into \texttt{dw} \\
+\rowcolor{ntlightblue!20}
 Data Warehouse (dw) & Structured & Star schema (Kimball) & 7 dimensions (time, product, brand, category, country, user, nutriscore) + 2 fact tables \\
+\rowcolor{ntlightgreen!25}
 Data Lake (bronze) & Semi-structured & Raw files & JSON (API, scraping), Parquet (bulk export), unmodified from source \\
+\rowcolor{ntlightgreen!25}
 Data Lake (silver) & Semi-structured & Cleaned Parquet & Unified schema, validated, deduplicated \\
+\rowcolor{ntlightgreen!25}
 Data Lake (gold) & Semi-structured & Analytical Parquet & Four anonymized aggregates for the analyst \\
 \bottomrule
 \end{tabularx}
@@ -1268,10 +1292,10 @@ DuckDB analytics & Embedded SQL & Internal & Read-only on Parquet files in MinIO
 \toprule
 \textbf{Role} & \textbf{PostgreSQL (app)} & \textbf{PostgreSQL (dw)} & \textbf{MinIO} & \textbf{Streamlit pages} \\
 \midrule
-User (patient) & Own meals only & None & None & 6 pages (login, search, log, dashboard, alternatives, compare) \\
-Nutritionist & Read all meals of consenting patients & None & None & User dashboard + trends \\
-Analyst & Read products only & Read datamarts (pseudonymized) & Read gold bucket & Product analytics + catalogue \\
-Admin & Full & Full & Full (bronze/silver/gold/backups) & All pages + admin UI \\
+User (patient) & Own meals only & None & None & 6 pages: search, meal log, daily dashboard, trends, compare, alternatives \\
+Nutritionist & Read all meals & None & None & 7 pages: 6 user pages + Nutritionist Dashboard \\
+Analyst & Read products only & Read datamarts & Read gold & 7 pages: 6 user pages + Product Analytics \\
+Admin & Full & Full & Full & 8 pages: all pages \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1516,14 +1540,14 @@ their probability and impact, and the mitigation we implemented.
 \toprule
 \textbf{Phase} & \textbf{Risk} & \textbf{Prob.} & \textbf{Impact} & \textbf{Mitigation} \\
 \midrule
-1 & Incomplete requirements & Medium & High & Interview grids with all stakeholder groups; iterative validation with Sophie \\
-2 & API rate limiting / data unavailability & Medium & High & Multi-source strategy (API + Parquet + scraping); local caching \\
-2 & Data-quality issues in OFF & High & Medium & 7-rule PySpark cleaning; 6 data-quality checks; cleaning report \\
-3 & Schema evolution breaking API & Low & High & Versioned API (\texttt{/api/v1/}); migration scripts \\
-4 & ETL failures blocking analytics & Medium & High & Airflow retries (2--3 attempts); Mailhog alerting; SLA dashboard \\
-4 & SCD complexity causing data inconsistencies & Medium & Medium & Unit tests for SCD logic; \texttt{IS DISTINCT FROM} for NULL handling \\
-5 & MinIO storage exhaustion & Low & Medium & Lifecycle rules (bronze 90\,d, backups 30\,d); storage monitoring \\
-6 & Integration issues between services & Medium & Medium & Docker Compose healthchecks; end-to-end pipeline testing \\
+1 & Incomplete requirements & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Interview grids with all stakeholder groups; iterative validation with Sophie \\
+2 & API rate limiting / data unavailability & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Multi-source strategy (API + Parquet + scraping); local caching \\
+2 & Data-quality issues in OFF & \cellcolor{ntred!25}High & \cellcolor{ntorange!25}Medium & 7-rule PySpark cleaning; 6 data-quality checks; cleaning report \\
+3 & Schema evolution breaking API & \cellcolor{ntlightgreen!40}Low & \cellcolor{ntred!25}High & Versioned API (\texttt{/api/v1/}); migration scripts \\
+4 & ETL failures blocking analytics & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Airflow retries (2--3 attempts); Mailhog alerting; SLA dashboard \\
+4 & SCD complexity causing data inconsistencies & \cellcolor{ntorange!25}Medium & \cellcolor{ntorange!25}Medium & Unit tests for SCD logic; \texttt{IS DISTINCT FROM} for NULL handling \\
+5 & MinIO storage exhaustion & \cellcolor{ntlightgreen!40}Low & \cellcolor{ntorange!25}Medium & Lifecycle rules (bronze 90\,d, backups 30\,d); storage monitoring \\
+6 & Integration issues between services & \cellcolor{ntorange!25}Medium & \cellcolor{ntorange!25}Medium & Docker Compose healthchecks; end-to-end pipeline testing \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1535,7 +1559,7 @@ regular schedule, selected sources, reliable aggregation and
 accessible communication. We run the watch weekly (approximately
 1 hour per week) on three themes that are directly relevant to
 Sophie's platform, and publish a short newsletter on the MkDocs
-site (see Section~\ref{sec:cicd-docs}).
+site (see Section~\ref{sec:c20}).
 
 \begin{table}[H]
 \centering
@@ -1807,8 +1831,8 @@ handles real-time questions.
 kickoff meeting simulation --- pre-project pitch, roadmap
 walk-through, calendar overview, communication strategy and
 commitment to accessibility --- is defended orally on the slide
-deck. See Chapter~\ref{ch:cicd} for the full list of
-documentation deliverables and the slide deck used for the
+deck. See Chapter~\ref{ch:bloc4} for the full list of
+infrastructure components and the slide deck used for the
 defense.
 
 
@@ -2077,14 +2101,50 @@ Auto-generated documentation: \texttt{/docs} (Swagger UI), \texttt{/redoc}
 
 \textbf{Authentication and authorization rules:}
 \begin{itemize}[nosep]
-  \item \textbf{JWT HS256} tokens with 30-minute expiration
-  \item \textbf{3 roles}: \texttt{user} (search, meal tracking),
-        \texttt{nutritionist} (analytics, datamart access),
-        \texttt{admin} (full access, user management)
+  \item \textbf{JWT HS256} tokens with 60-minute expiration
+  \item \textbf{4 roles} enforced at both API and Streamlit levels:
+        \texttt{user} (product search, meal tracking, 6 Streamlit pages),
+        \texttt{nutritionist} (all user pages + patient analytics dashboard, \texttt{/nutritionist/*} endpoints),
+        \texttt{analyst} (all user pages + product analytics dashboard, \texttt{/analytics/*} endpoints),
+        \texttt{admin} (all pages, all endpoints, user management)
+  \item \textbf{Double security}: Streamlit hides unauthorized pages (UI-level)
+        \textbf{and} FastAPI's \texttt{require\_role()} dependency rejects unauthorized
+        API requests with HTTP~403 (backend-level)
   \item \textbf{bcrypt} password hashing with salt
   \item All endpoints except \texttt{/register} and \texttt{/login} require
         \texttt{Bearer} token
 \end{itemize}
+
+
+\textbf{Streamlit role-based dashboards in action:}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_user_dashboard.png}
+\caption{User role --- Daily Dashboard showing macro distribution (1\,043\,kcal,
+33.6\,g protein), RDA progress bars, and meal count. The sidebar shows the 6 pages
+available to the \texttt{user} role.}
+\label{fig:streamlit-user}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_nutritionist.png}
+\caption{Nutritionist role (dr\_martin) --- Patient overview with meals per patient,
+average daily kcal bar charts, and distribution by dietary goal and activity level.
+This page is hidden from \texttt{user} and \texttt{analyst} roles.}
+\label{fig:streamlit-nutritionist}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_analyst.png}
+\caption{Analyst role (analyst\_sophie) --- Product Analytics showing 777\,448 products,
+Nutri-Score distribution (A--E with official colours), NOVA processing groups, and
+top 15 categories by product count. This page is hidden from \texttt{user} and
+\texttt{nutritionist} roles.}
+\label{fig:streamlit-analyst}
+\end{figure}
 
 
 % -----------------------------------------------------------
@@ -2117,31 +2177,12 @@ to the \texttt{staging.data\_quality\_checks} table:
 \section{\rgpd{} Compliance Analysis}
 \label{sec:rgpd-e4}
 
-\textbf{Personal data identification:} The operational database contains
-personal data in the \texttt{app.users} table (email, full name, dietary
-preferences) and indirectly in \texttt{app.meals} (eating habits linked to
-user\_id). Product data from \off{} contains no personal data.
-
-\textbf{Compliance measures implemented:}
-\begin{enumerate}[nosep]
-  \item \textbf{Personal data registry:} All personal data categories
-        documented with legal basis, retention period, and security measures
-        (Table~\ref{tab:rgpd})
-  \item \textbf{Consent management:} User registration requires explicit
-        consent (Art.~6.1.a); consent status stored in user profile
-  \item \textbf{Data minimization:} Only necessary fields collected; no
-        tracking beyond nutritional analysis
-  \item \textbf{Pseudonymization:} SHA256 hashing of user identifiers in
-        the data warehouse (\texttt{dim\_user.user\_hash})
-  \item \textbf{Right to deletion:} \texttt{CASCADE DELETE} on
-        users $\to$ meals $\to$ meal\_items; API endpoint planned for
-        self-service account deletion
-  \item \textbf{Automated retention:} PL/pgSQL function
-        \texttt{rgpd\_cleanup\_expired\_data()} deletes meals older than
-        2 years and deactivates accounts past 3-year retention
-  \item \textbf{Data lake isolation:} No personal data enters the data lake;
-        gold layer contains only anonymized aggregates
-\end{enumerate}
+The full \rgpd{} compliance framework is documented in
+Section~\ref{sec:e2} (Block~1, \competence{C3} architecture study). The
+seven measures --- personal data registry, consent management, data
+minimization, pseudonymization, right to deletion, automated retention, and
+data lake isolation --- are implemented across all components described in
+this chapter.
 
 
 % =============================================================
@@ -2274,14 +2315,15 @@ extensibility without restructuring.
 \label{tab:dimensions}
 \begin{tabularx}{\textwidth}{L{2.5cm} C{1.5cm} C{1.2cm} L{6.5cm}}
 \toprule
-\textbf{Dimension} & \textbf{SCD} & \textbf{Rows} & \textbf{Description} \\
+\rowcolor{ntblue!80}
+\textcolor{white}{\textbf{Dimension}} & \textcolor{white}{\textbf{SCD}} & \textcolor{white}{\textbf{Rows}} & \textcolor{white}{\textbf{Description}} \\
 \midrule
 dim\_time & --- & 4\,018 & Pre-populated time dimension (2020--2030) \\
-dim\_product & Type 2 & $\sim$777K & Product attributes with history \\
-dim\_brand & Type 1 & $\sim$15K & Brands (overwrite corrections) \\
+dim\_product & \cellcolor{ntlightblue!30}Type 2 & $\sim$777K & Product attributes with history \\
+dim\_brand & \cellcolor{ntlightgreen!40}Type 1 & $\sim$15K & Brands (overwrite corrections) \\
 dim\_category & --- & $\sim$2K & Category hierarchy \\
-dim\_country & Type 3 & Ref. & Countries with expansion tracking \\
-dim\_user & Type 2 & $\sim$1K & Anonymized profiles (SHA256) \\
+dim\_country & \cellcolor{ntlightpurple!30}Type 3 & Ref. & Countries with expansion tracking \\
+dim\_user & \cellcolor{ntlightblue!30}Type 2 & $\sim$1K & Anonymized profiles (SHA256) \\
 dim\_nutriscore & --- & 5 & Nutri-Score reference (A--E) \\
 \bottomrule
 \end{tabularx}
@@ -2319,9 +2361,10 @@ access: \texttt{dm\_user\_daily\_nutrition},
 \texttt{dm\_nutrition\_trends},
 \texttt{dm\_dw\_health}.
 
-\textbf{Analyst access via Superset:} Superset 6.0.1 connects to the DW
-via a read-only PostgreSQL role \texttt{superset} on \texttt{dw.*}.
-Three dashboards provide self-service analytics.
+\textbf{Analyst access via Streamlit:} The analyst role connects to the DW
+through the Product Analytics dashboard (Figure~\ref{fig:streamlit-analyst}),
+which queries datamart views via FastAPI using a read-only PostgreSQL role
+\texttt{analyst\_role} on \texttt{dw.*}.
 
 \subsection{Test Procedure}
 
@@ -2383,13 +2426,13 @@ Schema isolation & Clean separation & No operational/analytical contamination & 
 via ExternalTaskSensor dependencies for cross-DAG coordination:
 
 \begin{enumerate}[nosep]
-  \item \texttt{etl\_datalake\_ingest} --- Ingest raw data to bronze layer
-  \item \texttt{etl\_aggregate\_clean} --- PySpark cleaning (bronze $\to$ silver)
-  \item \texttt{etl\_import\_to\_db} --- Load cleaned data to operational DB
-  \item \texttt{etl\_load\_warehouse} --- Populate star schema (dimensions + facts)
-  \item \texttt{etl\_gold\_aggregates} --- Generate gold analytics (silver $\to$ gold)
-  \item \texttt{etl\_data\_quality} --- Run 6 quality checks
-  \item \texttt{etl\_backup\_maintenance} --- Weekly backups + cleanup
+  \item \texttt{etl\_extract\_off\_api} --- Daily REST API extraction from Open Food Facts
+  \item \texttt{etl\_extract\_parquet} --- Weekly Parquet + DuckDB extraction from OFF bulk export
+  \item \texttt{etl\_extract\_scraping} --- Monthly web scraping of ANSES/EFSA regulatory data
+  \item \texttt{etl\_aggregate\_clean} --- PySpark cleaning (aggregate $\to$ clean $\to$ validate $\to$ load)
+  \item \texttt{etl\_datalake\_ingest} --- Bronze/silver/gold medallion layers + anonymized aggregates + catalog
+  \item \texttt{etl\_load\_warehouse} --- Star schema dimensions + facts population
+  \item \texttt{etl\_backup\_maintenance} --- Weekly backups + \rgpd{} cleanup
 \end{enumerate}
 
 \subsection{ETL Workflow}
@@ -2701,7 +2744,7 @@ mc admin policy attach myminio gold-readonly --user new_analyst
 \textbf{Dimension} & \textbf{Current State} & \textbf{Scaling Procedure} \\
 \midrule
 Storage space & PostgreSQL: $\sim$2~GB; MinIO: $\sim$4~GB & PostgreSQL: add tablespaces on new volumes. MinIO: add storage nodes to the cluster (erasure coding supports 4--16 nodes). Docker volume resize via host filesystem. \\
-New datamarts & 6 analytical views & Create new SQL view in \texttt{dw} schema; grant SELECT to target role; add to Superset as dataset; document in data catalog. \\
+New datamarts & 6 analytical views & Create new SQL view in \texttt{dw} schema; grant SELECT to target role; add corresponding FastAPI endpoint and Streamlit page; document in data catalog. \\
 Compute capacity & Single Docker host & Migrate to Docker Swarm or Kubernetes for horizontal scaling. Airflow: switch from CeleryExecutor to KubernetesExecutor. PySpark: connect to a standalone or YARN cluster. \\
 New data sources & 3 sources & Follow the 6-step new source integration procedure above. \\
 Additional users & 4 role groups & Follow the 3-step new access creation procedure above. \\
@@ -2965,7 +3008,7 @@ make lake-status   # Check storage status
 12 & MailHog & mailhog/mailhog & 8025 & Dev email server \\
 13 & postgres-exporter & prometheuscommunity & 9187 & PostgreSQL metrics \\
 14 & MinIO createbuckets & minio/mc & --- & Bucket initialization \\
-15 & Superset & custom (Python 3.9) & 8088 & BI dashboards \\
+15 & DuckDB sidecar & duckdb/duckdb & --- & Ad-hoc Parquet analytics \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -3102,16 +3145,21 @@ and via email/Slack for production deployment.
 \centering
 \caption{Access rights matrix by group}
 \label{tab:access-matrix}
-\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{3.5cm} C{1.5cm} L{3cm}}
+\arrayrulecolor{ntblue}
+\rowcolors{2}{ntlightblue!15}{white}
+\begin{tabularx}{\textwidth}{L{2.3cm} L{2.3cm} L{3.2cm} C{1.5cm} L{3.2cm}}
 \toprule
-\textbf{Group} & \textbf{PG Role} & \textbf{MinIO Policy} & \textbf{API Role} & \textbf{Description} \\
+\rowcolor{ntblue}
+\textcolor{white}{\textbf{Group}} & \textcolor{white}{\textbf{PG Role}} & \textcolor{white}{\textbf{MinIO Policy}} & \textcolor{white}{\textbf{API Role}} & \textcolor{white}{\textbf{Streamlit}} \\
 \midrule
-Users & app\_readonly & gold: read & user & Search, meals \\
-Nutritionists & nutritionist\_role & silver+gold: read & nutritionist & Cleaned data \\
-Administrators & admin\_role & all: write & admin & Full access \\
-ETL Service & etl\_service & bronze/silver/gold: write & --- & Automated pipeline \\
+\textbf{Users} & app\_readonly & gold: read & user & 6 pages \\
+\textbf{Nutritionists} & nutritionist\_role & silver+gold: read & nutritionist & 7 pages (+patients) \\
+\textbf{Analysts} & analyst\_role & gold: read & analyst & 7 pages (+analytics) \\
+\textbf{Administrators} & admin\_role & all: read/write & admin & 8 pages (all) \\
+\textbf{ETL Service} & etl\_service & all: write & --- & --- \\
 \bottomrule
 \end{tabularx}
+\arrayrulecolor{black}
 \end{table}
 
 \textbf{Governance principles:}
@@ -3125,33 +3173,59 @@ ETL Service & etl\_service & bronze/silver/gold: write & --- & Automated pipelin
 
 \subsection{Groups and Rights Documentation}
 
+% Checkmark and cross symbols for access table
+\newcommand{\cmark}{\textcolor{ntgreen}{\faCheckCircle}}
+\newcommand{\xmark}{\textcolor{ntgray!40}{---}}
+
 \begin{table}[H]
 \centering
 \caption{Detailed access rights per group and resource}
 \label{tab:detailed-rights}
-\begin{tabularx}{\textwidth}{L{2.2cm} L{2.5cm} C{1.5cm} C{1.5cm} C{1.5cm} C{1.5cm}}
+\small
+\arrayrulecolor{ntgreen}
+\begin{tabularx}{\textwidth}{L{2cm} L{2.2cm} C{1cm} C{1cm} C{1cm} C{1cm} C{1cm}}
 \toprule
-\textbf{Resource} & \textbf{Permission} & \textbf{Users} & \textbf{Nutri.} & \textbf{Admin} & \textbf{ETL} \\
+\rowcolor{ntgreen}
+\textcolor{white}{\textbf{Resource}} & \textcolor{white}{\textbf{Permission}} & \textcolor{white}{\textbf{User}} & \textcolor{white}{\textbf{Nutri.}} & \textcolor{white}{\textbf{Analyst}} & \textcolor{white}{\textbf{Admin}} & \textcolor{white}{\textbf{ETL}} \\
 \midrule
-PG: app schema & SELECT & Yes & Yes & Yes & Yes \\
-PG: app schema & INSERT/UPDATE & --- & --- & Yes & Yes \\
-PG: dw schema & SELECT & --- & Yes & Yes & Yes \\
-PG: dw schema & INSERT/UPDATE & --- & --- & Yes & Yes \\
-PG: staging schema & ALL & --- & --- & Yes & Yes \\
-MinIO: bronze & READ & --- & --- & Yes & Yes \\
-MinIO: bronze & WRITE & --- & --- & Yes & Yes \\
-MinIO: silver & READ & --- & Yes & Yes & Yes \\
-MinIO: silver & WRITE & --- & --- & Yes & Yes \\
-MinIO: gold & READ & Yes & Yes & Yes & Yes \\
-MinIO: gold & WRITE & --- & --- & Yes & Yes \\
-MinIO: backups & READ/WRITE & --- & --- & Yes & Yes \\
-API endpoints & Public (/register, /login) & Yes & Yes & Yes & --- \\
-API endpoints & Authenticated (/products, /meals) & Yes & Yes & Yes & --- \\
-API endpoints & Admin (/admin/*) & --- & --- & Yes & --- \\
-Airflow UI & View DAGs & --- & --- & Yes & Yes \\
-Grafana & View dashboards & --- & Yes & Yes & --- \\
+\rowcolor{ntlightblue!15}
+PG: app & SELECT & \cmark & \cmark & \cmark & \cmark & \cmark \\
+PG: app & INSERT & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightblue!15}
+PG: dw & SELECT & \xmark & \xmark & \cmark & \cmark & \cmark \\
+PG: dw & INSERT & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightblue!15}
+PG: staging & ALL & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\rowcolor{ntlightgreen!25}
+MinIO: bronze & READ & \xmark & \xmark & \xmark & \cmark & \cmark \\
+MinIO: silver & READ & \xmark & \cmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightgreen!25}
+MinIO: gold & READ & \cmark & \cmark & \cmark & \cmark & \cmark \\
+MinIO: all & WRITE & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightgreen!25}
+MinIO: backups & R/W & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\rowcolor{producerbody}
+API & /products, /meals & \cmark & \cmark & \cmark & \cmark & \xmark \\
+API & /nutritionist/* & \xmark & \cmark & \xmark & \cmark & \xmark \\
+\rowcolor{producerbody}
+API & /analytics/* & \xmark & \xmark & \cmark & \cmark & \xmark \\
+\midrule
+\rowcolor{consumerbody}
+Streamlit & User pages (6) & \cmark & \cmark & \cmark & \cmark & \xmark \\
+Streamlit & Nutritionist Dash & \xmark & \cmark & \xmark & \cmark & \xmark \\
+\rowcolor{consumerbody}
+Streamlit & Product Analytics & \xmark & \xmark & \cmark & \cmark & \xmark \\
+Streamlit & Data Catalog & \xmark & \xmark & \cmark & \cmark & \xmark \\
+\midrule
+\rowcolor{ntgray!10}
+Airflow UI & View DAGs & \xmark & \xmark & \xmark & \cmark & \cmark \\
+Grafana & Dashboards & \xmark & \xmark & \cmark & \cmark & \xmark \\
 \bottomrule
 \end{tabularx}
+\arrayrulecolor{black}
+\normalsize
 \end{table}
 
 \textbf{Access update procedures:}
@@ -3174,40 +3248,26 @@ Grafana & View dashboards & --- & Yes & Yes & --- \\
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
 
-\nutritrack{} started as a simple question from Sophie Yang: \textit{``I spend
-hours looking up products. I need a platform where my patients log meals and I
-see the analytics.''} Six phases and twelve weeks later, that one sentence has
-become a running platform that covers all 21~competencies
-(\competence{C1}--\competence{C21}) of the
-\textit{Expert in Massive Data Infrastructures} certification.
+\nutritrack{} started with one sentence from Sophie Yang:
+\textit{``I need a platform where my patients log meals and I see the
+analytics.''} Twelve weeks later, that sentence is a running platform
+--- 798\,177 products cleaned with PySpark, a star-schema warehouse, a
+medallion data lake, a REST API and four role-based dashboards, all
+deployed with a single \texttt{docker compose} command.
 
-Along the way, this project transformed a public dataset of 798\,177 French
-food products into 777\,116 validated records through a distributed PySpark
-pipeline, loaded them into a star-schema data warehouse, mirrored them into a
-bronze/silver/gold data lake, and exposed them through an async REST API
-backed by a four-role Streamlit front-end. Everything runs on a single
-\texttt{docker compose} command, every script is versioned on Git, and every
-architectural choice --- from PostgreSQL for \rgpd{}-compliant row-level
-delete, to MinIO for self-hosted S3-compatible storage, to Airflow for
-dependable orchestration --- ties back to a specific need Sophie expressed
-during the discovery interviews.
+Building this project taught me that good data engineering starts from
+the client, not from the technology. Every tool choice, every schema
+decision and every access rule in this report traces back to something
+Sophie asked for during the discovery interviews. It also showed me
+that infrastructure and intelligence are two sides of the same coin:
+the pipelines, warehouses and governance layers I built here are
+exactly what sits beneath the Gen~AI products I work on every day at
+Publicis. I now see the full picture, and that makes all the
+difference.
 
-What makes this project meaningful goes beyond the technical stack. It
-demonstrates that a small practice like Sophie's can run a production-grade
-data platform with zero licensing cost and less than one~hundred euros per
-year of operating cost, thanks to a thoughtfully chosen open-source stack.
-It demonstrates that \rgpd{} compliance is not an afterthought but an
-architectural driver: personal data stays in PostgreSQL where it can be
-deleted row-by-row, and public data flows to the Parquet lake. And it
-demonstrates the power of starting from the client, not from the technology
---- every feature in this report earns its place because it answers one of
-Sophie's five pain points.
-
-\nutritrack{} is more than a certification deliverable: it is a complete,
-reproducible, documented data platform that a real nutritionist could deploy
-tomorrow. The code is public, the report you are holding explains every
-choice, and the oral defense will show the platform running in real time.
-Thank you for reading.
+The code is public, the report explains every choice, and the oral
+defense will show the platform running in real time. Thank you for
+reading.
 
 
 % =============================================================
@@ -3216,44 +3276,41 @@ Thank you for reading.
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}
 
-I would like to take a moment to thank the two organisations that
-made this project --- and the certification behind it --- possible.
-
-\vspace{0.6cm}
-
-\noindent\textbf{To Simplon, my school.} Thank you for designing a
-curriculum that pushes us to build real data platforms end-to-end
-rather than toy examples. The twelve months I spent with your
-instructors and fellow learners gave me the technical foundations
-and the confidence to tackle a project of this scale. The
-referential you walked us through week after week is exactly what
-helped me structure this report and the \nutritrack{} platform
-around the 21~competencies of \textit{RNCP37638}. Thank you to
-every instructor, every mentor and every classmate who reviewed my
-work and challenged my choices.
+\noindent\textbf{To Simplon.} Thank you for eighteen months of
+hands-on learning. Simplon's pedagogic model --- implement, deploy,
+break, fix, present --- is the reason this project is a running
+system and not a slide deck. The referential gave me the structure;
+the instructors pushed me to justify every choice.
 
 \vspace{0.4cm}
 
-\noindent\textbf{To Publicis Groupe, my company.} Thank you for
-trusting me with the time, the context and the professional
-environment that turned this certification from an academic
-exercise into a workplace-ready project. The daily exposure to
-large-scale data systems, code reviews, and cross-functional
-discussions shaped every architectural decision in \nutritrack{},
-from the choice of PySpark for cleaning to the medallion data lake
-on MinIO. Thank you for believing that investing in my learning
-would benefit not only me but also the teams I work with.
+\noindent\textbf{To Publicis Resources.} My daily work is on Gen~AI
+products, far from data infrastructure. Yet Publicis gave me the
+space and time to build pipelines, warehouses and governance layers
+from scratch. That experience showed me the infrastructure beneath
+every AI product I work on. I now see the full picture --- from
+raw data to model --- and that makes me a stronger engineer.
 
-\vspace{0.6cm}
+\vspace{0.4cm}
 
-\noindent Building \nutritrack{} was, above all, a privilege.
-Sophie Yang may be a fictional client but the problems she
-represents are real, the technical stack is real, the code runs,
-and every line of this report reflects something I learned by
-doing. I am grateful to both Simplon and Publicis for giving me
-the opportunity to learn by building something that matters.
+\noindent This project has grown my ability to think beyond my
+immediate role. Having built both the data infrastructure and the
+analytical layer from scratch, I now carry a mental model that
+connects ingestion, transformation, storage, governance and
+serving into one coherent system. Combined with my daily work in
+AI, I believe this dual expertise --- infrastructure and
+intelligence --- will make me a stronger engineer and a more
+effective contributor to the teams I work with.
 
-\vspace{1cm}
+\vspace{0.3cm}
+
+\noindent Sophie Yang may be a fictional client, but the problems
+she represents are real, the technical stack is real, the code
+runs, and every line of this report reflects something I learned
+by building. Thank you, Simplon and Publicis, for making that
+possible.
+
+\vspace{0.8cm}
 
 \begin{center}
 \textit{Reetika Gautam} \\

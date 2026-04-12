@@ -68,24 +68,23 @@ extra:
 
 nav:
   - Home: index.md
-  - Architecture:
-    - System Overview: architecture/overview.md
-    - Data Flow Pipeline: architecture/data-flow.md
-    - Infrastructure: architecture/infrastructure.md
-  - Data Warehouse:
-    - Star Schema: data-warehouse/star-schema.md
-    - ETL Pipelines: data-warehouse/etl-pipelines.md
-    - SCD Implementation: data-warehouse/scd.md
-    - Datamarts: data-warehouse/datamarts.md
-  - Data Lake:
-    - Medallion Architecture: data-lake/medallion.md
-    - Data Catalog: data-lake/catalog.md
-    - Governance & RGPD: data-lake/governance.md
-  - API:
-    - REST API Reference: api/reference.md
-  - Monitoring:
-    - Alerting System: monitoring/alerting.md
-    - SLA Dashboard: monitoring/sla-dashboard.md
-  - Certification:
-    - Competency Matrix: certification/competency-matrix.md
-    - Audit Report: certification/audit.md
+  - Project Overview:
+    - Architecture: overview/architecture.md
+    - Tech Stack: overview/tech-stack.md
+    - Data Flow: overview/data-flow.md
+  - Block 1 — Steer a Data Project:
+    - Client & Need Analysis: block1/need-analysis.md
+    - Technical Architecture: block1/architecture.md
+    - Project Planning: block1/planning.md
+  - Block 2 — Data Collection & Sharing:
+    - Data Extraction: block2/extraction.md
+    - Cleaning Pipeline: block2/cleaning.md
+    - Database & API: block2/database-api.md
+  - Block 3 — Data Warehouse:
+    - Star Schema: block3/star-schema.md
+    - ETL Pipelines: block3/etl-pipelines.md
+    - Maintenance & SCD: block3/maintenance.md
+  - Block 4 — Data Lake:
+    - Medallion Architecture: block4/medallion.md
+    - Catalog & Governance: block4/governance.md
+  - Quick Start: quickstart.md
