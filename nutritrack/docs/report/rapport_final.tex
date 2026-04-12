@@ -2436,6 +2436,21 @@ via ExternalTaskSensor dependencies for cross-DAG coordination:
 \label{fig:etl-dag}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/airflow_dags_list.png}
+\caption{Airflow UI --- All 7 DAGs with execution history and status}
+\label{fig:airflow-dags}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/airflow_dag_graph.png}
+\caption{DAG graph for \texttt{etl\_aggregate\_clean} --- 4-task PySpark pipeline
+(aggregate $\to$ clean $\to$ validate $\to$ load)}
+\label{fig:airflow-dag-graph}
+\end{figure}
+
 
 % -----------------------------------------------------------
 \section{DW Maintenance and Monitoring (\competence{C16})}
@@ -2599,6 +2614,15 @@ Data Quality Score & $>$~90\,\% & Cleaning report completeness metrics \\
 The dashboard enables proactive identification of degrading performance
 before SLA breaches occur, with 7-day trend charts for ETL success rate
 and DAG run outcomes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/grafana_airflow.png}
+\caption{Grafana monitoring dashboard --- Airflow scheduler heartbeat, DAG processing
+times, operator success rates, executor pool status (43\,798 total successful tasks,
+14 total tasks failed)}
+\label{fig:grafana-airflow}
+\end{figure}
 
 \subsection{Backup Procedures}
 
