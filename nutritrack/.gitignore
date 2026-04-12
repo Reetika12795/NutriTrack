@@ -46,3 +46,12 @@ airflow/plugins/__pycache__/
 # OS
 .DS_Store
 Thumbs.db
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.lof
+docs/*.lot
+docs/*.nav
+docs/*.snm
+docs/*.vrb

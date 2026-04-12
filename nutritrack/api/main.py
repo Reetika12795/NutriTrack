@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import settings
-from api.routers import auth, meals, products
+from api.routers import analytics, auth, meals, nutritionist, products
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -39,6 +39,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(meals.router)
+app.include_router(analytics.router)
+app.include_router(nutritionist.router)
 
 
 @app.get("/", tags=["Health"])

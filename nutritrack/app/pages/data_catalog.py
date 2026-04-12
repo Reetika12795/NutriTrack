@@ -89,6 +89,15 @@ def _matches_search(text: str, query: str) -> bool:
 # ---------------------------------------------------------------------------
 
 st.set_page_config(page_title="Data Catalog", page_icon="", layout="wide")
+
+# Role check: only analyst and admin can access the data catalog
+user = st.session_state.get("user", {})
+role = user.get("role", "")
+if role not in ("analyst", "admin"):
+    st.error("Access denied. This page is restricted to **analyst** and **admin** roles.")
+    st.info("Please log in with an authorized account to view the data catalog.")
+    st.stop()
+
 st.title("Data Catalog Browser")
 st.caption("C20 - Interactive data catalog for the NutriTrack data lake (MinIO)")
 

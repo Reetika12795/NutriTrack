@@ -153,7 +153,7 @@
 \vspace{0.3cm}
 \begin{center}
   {\footnotesize\faDesktop\ \textbf{Live demos} throughout $\bullet$
-   \faFile*\ Report handed to jury $\bullet$
+   \faFile\ Report handed to jury $\bullet$
    \faGithub\ Code on GitHub}
 \end{center}
 \end{frame}
@@ -220,8 +220,8 @@
   \node[font=\scriptsize, text width=4.5cm] at (-3.5,-0.5) {
     \faIndustry\ Business activities \& data creation\\[1pt]
     \faFile\ Data types, formats (CSV, JSON, Parquet)\\[1pt]
-    \faTachometerAlt\ Volumes: 3M+ products, 40 patients/wk\\[1pt]
-    \faShieldAlt\ Quality controls in place\\[1pt]
+    \faChartLine\ Volumes: 3M+ products, 40 patients/wk\\[1pt]
+    \faLock\ Quality controls in place\\[1pt]
     \faTags\ Metadata: 31 nutritional fields\\[1pt]
     \faLock\ Access: ODbL license, rate limits\\[1pt]
     \faExclamationTriangle\ Known issues: missing values, duplicates
@@ -418,9 +418,9 @@
                  font=\scriptsize, align=left, inner xsep=6pt},
   ]
     \node[font=\small\bfseries, ntblue] at (0,3.2) {\faUserShield\ RGPD Compliance Actions};
-    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,2.4) {\faFile*\ Personal data registry (Art.\ 30)};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,2.4) {\faFile\ Personal data registry (Art.\ 30)};
     \node[item, fill=ntblue!8, draw=ntblue!40] at (0,1.7) {\faUserCheck\ Explicit consent at registration};
-    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,1.0) {\faTrashAlt\ Auto-cleanup after retention};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,1.0) {\faTrash\ Auto-cleanup after retention};
     \node[item, fill=ntblue!8, draw=ntblue!40] at (0,0.3) {\faLock\ bcrypt + UUID pseudonymization};
     \node[font=\small\bfseries, ntpurple] at (0,-0.6) {\faUniversalAccess\ Accessibility};
     \node[item, fill=ntpurple!8, draw=ntpurple!40] at (0,-1.3) {\faUniversalAccess\ Keyboard nav, contrast ratios, screen reader};
@@ -509,7 +509,7 @@
 
   \node[font=\tiny, ntgreen] at (10,2.5) {\faDatabase\ Public data};
   \node[font=\tiny, ntblue] at (10,0.5) {\faLock\ Personal data};
-  \node[font=\tiny, ntpurple] at (10,-1.5) {\faShieldAlt\ Governance};
+  \node[font=\tiny, ntpurple] at (10,-1.5) {\faLock\ Governance};
 \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -541,7 +541,7 @@
   };
   \node[col, fill=ntpurple!5, draw=ntpurple] at (4.5,0) {
     \textbf{\normalsize File-Based}\\[4pt]
-    \faFile*\ Parquet (columnar)\\[2pt]
+    \faFile\ Parquet (columnar)\\[2pt]
     OFF bulk export (798k rows)\\
     Lake: bronze/silver/gold\\[2pt]
     CSV (legacy exports)\\
@@ -602,7 +602,7 @@
 \begin{tikzpicture}
   \node[rounded corners=6pt, fill=ntred!5, draw=ntred!40, inner sep=6pt,
         text width=0.9\linewidth, font=\scriptsize] {
-    \faShieldAlt\ \textbf{RGPD constraint:} Health-related data (meals, patient info) restricted to authorized roles only. User data never enters MinIO lake (Parquet = immutable, no row-level delete).
+    \faLock\ \textbf{RGPD constraint:} Health-related data (meals, patient info) restricted to authorized roles only. User data never enters MinIO lake (Parquet = immutable, no row-level delete).
   };
 \end{tikzpicture}
 \end{center}
@@ -706,7 +706,7 @@
               draw, thick, align=center, font=\scriptsize, inner sep=6pt},
 ]
   \node[box, fill=ntred!8, draw=ntred] at (0,0) {
-    \faFile*\ \textbf{Data Registry}\\[4pt]
+    \faFile\ \textbf{Data Registry}\\[4pt]
     {\tiny \texttt{rgpd\_data\_registry} table}\\
     {\tiny Legal basis per field}\\
     {\tiny Retention periods}
@@ -718,7 +718,7 @@
     {\tiny Mandatory at registration}
   };
   \node[box, fill=ntgreen!8, draw=ntgreen] at (8,0) {
-    \faTrashAlt\ \textbf{Auto-Cleanup}\\[4pt]
+    \faTrash\ \textbf{Auto-Cleanup}\\[4pt]
     {\tiny \texttt{rgpd\_cleanup\_expired}}\\
     {\tiny Meals $>$2y deleted}\\
     {\tiny Users past retention}
@@ -747,13 +747,13 @@
   \node[item, fill=ntgreen!8, draw=ntgreen] at (0,2.2) {
     \faServer\ \textbf{Minimal infrastructure:} single Docker host, no cloud waste};
   \node[item, fill=ntgreen!8, draw=ntgreen] at (0,1) {
-    \faCompressArrowsAlt\ \textbf{Parquet columnar format:} 10x smaller than CSV, less I/O};
+    \faCompress\ \textbf{Parquet columnar format:} 10x smaller than CSV, less I/O};
   \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-0.2) {
     \faClock\ \textbf{Scheduled ETL:} nightly runs only, no idle compute};
   \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-1.4) {
     \faMemory\ \textbf{Lightweight stack:} DuckDB in-process, Redis caching, no JVM bloat};
   \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-2.6) {
-    \faTrashAlt\ \textbf{Data lifecycle:} auto-cleanup of expired data reduces storage};
+    \faTrash\ \textbf{Data lifecycle:} auto-cleanup of expired data reduces storage};
 \end{tikzpicture}
 \end{center}
 \vspace{0.1cm}
@@ -846,7 +846,7 @@
         text width=\linewidth-25pt, font=\small] {
     \faClock\ Weekly schedule (min.\ 1h/week) \quad
     \faCheckDouble\ Source reliability verified \quad
-    \faFile*\ \texttt{docs/veille\_technologique.md} \quad
+    \faFile\ \texttt{docs/veille\_technologique.md} \quad
     \faUniversalAccess\ Accessible format
   };
 \end{tikzpicture}
@@ -861,7 +861,7 @@
 ]
   \node[metric] at (0,0) {\faChartLine\\[3pt]\textbf{DAG Success Rate}\\{\tiny Pass/fail per run}\\{\tiny Updated daily}};
   \node[metric] at (4.2,0) {\faDatabase\\[3pt]\textbf{Activity Log}\\{\tiny 22+ entries, 14 days}\\{\tiny Airflow logs}};
-  \node[metric] at (8.4,0) {\faTachometerAlt\\[3pt]\textbf{Completeness \%}\\{\tiny Per dataset}\\{\tiny Quality gate}};
+  \node[metric] at (8.4,0) {\faChartLine\\[3pt]\textbf{Completeness \%}\\{\tiny Per dataset}\\{\tiny Quality gate}};
   \node[metric] at (12.6,0) {\faClock\\[3pt]\textbf{ETL Duration}\\{\tiny Trend over time}\\{\tiny Grafana panel}};
 \end{tikzpicture}
 \end{center}
@@ -914,6 +914,206 @@
 \section{E3 --- Project Kickoff Simulation (C5, C6, C7)}
 % =============================================================
 
+% ======================= E3 KICKOFF SLIDE A: AGENDA ============
+\begin{frame}{Project NutriTrack --- Kickoff Meeting \competency{C5} \competency{C6} \competency{C7}}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!10, draw=ntgreen, very thick,
+        inner sep=10pt, text width=0.90\linewidth, align=center] {
+    {\large\bfseries\color{ntgreen}\faHandshake\ Welcome Sophie}\\[4pt]
+    {\small\itshape This is how we will build your platform together.}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.92, transform shape,
+  ag/.style={rounded corners=5pt, minimum width=11cm, minimum height=0.75cm,
+             fill=ntblue!8, draw=ntblue!40, font=\small, align=left,
+             inner xsep=10pt},
+  num/.style={circle, fill=ntblue, text=white, font=\scriptsize\bfseries,
+              minimum size=0.55cm, inner sep=0pt},
+]
+  \node[font=\small\bfseries, ntblue, anchor=west] at (-5.5,3.4) {\faListOl\ Today's agenda (10 minutes)};
+
+  \node[ag] at (0,2.6)  {\phantom{1.}\quad Scope recap --- what NutriTrack delivers to your practice};
+  \node[num] at (-5.0,2.6) {1};
+
+  \node[ag] at (0,1.75) {\phantom{1.}\quad CAPEX, resources \& team commitment};
+  \node[num] at (-5.0,1.75) {2};
+
+  \node[ag] at (0,0.9)  {\phantom{1.}\quad OPEX \& tech stack choices (why these tools)};
+  \node[num] at (-5.0,0.9) {3};
+
+  \node[ag] at (0,0.05) {\phantom{1.}\quad Timeline, milestones \& risk checkpoints};
+  \node[num] at (-5.0,0.05) {4};
+
+  \node[ag] at (0,-0.8) {\phantom{1.}\quad Go/No-Go decision --- any questions before sprint~1?};
+  \node[num] at (-5.0,-0.8) {5};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE B: CAPEX + TEAM ======
+\begin{frame}{CAPEX \& Team Commitment \competency{C5}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.7cm,
+                 fill=ntaccent!8, draw=ntaccent!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.85cm,
+                fill=ntgreen!12, draw=ntgreen, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntaccent] at (0,3.3) {\faEuroSign\ CAPEX --- One-Time Investment};
+    \node[item] at (0,2.55) {\faServer\ Infrastructure: \textbf{0 EUR} (Docker, local)};
+    \node[item] at (0,1.80) {\faFileCode\ Software licenses: \textbf{0 EUR} (open-source)};
+    \node[item] at (0,1.05) {\faCloud\ Cloud avoided: \textbf{\textasciitilde8,000 EUR/yr}};
+    \node[item] at (0,0.30) {\faClock\ Setup effort: \textbf{\textasciitilde5 engineer-days}};
+    \node[tot]  at (0,-0.65) {\faCheckCircle\ Total CAPEX to start: \textbf{0 EUR}};
+    \node[font=\tiny\itshape, gray, text width=5.2cm, align=center] at (0,-1.55)
+      {Sophie, you commit zero upfront\\ --- we reuse your existing hardware.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    role/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.7cm,
+                 fill=ntblue!8, draw=ntblue!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.85cm,
+                fill=ntblue!15, draw=ntblue, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,3.3) {\faUsersCog\ Team \& Resources};
+    \node[role] at (0,2.55) {\faDatabase\ Data Engineer (lead) --- \textbf{12 wk FT}};
+    \node[role] at (0,1.80) {\faServer\ Platform Engineer --- \textbf{4 wk PT}};
+    \node[role] at (0,1.05) {\faClipboardCheck\ Reviewer / Auditor --- \textbf{2 wk}};
+    \node[role] at (0,0.30) {\faPaintBrush\ Designer (optional) --- \textbf{1 wk}};
+    \node[tot]  at (0,-0.65) {\faUsers\ Total effort: \textbf{\textasciitilde18 person-weeks}};
+    \node[font=\tiny\itshape, gray, text width=5.2cm, align=center] at (0,-1.55)
+      {Quality gates at every phase ---\\ you always know who is on deck.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE C: OPEX + STACK ======
+\begin{frame}{OPEX \& Tech Stack Chosen \competency{C5} \competency{C6}}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.65cm,
+                 fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.85cm,
+                fill=ntgreen!15, draw=ntgreen, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+    vs/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.75cm,
+               fill=ntred!8, draw=ntred!50, font=\scriptsize,
+               align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntgreen] at (0,3.3) {\faLeaf\ OPEX --- Annual Running Cost};
+    \node[item] at (0,2.55) {\faGlobe\ Domain name: \textbf{\textasciitilde15 EUR/yr}};
+    \node[item] at (0,1.85) {\faBolt\ Electricity (local): \textbf{\textasciitilde80 EUR/yr}};
+    \node[item] at (0,1.15) {\faBell\ Monitoring \& SMS: \textbf{0 EUR}};
+    \node[tot]  at (0,0.30) {\faCheckCircle\ Total OPEX: \textbf{$<$100 EUR/yr}};
+    \node[vs]   at (0,-0.70) {\faCloud\ Cloud equivalent:\\\textbf{8,000--10,000 EUR/yr}};
+    \node[font=\tiny\itshape, gray, text width=5.0cm, align=center] at (0,-1.75)
+      {100x cheaper --- zero vendor lock-in.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.54\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.92, transform shape]
+    \node[font=\small\bfseries, ntblue] at (0,3.5) {\faTools\ Tech Stack --- Chosen \& Justified};
+    \node[font=\scriptsize] at (0,0.7) {
+      \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Tool} & \textbf{Why chosen} \\
+        \midrule
+        \faDatabase\ PostgreSQL 16 & ACID + RGPD delete \\
+        \faCogs\ Airflow 2.8      & Mature ETL + UI \\
+        \faCloud\ MinIO           & Self-hosted S3 (free) \\
+        \faFire\ PySpark 3.5      & Distributed cleaning \\
+        \faBolt\ FastAPI          & Async + OpenAPI docs \\
+        \faChartBar\ Streamlit    & 4-role frontend, no BI \\
+        \bottomrule
+      \end{tabular}
+    };
+    \node[font=\tiny\itshape, gray, text width=7cm, align=center] at (0,-2.0)
+      {Every tool picked for Sophie's scale (777k products) --- no over-engineering.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE D: TIMELINE + GO/NOGO
+\begin{frame}{Timeline \& Kickoff Go/No-Go \competency{C5} \competency{C7}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  phase/.style={rounded corners=4pt, minimum width=1.85cm, minimum height=0.75cm,
+                font=\tiny\bfseries, align=center, text=white, inner sep=3pt},
+  wk/.style={font=\tiny, gray},
+  ms/.style={circle, fill=ntaccent, draw=ntdarkgreen, very thick,
+             minimum size=0.55cm, inner sep=0pt, font=\tiny\bfseries, text=white},
+  gate/.style={font=\tiny\bfseries, ntred, rotate=0, align=center},
+]
+  % Phase bars
+  \node[phase, fill=ntblue]   (p1) at (0,1.2)     {\faServer\ Setup};
+  \node[phase, fill=ntgreen]  (p2) at (2.1,1.2)   {\faDownload\ Extract};
+  \node[phase, fill=ntpurple] (p3) at (4.2,1.2)   {\faFilter\ Transform};
+  \node[phase, fill=ntaccent] (p4) at (6.3,1.2)   {\faStar\ DW};
+  \node[phase, fill=bronze]   (p5) at (8.4,1.2)   {\faCloud\ Lake};
+  \node[phase, fill=ntred]    (p6) at (10.5,1.2)  {\faRocket\ Deploy};
+
+  % Week labels
+  \node[wk] at (0,0.55)    {Wk 1--2};
+  \node[wk] at (2.1,0.55)  {Wk 3--4};
+  \node[wk] at (4.2,0.55)  {Wk 5--6};
+  \node[wk] at (6.3,0.55)  {Wk 7--8};
+  \node[wk] at (8.4,0.55)  {Wk 9--10};
+  \node[wk] at (10.5,0.55) {Wk 11--12};
+
+  % Risk checkpoints (small warning markers between phases)
+  \foreach \x in {1.05,3.15,5.25,7.35,9.45}
+    \node[font=\tiny, ntred] at (\x,1.2) {\faExclamationTriangle};
+
+  % Milestone markers (above)
+  \node[ms] at (4.2,2.4)  {\faFlag};
+  \node[ms] at (8.4,2.4)  {\faFlag};
+  \node[ms] at (10.5,2.4) {\faFlagCheckered};
+  \draw[ntaccent, dashed, very thick] (4.2,2.1)  -- (4.2,1.55);
+  \draw[ntaccent, dashed, very thick] (8.4,2.1)  -- (8.4,1.55);
+  \draw[ntaccent, dashed, very thick] (10.5,2.1) -- (10.5,1.55);
+
+  \node[font=\tiny\bfseries, ntaccent] at (4.2,3.0)  {MVP (Wk 6)};
+  \node[font=\tiny\bfseries, ntaccent] at (8.4,3.0)  {DW Ready (Wk 10)};
+  \node[font=\tiny\bfseries, ntgreen]  at (10.5,3.0) {Go-Live (Wk 12)};
+
+  % Gate legend
+  \node[font=\tiny, ntred] at (5.25,-0.1) {\faExclamationTriangle\ Risk checkpoint at each phase gate};
+\end{tikzpicture}
+\end{center}
+\vspace{0.25cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!10, draw=ntgreen, very thick,
+        inner sep=10pt, text width=0.90\linewidth, align=center] {
+    {\small\bfseries\color{ntgreen}\faQuestionCircle\ Sophie, any questions before we start sprint~1?}\\[3pt]
+    {\scriptsize\itshape 12 weeks, 6 phases, 3 milestones --- your Go/No-Go decision today.}
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
 % ======================= E3 SLIDE 1: KICKOFF INTRO =============
 \begin{frame}{Kickoff Meeting --- Pre-Project Defense \competency{C5}}
 \begin{center}
@@ -933,7 +1133,7 @@
   \node[sol]  (s2) at (3.5,-0.3) {\faUtensils\ Meal logger + daily dashboard\\+ weekly macro trends};
 
   \node[need] (n3) at (-3.5,-1.7) {``Patient data is sensitive\\--- I worry about compliance''};
-  \node[sol]  (s3) at (3.5,-1.7) {\faShieldAlt\ Full RGPD: consent, registry,\\auto-cleanup, pseudonymization};
+  \node[sol]  (s3) at (3.5,-1.7) {\faLock\ Full RGPD: consent, registry,\\auto-cleanup, pseudonymization};
 
   \draw[-{Stealth}, very thick, ntaccent] (n1) -- (s1);
   \draw[-{Stealth}, very thick, ntaccent] (n2) -- (s2);
@@ -1135,7 +1335,7 @@
     \node[tool] at (0,1.4) {\faCogs\ Airflow UI (DAG run history)};
     \node[tool] at (0,0.6) {\faChartLine\ Grafana SLA dashboards};
     \node[tool] at (0,-0.2) {\faCodeBranch\ Git commit + PR history};
-    \node[tool] at (0,-1.0) {\faFile*\ CLAUDE.md progress tracker};
+    \node[tool] at (0,-1.0) {\faFile\ CLAUDE.md progress tracker};
     \node[font=\tiny\itshape, gray, text width=4.5cm] at (0,-1.8)
       {All tools accessible, configured, indicators updated};
   \end{tikzpicture}
@@ -1147,28 +1347,28 @@
 \begin{frame}{Communication Strategy \competency{C7}}
 \begin{center}
 \begin{tikzpicture}[scale=0.82, transform shape,
-  step/.style={rounded corners=5pt, minimum width=2.4cm, minimum height=1.8cm,
+  procstep/.style={rounded corners=5pt, minimum width=2.4cm, minimum height=1.8cm,
                draw, thick, align=center, font=\scriptsize, inner sep=5pt},
 ]
-  \node[step, fill=ntgreen!8, draw=ntgreen] (c1) at (0,0) {
+  \node[procstep, fill=ntgreen!8, draw=ntgreen] (c1) at (0,0) {
     \faRocket\ \textbf{Launch}\\[2pt]
     {\tiny Kickoff meeting}\\
     {\tiny Scope presentation}\\
     {\tiny Team assignment}
   };
-  \node[step, fill=ntblue!8, draw=ntblue] (c2) at (3.5,0) {
+  \node[procstep, fill=ntblue!8, draw=ntblue] (c2) at (3.5,0) {
     \faFlag\ \textbf{Milestones}\\[2pt]
     {\tiny Sprint reviews}\\
     {\tiny Progress reports}\\
     {\tiny Blocker escalation}
   };
-  \node[step, fill=ntpurple!8, draw=ntpurple] (c3) at (7,0) {
+  \node[procstep, fill=ntpurple!8, draw=ntpurple] (c3) at (7,0) {
     \faDesktop\ \textbf{Demos}\\[2pt]
     {\tiny Live demo per sprint}\\
     {\tiny Stakeholder feedback}\\
     {\tiny Iteration planning}
   };
-  \node[step, fill=ntaccent!8, draw=ntaccent] (c4) at (10.5,0) {
+  \node[procstep, fill=ntaccent!8, draw=ntaccent] (c4) at (10.5,0) {
     \faFlagCheckered\ \textbf{Delivery}\\[2pt]
     {\tiny Final demo}\\
     {\tiny User documentation}\\
@@ -1251,16 +1451,16 @@
 \begin{frame}{Script Structure --- All 5 Extractors \competency{C8}}
 \begin{center}
 \begin{tikzpicture}[scale=0.82, transform shape,
-  step/.style={rounded corners=4pt, minimum width=2.8cm, minimum height=1.1cm,
+  procstep/.style={rounded corners=4pt, minimum width=2.8cm, minimum height=1.1cm,
                draw, very thick, align=center, font=\scriptsize},
 ]
-  \node[step, fill=ntgreen!10, draw=ntgreen] (ep) at (0,0) {\faPlay\\[2pt]\textbf{1. Entry Point}\\{\tiny \texttt{main()} / DAG task}};
-  \node[step, fill=ntblue!10, draw=ntblue] (dep) at (3.5,0) {\faCubes\\[2pt]\textbf{2. Dep Init}\\{\tiny imports, config}};
-  \node[step, fill=ntpurple!10, draw=ntpurple] (conn) at (7,0) {\faPlug\\[2pt]\textbf{3. Connections}\\{\tiny API/DB/S3 clients}};
-  \node[step, fill=ntaccent!10, draw=ntaccent] (logic) at (10.5,0) {\faCogs\\[2pt]\textbf{4. Logic Rules}\\{\tiny pagination, filters}};
-  \node[step, fill=ntred!10, draw=ntred] (err) at (3.5,-2.5) {\faExclamationTriangle\\[2pt]\textbf{5. Error Handling}\\{\tiny try/except, retries}};
-  \node[step, fill=ntgreen!10, draw=ntgreen] (save) at (7,-2.5) {\faSave\\[2pt]\textbf{6. Result Save}\\{\tiny JSON/Parquet to disk}};
-  \node[step, fill=gray!10, draw=gray] (git) at (10.5,-2.5) {\faGitAlt\\[2pt]\textbf{7. Git Versioned}\\{\tiny airflow/dags/}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (ep) at (0,0) {\faPlay\\[2pt]\textbf{1. Entry Point}\\{\tiny \texttt{main()} / DAG task}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (dep) at (3.5,0) {\faCubes\\[2pt]\textbf{2. Dep Init}\\{\tiny imports, config}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (conn) at (7,0) {\faPlug\\[2pt]\textbf{3. Connections}\\{\tiny API/DB/S3 clients}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (logic) at (10.5,0) {\faCogs\\[2pt]\textbf{4. Logic Rules}\\{\tiny pagination, filters}};
+  \node[procstep, fill=ntred!10, draw=ntred] (err) at (3.5,-2.5) {\faExclamationTriangle\\[2pt]\textbf{5. Error Handling}\\{\tiny try/except, retries}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (save) at (7,-2.5) {\faSave\\[2pt]\textbf{6. Result Save}\\{\tiny JSON/Parquet to disk}};
+  \node[procstep, fill=gray!10, draw=gray] (git) at (10.5,-2.5) {\faGit\\[2pt]\textbf{7. Git Versioned}\\{\tiny airflow/dags/}};
 
   \draw[-{Stealth}, very thick, gray!50] (ep)--(dep);
   \draw[-{Stealth}, very thick, gray!50] (dep)--(conn);
@@ -1288,7 +1488,7 @@
   \node[stepnode] at (0,1.8) {\faCog\ Configure 5 food categories};
   \node[stepnode] at (0,1.1) {\faGlobe\ Paginated GET requests};
   \node[stepnode] at (0,0.4) {\faClock\ Rate limiting (0.6s delay)};
-  \node[stepnode] at (0,-0.3) {\faShieldAlt\ User-Agent header (polite bot)};
+  \node[stepnode] at (0,-0.3) {\faLock\ User-Agent header (polite bot)};
   \node[stepnode] at (0,-1.0) {\faExclamationTriangle\ Try/except per page + retry};
   \node[stepnode] at (0,-1.7) {\faSave\ Save JSON to /data/raw/api/};
 \end{tikzpicture}
@@ -1572,12 +1772,12 @@ def main():
 \begin{tikzpicture}
   \node[rounded corners=6pt, fill=ntred!5, draw=ntred, thick, inner sep=8pt,
         text width=4.5cm, font=\scriptsize, align=left] {
-    \textbf{\faShieldAlt\ RGPD Measures:}\\[4pt]
-    \faFile*\ \texttt{rgpd\_data\_registry} table\\
+    \textbf{\faLock\ RGPD Measures:}\\[4pt]
+    \faFile\ \texttt{rgpd\_data\_registry} table\\
     {\tiny Legal basis per field, retention periods}\\[3pt]
     \faUserCheck\ Consent at registration\\
     {\tiny \texttt{consent\_data\_processing} column}\\[3pt]
-    \faTrashAlt\ Auto-cleanup function\\
+    \faTrash\ Auto-cleanup function\\
     {\tiny \texttt{rgpd\_cleanup\_expired\_data()}}\\[3pt]
     \faLock\ bcrypt hashing, UUID IDs\\[3pt]
     \faKey\ Import script: \texttt{import\_to\_db.py}\\
@@ -1681,7 +1881,7 @@ def main():
     {\tiny All user pages +}\\
     \faUsers\ User analytics\\
     \faChartBar\ Caloric analysis\\
-    \faTrashAlt\ User management\\
+    \faTrash\ User management\\
     \faFilter\ Goal/activity filters
   };
   \node[rolecard, fill=ntpurple!8, draw=ntpurple] at (7,0) {
@@ -1698,7 +1898,7 @@ def main():
     \faUsers\ Nutritionist view\\
     \faStar\ Analyst view\\
     \faDatabase\ Data catalog\\
-    \faTrashAlt\ Full management
+    \faTrash\ Full management
   };
 \end{tikzpicture}
 \end{center}
@@ -1714,7 +1914,7 @@ def main():
               draw, thick, align=center, font=\scriptsize, inner sep=6pt},
 ]
   \node[box, fill=ntred!8, draw=ntred] at (0,0) {
-    \faFile*\ \textbf{Data Registry}\\[4pt]
+    \faFile\ \textbf{Data Registry}\\[4pt]
     {\tiny \texttt{rgpd\_data\_registry}}\\
     {\tiny Legal basis per field}\\
     {\tiny Retention periods}
@@ -1726,7 +1926,7 @@ def main():
     {\tiny Revocable via API}
   };
   \node[box, fill=ntgreen!8, draw=ntgreen] at (8,0) {
-    \faTrashAlt\ \textbf{Auto-Cleanup}\\[4pt]
+    \faTrash\ \textbf{Auto-Cleanup}\\[4pt]
     {\tiny Meals $>$ 2 years deleted}\\
     {\tiny Users past retention}\\
     {\tiny Scheduled DAG}
@@ -2050,7 +2250,7 @@ def main():
     \faUserMd\ nutritionist: SELECT on\\
     \quad \texttt{dm\_user\_daily\_nutrition}\\
     \faUser\ user: no DW access\\[4pt]
-    \textbf{\faShieldAlt\ Source Data Access}\\[4pt]
+    \textbf{\faLock\ Source Data Access}\\[4pt]
     \faCogs\ ETL service account with\\
     \quad READ on \texttt{app}, WRITE on \texttt{dw}
   };
@@ -2100,7 +2300,7 @@ def main():
   \node[stepnode, fill=ntblue!10, draw=ntblue] (log) at (7,0.8) {\faDatabase\\activity\_log\\{\tiny categorized}};
   \node[stepnode, fill=ntpurple!10, draw=ntpurple] (email) at (7,-0.8) {\faEnvelope\\MailHog\\{\tiny email/notif}};
   \node[stepnode, fill=ntgreen!10, draw=ntgreen] (stats) at (10.5,0.8) {\faChartBar\\StatsD\\{\tiny metrics}};
-  \node[stepnode, fill=ntgreen!10, draw=ntgreen] (graf) at (13.5,0) {\faTachometerAlt\\Grafana\\{\tiny dashboards}};
+  \node[stepnode, fill=ntgreen!10, draw=ntgreen] (graf) at (13.5,0) {\faChartLine\\Grafana\\{\tiny dashboards}};
   \draw[-{Stealth}, very thick, ntred!50] (fail)--(plugin);
   \draw[-{Stealth}, very thick, ntblue!50] (plugin)--(log);
   \draw[-{Stealth}, very thick, ntpurple!50] (plugin)--(email);
@@ -2131,7 +2331,7 @@ def main():
   \node[sla] at (0,0) {\faCheckCircle\\[3pt]\textbf{ETL Success}\\$>$ 95\%};
   \node[sla] at (4,0) {\faClock\\[3pt]\textbf{Freshness}\\$<$ 24h};
   \node[sla] at (8,0) {\faHdd\\[3pt]\textbf{Backups}\\100\%};
-  \node[sla] at (12,0) {\faTachometerAlt\\[3pt]\textbf{Query Time}\\$<$ 5s};
+  \node[sla] at (12,0) {\faChartLine\\[3pt]\textbf{Query Time}\\$<$ 5s};
 \end{tikzpicture}
 \end{center}
 \vspace{0.2cm}
@@ -2163,7 +2363,7 @@ def main():
       \faTable\ \textbf{Partial backup:} DW schema only\\
       {\tiny Scheduled: after each ETL run}\\[3pt]
       \faCloud\ Upload to MinIO /backups/\\
-      \faTrashAlt\ Auto-cleanup: retain 7 days\\
+      \faTrash\ Auto-cleanup: retain 7 days\\
       \faClipboardCheck\ Verification: restore test\\[4pt]
       {\tiny 154 lines, Git-versioned, Airflow DAG}
     };
@@ -2173,16 +2373,16 @@ def main():
 \begin{column}{0.48\textwidth}
   \begin{center}
   \begin{tikzpicture}[
-    step/.style={rounded corners=4pt, minimum width=4.2cm, minimum height=0.5cm,
+    procstep/.style={rounded corners=4pt, minimum width=4.2cm, minimum height=0.5cm,
                  fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize, align=left, inner xsep=6pt},
   ]
     \node[font=\small\bfseries, ntgreen] at (0,2.5) {Backup Flow};
-    \node[step] at (0,1.8) {\faClock\ 1. Airflow triggers at 06:00};
-    \node[step] at (0,1.1) {\faDatabase\ 2. pg\_dump to /tmp/};
-    \node[step] at (0,0.4) {\faFileArchive\ 3. Compress (gzip)};
-    \node[step] at (0,-0.3) {\faCloud\ 4. Upload to MinIO /backups/};
-    \node[step] at (0,-1.0) {\faTrashAlt\ 5. Cleanup files $>$ 7 days};
-    \node[step] at (0,-1.7) {\faClipboardCheck\ 6. Log success to activity\_log};
+    \node[procstep] at (0,1.8) {\faClock\ 1. Airflow triggers at 06:00};
+    \node[procstep] at (0,1.1) {\faDatabase\ 2. pg\_dump to /tmp/};
+    \node[procstep] at (0,0.4) {\faFileArchive\ 3. Compress (gzip)};
+    \node[procstep] at (0,-0.3) {\faCloud\ 4. Upload to MinIO /backups/};
+    \node[procstep] at (0,-1.0) {\faTrash\ 5. Cleanup files $>$ 7 days};
+    \node[procstep] at (0,-1.7) {\faClipboardCheck\ 6. Log success to activity\_log};
   \end{tikzpicture}
   \end{center}
 \end{column}
@@ -2193,15 +2393,15 @@ def main():
 \begin{frame}{New Source Integration Procedure \competency{C16}}
 \begin{center}
 \begin{tikzpicture}[scale=0.82, transform shape,
-  step/.style={rounded corners=5pt, minimum width=1.8cm, minimum height=1.3cm,
+  procstep/.style={rounded corners=5pt, minimum width=1.8cm, minimum height=1.3cm,
                draw, very thick, align=center, font=\scriptsize},
 ]
-  \node[step, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faFile*\\[2pt]\textbf{1. Spec}\\{\tiny Document source}\\{\tiny format, freq}};
-  \node[step, fill=ntblue!10, draw=ntblue] (s2) at (3,0) {\faCode\\[2pt]\textbf{2. Script}\\{\tiny Write extractor}\\{\tiny (7-step pattern)}};
-  \node[step, fill=ntpurple!10, draw=ntpurple] (s3) at (6,0) {\faCogs\\[2pt]\textbf{3. DAG}\\{\tiny Add Airflow task}\\{\tiny or new DAG}};
-  \node[step, fill=ntaccent!10, draw=ntaccent] (s4) at (9,0) {\faFilter\\[2pt]\textbf{4. Clean}\\{\tiny Update cleaning}\\{\tiny rules if needed}};
-  \node[step, fill=ntred!10, draw=ntred] (s5) at (12,0) {\faCheckDouble\\[2pt]\textbf{5. Test}\\{\tiny Run pipeline,}\\{\tiny verify quality}};
-  \node[step, fill=ntgreen!10, draw=ntgreen] (s6) at (6,-2.5) {\faFile*\\[2pt]\textbf{6. Document}\\{\tiny Update flux matrix,}\\{\tiny catalog, docs}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faFile\\[2pt]\textbf{1. Spec}\\{\tiny Document source}\\{\tiny format, freq}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (s2) at (3,0) {\faCode\\[2pt]\textbf{2. Script}\\{\tiny Write extractor}\\{\tiny (7-step pattern)}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (s3) at (6,0) {\faCogs\\[2pt]\textbf{3. DAG}\\{\tiny Add Airflow task}\\{\tiny or new DAG}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (s4) at (9,0) {\faFilter\\[2pt]\textbf{4. Clean}\\{\tiny Update cleaning}\\{\tiny rules if needed}};
+  \node[procstep, fill=ntred!10, draw=ntred] (s5) at (12,0) {\faCheckDouble\\[2pt]\textbf{5. Test}\\{\tiny Run pipeline,}\\{\tiny verify quality}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s6) at (6,-2.5) {\faFile\\[2pt]\textbf{6. Document}\\{\tiny Update flux matrix,}\\{\tiny catalog, docs}};
 
   \draw[-{Stealth}, very thick, gray!50] (s1)--(s2);
   \draw[-{Stealth}, very thick, gray!50] (s2)--(s3);
@@ -2296,7 +2496,7 @@ def main():
   \node[box, fill=ntaccent!10, draw=ntaccent, minimum width=6cm] (pr) at (4.5,-2) {
     \faChartLine\ \textbf{Prometheus} \quad {\tiny scrapes all 4 exporters}};
   \node[box, fill=ntgreen!10, draw=ntgreen, minimum width=4cm] (gf) at (4.5,-4) {
-    \faTachometerAlt\ \textbf{Grafana} \quad {\tiny 6 dashboards}};
+    \faChartLine\ \textbf{Grafana} \quad {\tiny 6 dashboards}};
 
   \draw[-{Stealth}, thick, gray] (sd)--(pr);
   \draw[-{Stealth}, thick, gray] (ca)--(pr);
@@ -2391,7 +2591,7 @@ def main():
     CSV (database export)
   };
   \node[v, fill=ntaccent!8, draw=ntaccent] at (11,0) {
-    \faTachometerAlt\ \textbf{\large Velocity}\\[6pt]
+    \faChartLine\ \textbf{\large Velocity}\\[6pt]
     Daily: API pulls\\
     Weekly: Parquet bulk\\
     Monthly: scraping\\
@@ -2427,14 +2627,14 @@ def main():
 \begin{frame}{Installation Procedure \competency{C19}}
 \begin{center}
 \begin{tikzpicture}[scale=0.82, transform shape,
-  step/.style={rounded corners=5pt, minimum width=2cm, minimum height=1.3cm,
+  procstep/.style={rounded corners=5pt, minimum width=2cm, minimum height=1.3cm,
                draw, very thick, align=center, font=\scriptsize},
 ]
-  \node[step, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faDocker\\[2pt]\textbf{1. Docker Up}\\{\tiny 16 services}};
-  \node[step, fill=ntblue!10, draw=ntblue] (s2) at (3.2,0) {\faDatabase\\[2pt]\textbf{2. MinIO Init}\\{\tiny 4 buckets created}};
-  \node[step, fill=ntpurple!10, draw=ntpurple] (s3) at (6.4,0) {\faCogs\\[2pt]\textbf{3. Airflow Init}\\{\tiny DAGs registered}};
-  \node[step, fill=ntaccent!10, draw=ntaccent] (s4) at (9.6,0) {\faPlay\\[2pt]\textbf{4. Run ETLs}\\{\tiny Batch processing}};
-  \node[step, fill=ntgreen!10, draw=ntgreen] (s5) at (12.8,0) {\faCheckCircle\\[2pt]\textbf{5. Verify}\\{\tiny Catalog connected}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faDocker\\[2pt]\textbf{1. Docker Up}\\{\tiny 16 services}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (s2) at (3.2,0) {\faDatabase\\[2pt]\textbf{2. MinIO Init}\\{\tiny 4 buckets created}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (s3) at (6.4,0) {\faCogs\\[2pt]\textbf{3. Airflow Init}\\{\tiny DAGs registered}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (s4) at (9.6,0) {\faPlay\\[2pt]\textbf{4. Run ETLs}\\{\tiny Batch processing}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s5) at (12.8,0) {\faCheckCircle\\[2pt]\textbf{5. Verify}\\{\tiny Catalog connected}};
   \draw[-{Stealth}, very thick, gray!50] (s1)--(s2);
   \draw[-{Stealth}, very thick, gray!50] (s2)--(s3);
   \draw[-{Stealth}, very thick, gray!50] (s3)--(s4);
@@ -2489,7 +2689,7 @@ def main():
   \node[feat] at (0,0.4) {\faTable\ View schema (column names + types)};
   \node[feat] at (0,-0.25) {\faProjectDiagram\ View lineage (where data came from)};
   \node[feat] at (0,-0.9) {\faChartBar\ Quality metrics per dataset};
-  \node[feat] at (0,-1.55) {\faShieldAlt\ Governance info + RGPD compliance status};
+  \node[feat] at (0,-1.55) {\faLock\ Governance info + RGPD compliance status};
   \node[feat] at (0,-2.2) {\faHdd\ Storage stats (object count, total size per bucket)};
 \end{tikzpicture}
 \end{center}
@@ -2508,7 +2708,7 @@ def main():
   \node[phase, fill=ntgreen!8, draw=ntgreen] (ingest) at (0,0) {\faDownload\\[2pt]\textbf{Ingest}\\{\tiny Raw to bronze}\\{\tiny Immediate}};
   \node[phase, fill=ntblue!8, draw=ntblue] (active) at (3.5,0) {\faDatabase\\[2pt]\textbf{Active}\\{\tiny Silver/gold}\\{\tiny Used by analytics}};
   \node[phase, fill=ntaccent!8, draw=ntaccent] (archive) at (7,0) {\faArchive\\[2pt]\textbf{Archive}\\{\tiny Bronze: 90-day}\\{\tiny retention}};
-  \node[phase, fill=ntred!8, draw=ntred] (delete) at (10.5,0) {\faTrashAlt\\[2pt]\textbf{Delete}\\{\tiny Expired files}\\{\tiny RGPD cleanup}};
+  \node[phase, fill=ntred!8, draw=ntred] (delete) at (10.5,0) {\faTrash\\[2pt]\textbf{Delete}\\{\tiny Expired files}\\{\tiny RGPD cleanup}};
 
   \draw[-{Stealth}, very thick, gray!50] (ingest)--(active);
   \draw[-{Stealth}, very thick, gray!50] (active)--(archive);
@@ -2712,8 +2912,8 @@ def main():
     \node[item] at (0,1.5) {\faDocker\ Docker: 1-command deploy};
     \node[item] at (0,0.8) {\faLayerGroup\ DW + Lake in parallel};
     \node[item] at (0,0.1) {\faCogs\ Airflow orchestration};
-    \node[item] at (0,-0.6) {\faShieldAlt\ RGPD as architecture driver};
-    \node[item] at (0,-1.3) {\faFile*\ Docs as first-class output};
+    \node[item] at (0,-0.6) {\faLock\ RGPD as architecture driver};
+    \node[item] at (0,-1.3) {\faFile\ Docs as first-class output};
   \end{tikzpicture}
   \end{center}
 \end{column}
@@ -2750,7 +2950,7 @@ def main():
   \node[dm, fill=ntpurple!8, draw=ntpurple!40]  at (0,-0.45) {\faChartPie\ \textbf{5.} Streamlit as \textbf{analyst} --- product analytics + data catalog};
   \node[dm, fill=ntred!8, draw=ntred!40]        at (0,-1.15) {\faUserShield\ \textbf{6.} Streamlit as \textbf{admin} --- show all pages visible};
   \node[dm, fill=ntpurple!8, draw=ntpurple!40]  at (0,-1.85) {\faCogs\ \textbf{7.} Airflow UI (localhost:8080) --- show DAG graph, trigger a run};
-  \node[dm, fill=ntred!8, draw=ntred!40]        at (0,-2.55) {\faTachometerAlt\ \textbf{8.} Grafana (localhost:3000) --- SLA dashboard + MailHog alerts};
+  \node[dm, fill=ntred!8, draw=ntred!40]        at (0,-2.55) {\faChartLine\ \textbf{8.} Grafana (localhost:3000) --- SLA dashboard + MailHog alerts};
   \node[dm, fill=ntaccent!8, draw=ntaccent!40]  at (0,-3.25) {\faCloud\ \textbf{9.} MinIO Console (localhost:9001) --- browse bronze/silver/gold};
 \end{tikzpicture}
 \end{center}
