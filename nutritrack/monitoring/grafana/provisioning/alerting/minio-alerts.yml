@@ -1,0 +1,211 @@
+# Grafana Unified Alerting provisioning for MinIO (C20 - monitoring)
+# Alerts: storage threshold, service downtime, object count anomaly.
+#
+# References:
+#   https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/
+
+apiVersion: 1
+
+# ── Contact point (MailHog SMTP) ──────────────────────────────────────────────
+contactPoints:
+  - orgId: 1
+    name: nutritrack-email
+    receivers:
+      - uid: nutritrack-email-receiver
+        type: email
+        settings:
+          addresses: "admin@nutritrack.local"
+        disableResolveMessage: false
+
+# ── Notification policy ───────────────────────────────────────────────────────
+policies:
+  - orgId: 1
+    receiver: nutritrack-email
+    group_by: ["alertname", "grafana_folder"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+
+# ── Alert rules ───────────────────────────────────────────────────────────────
+groups:
+  - orgId: 1
+    name: MinIO Alerts (C20)
+    folder: NutriTrack
+    interval: 1m
+    rules:
+
+      # 1. Storage space > 80% — alert when MinIO disk usage exceeds threshold
+      - uid: minio-storage-high
+        title: "MinIO Storage Usage > 80%"
+        condition: threshold
+        for: 5m
+        annotations:
+          summary: "MinIO disk usage exceeded 80% of usable capacity."
+          description: >-
+            The ratio of used storage to total usable capacity on MinIO has
+            exceeded 80%. Consider cleaning up old data or expanding storage.
+        labels:
+          severity: warning
+          service: minio
+          competency: C20
+        data:
+          - refId: usage_ratio
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: usage_ratio
+              expr: >-
+                (
+                  sum(minio_cluster_capacity_usable_total_bytes)
+                  - sum(minio_cluster_capacity_usable_free_bytes)
+                )
+                / sum(minio_cluster_capacity_usable_total_bytes)
+                * 100
+              intervalMs: 15000
+              maxDataPoints: 43200
+
+          - refId: threshold
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              refId: threshold
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params:
+                      - 80
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - usage_ratio
+                  reducer:
+                    type: last
+
+      # 2. Service downtime — alert when MinIO is unreachable
+      - uid: minio-service-down
+        title: "MinIO Service Down"
+        condition: threshold
+        for: 1m
+        annotations:
+          summary: "MinIO service is unreachable."
+          description: >-
+            The MinIO process has not reported metrics for over 1 minute.
+            This indicates the service may have crashed or become unreachable.
+            Check container health and restart if necessary.
+        labels:
+          severity: critical
+          service: minio
+          competency: C20
+        data:
+          - refId: uptime
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: uptime
+              expr: up{job="minio"}
+              intervalMs: 15000
+              maxDataPoints: 43200
+
+          - refId: threshold
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              refId: threshold
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: lt
+                    params:
+                      - 1
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - uptime
+                  reducer:
+                    type: last
+
+      # 3. Object count anomaly — sudden drop in total objects (potential data loss)
+      - uid: minio-object-drop
+        title: "MinIO Object Count Anomaly"
+        condition: threshold
+        for: 5m
+        annotations:
+          summary: "Sudden drop in MinIO total object count detected."
+          description: >-
+            The total number of objects across all MinIO buckets has dropped
+            by more than 20% compared to the previous hour. This could
+            indicate accidental deletion, lifecycle misconfiguration, or
+            data loss. Investigate immediately.
+        labels:
+          severity: warning
+          service: minio
+          competency: C20
+        data:
+          # Current object count
+          - refId: current_count
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: current_count
+              expr: >-
+                sum(minio_bucket_usage_object_total)
+              intervalMs: 15000
+              maxDataPoints: 43200
+
+          # Object count 1 hour ago
+          - refId: previous_count
+            relativeTimeRange:
+              from: 3900
+              to: 3600
+            datasourceUid: prometheus
+            model:
+              refId: previous_count
+              expr: >-
+                sum(minio_bucket_usage_object_total)
+              intervalMs: 15000
+              maxDataPoints: 43200
+
+          # Compute drop percentage: (previous - current) / previous * 100
+          - refId: drop_pct
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              refId: drop_pct
+              type: math
+              expression: "($previous_count - $current_count) / $previous_count * 100"
+
+          - refId: threshold
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              refId: threshold
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params:
+                      - 20
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - drop_pct
+                  reducer:
+                    type: last

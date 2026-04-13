@@ -1,0 +1,36 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-images:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api
+            dockerfile: nutritrack/api/Dockerfile
+            context: nutritrack/
+          - service: app
+            dockerfile: nutritrack/app/Dockerfile
+            context: nutritrack/
+          - service: airflow
+            dockerfile: nutritrack/airflow/Dockerfile
+            context: nutritrack/
+          - service: superset
+            dockerfile: nutritrack/superset/Dockerfile
+            context: nutritrack/
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.service }} image
+        run: docker build -f ${{ matrix.dockerfile }} -t nutritrack-${{ matrix.service }}:test ${{ matrix.context }}
+
+      - name: Verify ${{ matrix.service }} image exists
+        run: docker image inspect nutritrack-${{ matrix.service }}:test > /dev/null

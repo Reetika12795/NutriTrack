@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Data files (large)
+data/source/
+data/raw/
+data/cleaned/
+data/backups/
+data/merged/
+*.parquet
+*.csv.gz
+
+# Local/internal files
+demo-credentials.md
+docs/data_platform_plans.md
+docs/presenter_plan.md
+docs/senior_dev_review_brief.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker volumes
+postgres_data/
+redis_data/
+minio_data/
+
+# Airflow
+airflow/logs/
+airflow/plugins/__pycache__/
+
+# Claude Code
+CLAUDE.md
+.claude/
+claude.*
+
+# OS
+.DS_Store
+Thumbs.db
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# MkDocs build
+mkdocs/site/
+
+# Superset (removed)
+superset/
+
+# Ruff / pytest cache
+.ruff_cache/
+.pytest_cache/

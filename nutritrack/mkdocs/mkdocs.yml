@@ -1,0 +1,95 @@
+site_name: NutriTrack — Nutritional Data Engineering Platform
+site_description: End-to-end data engineering platform for nutritional data analysis
+site_author: Reetika Kumar
+site_url: https://reetika12795.github.io/NutriTrack/
+repo_url: https://github.com/Reetika12795/NutriTrack
+repo_name: Reetika12795/NutriTrack
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.sidebar
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
+
+plugins:
+  - search
+  - mermaid2
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Reetika12795/NutriTrack
+
+nav:
+  - Home: index.md
+  - Overview:
+    - Architecture: overview/architecture.md
+    - Tech Stack: overview/tech-stack.md
+    - Data Flow: overview/data-flow.md
+  - "1. Project":
+    - Client & Need Analysis: block1/need-analysis.md
+    - Technical Architecture: block1/architecture.md
+    - Project Planning: block1/planning.md
+  - "2. Collection":
+    - Data Extraction: block2/extraction.md
+    - Cleaning Pipeline: block2/cleaning.md
+    - Database & API: block2/database-api.md
+  - "3. Warehouse":
+    - Star Schema: block3/star-schema.md
+    - ETL Pipelines: block3/etl-pipelines.md
+    - Maintenance & SCD: block3/maintenance.md
+  - "4. Lake":
+    - Medallion Architecture: block4/medallion.md
+    - Catalog & Governance: block4/governance.md
+  - Quick Start: quickstart.md

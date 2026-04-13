@@ -1,0 +1,2971 @@
+% =============================================================
+% NutriTrack — Certification Defense Slides (Visual Edition)
+% RNCP37638 — Expert in Massive Data Infrastructures
+% ~45 slides — visual, less text, clear workflow
+% =============================================================
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+\usetheme{metropolis}
+\metroset{progressbar=frametitle, numbering=fraction, block=fill, sectionpage=progressbar}
+
+% ── Colors ────────────────────────────────────────────────────
+\definecolor{ntgreen}{HTML}{2E7D32}
+\definecolor{ntlightgreen}{HTML}{66BB6A}
+\definecolor{ntdarkgreen}{HTML}{1B5E20}
+\definecolor{ntbg}{HTML}{FAFAFA}
+\definecolor{ntaccent}{HTML}{FF8F00}
+\definecolor{ntblue}{HTML}{1565C0}
+\definecolor{ntred}{HTML}{C62828}
+\definecolor{ntpurple}{HTML}{6A1B9A}
+\definecolor{bronze}{HTML}{CD7F32}
+\definecolor{silver}{HTML}{A0A0A0}
+\definecolor{gold}{HTML}{DAA520}
+\definecolor{demobox}{HTML}{FFF3E0}
+\definecolor{whybox}{HTML}{E3F2FD}
+\definecolor{vsbox}{HTML}{FFF8E1}
+
+\setbeamercolor{palette primary}{bg=ntgreen, fg=white}
+\setbeamercolor{frametitle}{bg=ntgreen, fg=white}
+\setbeamercolor{progress bar}{fg=ntaccent, bg=ntgreen!20}
+\setbeamercolor{title separator}{fg=ntaccent}
+\setbeamercolor{alerted text}{fg=ntaccent}
+\setbeamercolor{example text}{fg=ntgreen}
+\setbeamercolor{block title}{bg=ntgreen, fg=white}
+\setbeamercolor{block body}{bg=ntgreen!5}
+\setbeamercolor{block title alerted}{bg=ntred, fg=white}
+\setbeamercolor{block body alerted}{bg=ntred!5}
+
+% ── Packages ──────────────────────────────────────────────────
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, fit,
+  decorations.pathreplacing, decorations.text, backgrounds, matrix, shadows}
+\usepackage{fontawesome5}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  basicstyle=\tiny\ttfamily, breaklines=true, frame=single,
+  backgroundcolor=\color{ntbg},
+  keywordstyle=\color{ntblue}\bfseries,
+  commentstyle=\color{gray}, stringstyle=\color{ntgreen},
+}
+
+% ── Custom commands ───────────────────────────────────────────
+\newcommand{\nutritrack}{\textsc{NutriTrack}}
+\newcommand{\competency}[1]{\textbf{\color{ntblue}#1}}
+\newcommand{\fullcov}{\textcolor{ntgreen}{\faCheckCircle}}
+
+\newcommand{\democallout}[1]{%
+  \begin{center}\begin{tikzpicture}
+    \node[fill=demobox, rounded corners=8pt, inner sep=8pt,
+          draw=ntaccent, line width=1.5pt]
+      {\large\faDesktop\;\textbf{\color{ntaccent}LIVE DEMO:} #1};
+  \end{tikzpicture}\end{center}}
+
+\newcommand{\whycallout}[1]{%
+  \begin{center}\begin{tikzpicture}
+    \node[fill=whybox, rounded corners=6pt, inner sep=6pt,
+          draw=ntblue!50, line width=1pt, text width=0.92\linewidth]
+      {\small\faLightbulb\;\textbf{\color{ntblue}Why?} #1};
+  \end{tikzpicture}\end{center}}
+
+% NutriTrack logo command (scalable)
+\newcommand{\nutritracklogo}[1][1]{%
+\begin{tikzpicture}[scale=#1, transform shape]
+  % Outer circle
+  \fill[ntgreen] (0,0) circle (1.3);
+  \fill[ntdarkgreen] (0,0) circle (1.15);
+  % Inner ring
+  \draw[white, line width=1.5pt] (0,0) circle (1.0);
+  % Fork icon (left)
+  \fill[white] (-0.35,0.55) -- (-0.35,-0.15) -- (-0.42,-0.15)
+    arc (180:0:0.07) -- (-0.28,-0.15) -- (-0.28,0.55)
+    arc (0:180:0.035) -- cycle;
+  \fill[white] (-0.35,-0.15) -- (-0.35,-0.65)
+    arc (180:360:0.035) -- (-0.28,-0.15) -- cycle;
+  % Leaf icon (right, simplified)
+  \fill[ntlightgreen] (0.3,0.05)
+    .. controls (0.55,0.55) and (0.15,0.7) .. (0.1,0.45)
+    .. controls (0.08,0.25) and (0.15,-0.05) .. (0.3,0.05) -- cycle;
+  \draw[white, line width=0.6pt] (0.25,0.1) .. controls (0.22,0.3) .. (0.18,0.45);
+  \draw[white, line width=0.4pt] (0.22,0.25) -- (0.32,0.35);
+  \draw[white, line width=0.4pt] (0.20,0.35) -- (0.12,0.28);
+  % NT text
+  \node[font=\bfseries\large, text=white] at (0,-0.45) {NT};
+  % Outer label arc (top)
+  \path[decorate, decoration={text along path,
+    text={|\tiny\bfseries\color{white}|NUTRITRACK},
+    text align=center, raise=0pt}]
+    (140:1.05) arc (140:40:1.05);
+\end{tikzpicture}%
+}
+
+% ── Title ─────────────────────────────────────────────────────
+\title{\nutritrack}
+\subtitle{Nutritional Data Engineering Platform}
+\author{Reetika Gautam}
+\date{April 2026}
+\institute{RNCP37638 --- Expert in Massive Data Infrastructures\\
+  Level 7 (Master's equivalent) \;\textbullet\; Simplon.co}
+
+\begin{document}
+
+% ======================= SLIDE 1: TITLE =======================
+\begin{frame}[standout]
+  \vspace*{-0.8cm}
+  \nutritracklogo[1.3]\\[0.4cm]
+  {\Huge\bfseries \nutritrack}\\[0.3cm]
+  {\large Nutritional Data Engineering Platform}\\[0.6cm]
+  {\normalsize Reetika Gautam}\\[0.15cm]
+  {\small RNCP37638 --- Expert in Massive Data Infrastructures}\\
+  {\small Level 7 $\bullet$ April 2026 $\bullet$ Simplon.co}
+\end{frame}
+
+% ======================= SLIDE 2: AGENDA ======================
+\begin{frame}{Defense Agenda --- 90 Minutes}
+\begin{center}
+\begin{tikzpicture}[scale=0.85, transform shape,
+  block/.style={rounded corners=8pt, minimum width=2.8cm, minimum height=1.2cm,
+                draw, very thick, font=\small\bfseries, align=center, text=white},
+  time/.style={font=\scriptsize\bfseries, text=gray}
+]
+  \node[block, fill=ntgreen] (e15) at (0,0) {E1--E5\\{\scriptsize Project \&}\\{\scriptsize Implementation}};
+  \node[block, fill=ntblue] (e6) at (4.2,0) {E6\\{\scriptsize DW Maintenance}\\{\scriptsize Q\&A}};
+  \node[block, fill=ntpurple] (e7) at (8.4,0) {E7\\{\scriptsize Data Lake}};
+  \node[block, fill=ntaccent] (qa) at (12.2,0) {Jury\\{\scriptsize Questions}};
+  \node[time] at (0,-1) {60 min};
+  \node[time] at (4.2,-1) {10 min};
+  \node[time] at (8.4,-1) {10 min};
+  \node[time] at (12.2,-1) {10 min};
+  \draw[-{Stealth}, very thick, gray!50] (e15) -- (e6);
+  \draw[-{Stealth}, very thick, gray!50] (e6) -- (e7);
+  \draw[-{Stealth}, very thick, gray!50] (e7) -- (qa);
+  \node[font=\tiny, ntgreen!70] at (0,1) {C1--C15};
+  \node[font=\tiny, ntblue!70] at (4.2,1) {C16--C17};
+  \node[font=\tiny, ntpurple!70] at (8.4,1) {C18--C21};
+\end{tikzpicture}
+\end{center}
+\vspace{0.3cm}
+\begin{center}
+  {\footnotesize\faDesktop\ \textbf{Live demos} throughout $\bullet$
+   \faFile\ Report handed to jury $\bullet$
+   \faGithub\ Code on GitHub}
+\end{center}
+\end{frame}
+
+% ======================= SLIDE 3: THE CLIENT ===================
+\begin{frame}{Meet the Client --- Ms.\ Sophie Yang}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+  \begin{center}
+  \begin{tikzpicture}
+    \node[circle, fill=ntgreen!15, draw=ntgreen, very thick,
+          minimum size=2.5cm, font=\Huge] {\faUserMd};
+    \node[font=\normalsize\bfseries, ntgreen] at (0,-2) {Ms.\ Sophie Yang};
+    \node[font=\scriptsize] at (0,-2.5) {Dietician --- Paris};
+    \node[font=\scriptsize, gray] at (0,-3) {40+ patients/week};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.52\textwidth}
+  \begin{tikzpicture}[
+    pain/.style={rounded corners=5pt, fill=ntred!8, draw=ntred, thick,
+                 minimum width=4.5cm, minimum height=0.7cm, align=left,
+                 font=\scriptsize, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntred] at (0,2.5) {\faExclamationTriangle\ Her daily pain points};
+    \node[pain] at (0,1.7) {\faSearch\ Manually searches Open Food Facts};
+    \node[pain] at (0,0.9) {\faTable\ Calculates macros in spreadsheets};
+    \node[pain] at (0,0.1) {\faChartLine\ Cannot track patient progress};
+    \node[pain] at (0,-0.7) {\faRandom\ Data scattered across 5+ sources};
+    \node[pain] at (0,-1.5) {\faTimesCircle\ No RGPD compliance for health data};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+
+\vspace{0.3cm}
+\begin{center}
+  {\large\color{ntred}\textit{``I spend hours looking up products. I need a platform\\
+  where my patients log meals and I see the analytics.''}}
+\end{center}
+
+\note{
+  Introduce Sophie Yang, the client. Her pain points drive every feature.
+  This is C1: analyzing a data project need expression.
+}
+\end{frame}
+
+% =============================================================
+\section{E1 --- Need Analysis (C1)}
+% =============================================================
+
+% ======================= E1 SLIDE 1: INTERVIEW GRIDS ==========
+\begin{frame}{Interview Grids --- Producers vs.\ Consumers \competency{C1}}
+\begin{center}
+\begin{tikzpicture}[
+  card/.style={rounded corners=6pt, minimum width=5.2cm, minimum height=4.8cm,
+               draw, thick, align=left, font=\scriptsize, inner sep=8pt},
+  icon/.style={circle, minimum size=0.8cm, font=\large, text=white},
+]
+  % Producer card
+  \node[card, fill=ntgreen!5, draw=ntgreen] (prod) at (-3.5,0) {};
+  \node[icon, fill=ntgreen] at (-3.5,3) {\faUsers};
+  \node[font=\small\bfseries, ntgreen] at (-3.5,2.1) {Data Producers};
+  \node[font=\tiny\itshape, gray] at (-3.5,1.6) {Open Food Facts, Sophie's spreadsheets};
+  \node[font=\scriptsize, text width=4.5cm] at (-3.5,-0.5) {
+    \faIndustry\ Business activities \& data creation\\[1pt]
+    \faFile\ Data types, formats (CSV, JSON, Parquet)\\[1pt]
+    \faChartLine\ Volumes: 3M+ products, 40 patients/wk\\[1pt]
+    \faLock\ Quality controls in place\\[1pt]
+    \faTags\ Metadata: 31 nutritional fields\\[1pt]
+    \faLock\ Access: ODbL license, rate limits\\[1pt]
+    \faExclamationTriangle\ Known issues: missing values, duplicates
+  };
+
+  % Consumer card
+  \node[card, fill=ntblue!5, draw=ntblue] (cons) at (3.5,0) {};
+  \node[icon, fill=ntblue] at (3.5,3) {\faChartBar};
+  \node[font=\small\bfseries, ntblue] at (3.5,2.1) {Data Consumers};
+  \node[font=\tiny\itshape, gray] at (3.5,1.6) {Sophie (nutritionist), patients, analysts};
+  \node[font=\scriptsize, text width=4.5cm] at (3.5,-0.5) {
+    \faBullseye\ Objectives: meal tracking, macro analytics\\[1pt]
+    \faSearchPlus\ Granularity: per-meal, per-patient, daily\\[1pt]
+    \faFileExport\ Delivery: web dashboard, REST API\\[1pt]
+    \faClock\ Frequency: real-time search, daily ETL\\[1pt]
+    \faUserShield\ RGPD: health data = sensitive (Art.\ 9)\\[1pt]
+    \faTools\ Tools: browser-based, no installation\\[1pt]
+    \faUniversalAccess\ Accessibility: WCAG 2.1 AA target
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E1 SLIDE 2: SYNTHESIS NOTE ============
+\begin{frame}{Synthesis Note --- Structured Analysis \competency{C1}}
+\begin{center}
+\begin{tikzpicture}[scale=0.85, transform shape,
+  sect/.style={rounded corners=5pt, minimum width=3.8cm, minimum height=1.6cm,
+               draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+  numcirc/.style={circle, text=white, font=\small\bfseries, minimum size=0.55cm},
+]
+  \node[sect, fill=ntgreen!8, draw=ntgreen] (s1) at (-4.5,1.5) {
+    \textbf{Introduction}\\[2pt]
+    {\tiny Context: dietician practice}\\
+    {\tiny Stakes: data fragmentation}\\
+    {\tiny Need reformulation}
+  };
+  \node[numcirc, fill=ntgreen] at (-6.8,1.5) {1};
+
+  \node[sect, fill=ntblue!8, draw=ntblue] (s2) at (0,1.5) {
+    \textbf{Objectives \& Scope}\\[2pt]
+    {\tiny Functional scope: 4 modules}\\
+    {\tiny SMART objectives}\\
+    {\tiny Available means}
+  };
+  \node[numcirc, fill=ntblue] at (-2.3,1.5) {2};
+
+  \node[sect, fill=ntpurple!8, draw=ntpurple] (s3) at (4.5,1.5) {
+    \textbf{Opportunity Study}\\[2pt]
+    {\tiny Interview synthesis}\\
+    {\tiny Benchmark: Yuka, MFP}\\
+    {\tiny Gap analysis}
+  };
+  \node[numcirc, fill=ntpurple] at (2.2,1.5) {3};
+
+  \node[sect, fill=ntaccent!8, draw=ntaccent] (s4) at (-2.2,-1) {
+    \textbf{Feasibility Study}\\[2pt]
+    {\tiny Technical feasibility: Docker + OSS}\\
+    {\tiny Data feasibility: OFF 3M+ products}\\
+    {\tiny Organizational: solo 12-week project}
+  };
+  \node[numcirc, fill=ntaccent] at (-4.5,-1) {4};
+
+  \node[sect, fill=ntred!8, draw=ntred] (s5) at (3.3,-1) {
+    \textbf{Conclusions}\\[2pt]
+    {\tiny RICE analysis (next slide)}\\
+    {\tiny Data governance rules}\\
+    {\tiny Go / No-go recommendation}
+  };
+  \node[numcirc, fill=ntred] at (1,-1) {5};
+
+  \draw[-{Stealth}, thick, gray!40] (s1) -- (s2);
+  \draw[-{Stealth}, thick, gray!40] (s2) -- (s3);
+  \draw[-{Stealth}, thick, gray!40] (s3.south) -- ++(0,-0.4) -| (s4.north);
+  \draw[-{Stealth}, thick, gray!40] (s4) -- (s5);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E1 SLIDE 3: BENCHMARK =================
+\begin{frame}{Benchmark --- Competing Solutions \competency{C1}}
+\begin{center}
+\begin{tikzpicture}[scale=0.88, transform shape,
+  app/.style={rounded corners=6pt, minimum width=3.6cm, minimum height=3.2cm,
+              draw, thick, align=left, font=\scriptsize, inner sep=6pt},
+]
+  \node[app, fill=ntred!6, draw=ntred] at (-4.5,0) {
+    \textbf{\normalsize Yuka}\\[4pt]
+    \faCheckCircle\ 50M+ users worldwide\\
+    \faCheckCircle\ Barcode scanning\\
+    \faTimesCircle\ No meal tracking\\
+    \faTimesCircle\ No practitioner view\\
+    \faTimesCircle\ Closed-source backend\\
+    \faTimesCircle\ No patient management
+  };
+  \node[app, fill=ntblue!6, draw=ntblue] at (0,0) {
+    \textbf{\normalsize MyFitnessPal}\\[4pt]
+    \faCheckCircle\ Meal logging\\
+    \faCheckCircle\ Macro tracking\\
+    \faTimesCircle\ No Nutri-Score\\
+    \faTimesCircle\ US-centric database\\
+    \faTimesCircle\ No RGPD compliance\\
+    \faTimesCircle\ Paid premium features
+  };
+  \node[app, fill=ntgreen!6, draw=ntgreen] at (4.5,0) {
+    \textbf{\normalsize NutriTrack (ours)}\\[4pt]
+    \faCheckCircle\ OFF French data (777k+)\\
+    \faCheckCircle\ Meal + patient tracking\\
+    \faCheckCircle\ Practitioner dashboard\\
+    \faCheckCircle\ Full RGPD compliance\\
+    \faCheckCircle\ 100\% open-source\\
+    \faCheckCircle\ Self-hosted, no vendor lock
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\whycallout{No existing solution combines French nutritional data, practitioner-level patient tracking, and RGPD compliance. NutriTrack fills this gap.}
+\end{frame}
+
+% ======================= E1 SLIDE 4: RICE ANALYSIS =============
+\begin{frame}{RICE Prioritization \competency{C1}}
+\begin{center}
+{\small\textbf{Feature scoring: Reach $\times$ Impact $\times$ Confidence / Effort}}\\[0.3cm]
+\begin{tikzpicture}[scale=0.85, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{lcccccc}
+      \toprule
+      \textbf{Feature} & \textbf{Reach} & \textbf{Impact} & \textbf{Confidence} & \textbf{Effort} & \textbf{RICE} & \textbf{Priority} \\
+      & {\tiny /1000} & {\tiny 0.5--3} & {\tiny 50--100\%} & {\tiny weeks} & & \\
+      \midrule
+      Product search \& import    & 800  & 3   & 90\% & 3  & \textbf{720} & \fullcov\ P0 \\
+      Meal logger + daily view    & 600  & 3   & 80\% & 3  & \textbf{480} & \fullcov\ P0 \\
+      Patient macro dashboard     & 400  & 2   & 85\% & 2  & \textbf{340} & \fullcov\ P1 \\
+      RGPD consent + auto-cleanup & 1000 & 2   & 95\% & 2  & \textbf{950} & \fullcov\ P0 \\
+      Star-schema warehouse       & 200  & 1.5 & 80\% & 3  & \textbf{80}  & \fullcov\ P1 \\
+      Data lake (medallion)       & 100  & 1   & 70\% & 3  & \textbf{23}  & \fullcov\ P2 \\
+      Monitoring + alerting       & 300  & 1.5 & 90\% & 2  & \textbf{203} & \fullcov\ P1 \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\whycallout{RGPD ranks highest: legal obligation. Product search and meal logger are core value for Sophie. Lake is lowest priority but required for E7 certification.}
+\end{frame}
+
+% ======================= E1 SLIDE 5: SMART OBJECTIVES ==========
+\begin{frame}{SMART Objectives \competency{C1}}
+\begin{center}
+\begin{tikzpicture}[scale=0.88, transform shape,
+  smart/.style={rounded corners=5pt, minimum width=2.3cm, minimum height=1.8cm,
+                draw=ntgreen, thick, fill=ntgreen!8, align=center, font=\scriptsize},
+  letter/.style={circle, fill=ntgreen, text=white, font=\normalsize\bfseries, minimum size=0.7cm},
+]
+  \node[smart] (s) at (0,0) {Centralize\\nutrition data\\from \textbf{5+ sources}};
+  \node[smart] (m) at (3.1,0) {\textbf{777k+} products\\API $<$\textbf{200ms}\\Dashboard $<$\textbf{5s}};
+  \node[smart] (a) at (6.2,0) {100\% open-source\\Docker-based\\1-command deploy};
+  \node[smart] (r) at (9.3,0) {Fix fragmented\\nutrition workflow\\for practitioners};
+  \node[smart] (t) at (12.4,0) {\textbf{12-week}\\timeline\\6 phases};
+  \node[letter] at (0,1.5) {S};
+  \node[letter] at (3.1,1.5) {M};
+  \node[letter] at (6.2,1.5) {A};
+  \node[letter] at (9.3,1.5) {R};
+  \node[letter] at (12.4,1.5) {T};
+  \draw[-{Stealth}, thick, ntgreen!40] (s)--(m);
+  \draw[-{Stealth}, thick, ntgreen!40] (m)--(a);
+  \draw[-{Stealth}, thick, ntgreen!40] (a)--(r);
+  \draw[-{Stealth}, thick, ntgreen!40] (r)--(t);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E1 SLIDE 6: PRE-PROJECT ===============
+\begin{frame}{Formalized Pre-Project \competency{C1}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, fill=ntgreen!8, draw=ntgreen!40,
+                 minimum width=4.5cm, minimum height=0.6cm, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntgreen] at (0,3.2) {\faClipboard\ Macro Technical Recommendations};
+    \node[item] at (0,2.4) {\faDocker\ Full Docker Compose orchestration};
+    \node[item] at (0,1.7) {\faDatabase\ PostgreSQL for OLTP + OLAP};
+    \node[item] at (0,1.0) {\faCloud\ MinIO S3-compatible data lake};
+    \node[item] at (0,0.3) {\faCogs\ Airflow for ETL scheduling};
+    \node[item] at (0,-0.4) {\faPlug\ FastAPI async REST with JWT auth};
+    \node[item] at (0,-1.1) {\faDesktop\ Streamlit multi-role frontend};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.5cm, minimum height=0.6cm,
+                 font=\scriptsize, align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,3.2) {\faUserShield\ RGPD Compliance Actions};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,2.4) {\faFile\ Personal data registry (Art.\ 30)};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,1.7) {\faUserCheck\ Explicit consent at registration};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,1.0) {\faTrash\ Auto-cleanup after retention};
+    \node[item, fill=ntblue!8, draw=ntblue!40] at (0,0.3) {\faLock\ bcrypt + UUID pseudonymization};
+    \node[font=\small\bfseries, ntpurple] at (0,-0.6) {\faUniversalAccess\ Accessibility};
+    \node[item, fill=ntpurple!8, draw=ntpurple!40] at (0,-1.3) {\faUniversalAccess\ Keyboard nav, contrast ratios, screen reader};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% =============================================================
+\section{E2 --- Architecture \& Monitoring (C2, C3, C4, C6)}
+% =============================================================
+
+% ======================= E2 SLIDE 1: TOPOGRAPHY OVERVIEW =======
+\begin{frame}{Data Topography --- 4 Parts \competency{C2}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  part/.style={rounded corners=6pt, minimum width=5.5cm, minimum height=2cm,
+               draw, very thick, align=left, font=\scriptsize, inner sep=8pt},
+  numcirc/.style={circle, text=white, font=\small\bfseries, minimum size=0.55cm},
+]
+  \node[part, fill=ntgreen!8, draw=ntgreen] (p1) at (-3.5,1.5) {
+    \textbf{1. Semantics / Business Glossary}\\[2pt]
+    9 business objects: product, brand, category,\\
+    nutrient, user, meal, meal\_item, consent, score};
+  \node[numcirc, fill=ntgreen] at (-6.5,1.5) {1};
+
+  \node[part, fill=ntblue!8, draw=ntblue] (p2) at (-3.5,-1) {
+    \textbf{2. Data Models}\\[2pt]
+    Structured: PostgreSQL (app + dw schemas)\\
+    Semi-structured: JSON (OFF API responses)\\
+    Unstructured: Parquet (bulk exports, lake)};
+  \node[numcirc, fill=ntblue] at (-6.5,-1) {2};
+
+  \node[part, fill=ntpurple!8, draw=ntpurple] (p3) at (4.5,1.5) {
+    \textbf{3. Treatments \& Data Flows}\\[2pt]
+    8 source-to-target flows (flux matrix)\\
+    7 Airflow DAGs, PySpark cleaning\\
+    ETL diagrams per pipeline};
+  \node[numcirc, fill=ntpurple] at (1.5,1.5) {3};
+
+  \node[part, fill=ntaccent!8, draw=ntaccent] (p4) at (4.5,-1) {
+    \textbf{4. Access \& Usage Conditions}\\[2pt]
+    4 roles: user, nutritionist, analyst, admin\\
+    JWT-based API auth, role-based Streamlit\\
+    RGPD: health data restricted to authorized};
+  \node[numcirc, fill=ntaccent] at (1.5,-1) {4};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 2: SEMANTICS / GLOSSARY ======
+\begin{frame}{Topography Part 1 --- Semantics \& Business Glossary \competency{C2}}
+\begin{center}
+\begin{tikzpicture}[scale=0.78, transform shape,
+  obj/.style={rounded corners=4pt, minimum width=2.4cm, minimum height=1.1cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=4pt},
+]
+  \node[obj, fill=ntgreen!10, draw=ntgreen] (prod) at (0,2.5)
+    {\faCubes\ \textbf{product}\\{\tiny 31 nutritional fields}};
+  \node[obj, fill=ntgreen!10, draw=ntgreen] (brand) at (3.5,2.5)
+    {\faTags\ \textbf{brand}\\{\tiny Manufacturer name}};
+  \node[obj, fill=ntgreen!10, draw=ntgreen] (cat) at (7,2.5)
+    {\faList\ \textbf{category}\\{\tiny Product classification}};
+  \node[obj, fill=ntblue!10, draw=ntblue] (user) at (0,0.5)
+    {\faUser\ \textbf{user}\\{\tiny PII: email, name}};
+  \node[obj, fill=ntblue!10, draw=ntblue] (meal) at (3.5,0.5)
+    {\faUtensils\ \textbf{meal}\\{\tiny Date + type + user}};
+  \node[obj, fill=ntblue!10, draw=ntblue] (mi) at (7,0.5)
+    {\faBalanceScale\ \textbf{meal\_item}\\{\tiny Product + quantity}};
+  \node[obj, fill=ntpurple!10, draw=ntpurple] (consent) at (0,-1.5)
+    {\faUserShield\ \textbf{consent}\\{\tiny RGPD consent flag}};
+  \node[obj, fill=ntpurple!10, draw=ntpurple] (nutrient) at (3.5,-1.5)
+    {\faFlask\ \textbf{nutrient}\\{\tiny kcal, fat, protein\ldots}};
+  \node[obj, fill=ntpurple!10, draw=ntpurple] (score) at (7,-1.5)
+    {\faStar\ \textbf{score}\\{\tiny Nutri-Score, NOVA}};
+
+  % Relations
+  \draw[-{Stealth}, gray, thick] (prod) -- (brand);
+  \draw[-{Stealth}, gray, thick] (prod) -- (cat);
+  \draw[-{Stealth}, gray, thick] (user) -- (meal);
+  \draw[-{Stealth}, gray, thick] (meal) -- (mi);
+  \draw[-{Stealth}, gray, thick] (mi) -- (prod);
+  \draw[-{Stealth}, gray, thick] (user) -- (consent);
+  \draw[-{Stealth}, gray, thick] (prod) -- (nutrient);
+  \draw[-{Stealth}, gray, thick] (prod) -- (score);
+
+  \node[font=\tiny, ntgreen] at (10,2.5) {\faDatabase\ Public data};
+  \node[font=\tiny, ntblue] at (10,0.5) {\faLock\ Personal data};
+  \node[font=\tiny, ntpurple] at (10,-1.5) {\faLock\ Governance};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 3: DATA MODELS ===============
+\begin{frame}{Topography Part 2 --- Data Models \competency{C2}}
+\begin{center}
+\begin{tikzpicture}[
+  col/.style={rounded corners=6pt, minimum width=4.2cm, minimum height=3.5cm,
+              draw, thick, align=left, font=\scriptsize, inner sep=8pt},
+]
+  \node[col, fill=ntgreen!5, draw=ntgreen] at (-4.5,0) {
+    \textbf{\normalsize Structured}\\[4pt]
+    \faDatabase\ PostgreSQL 16\\[2pt]
+    \textbf{app} schema: 8 tables\\
+    (products, users, meals\ldots)\\[2pt]
+    \textbf{dw} schema: 7 dims + 2 facts\\
+    6 datamart views\\[2pt]
+    {\tiny\color{ntgreen} ACID, row-level RGPD delete}
+  };
+  \node[col, fill=ntblue!5, draw=ntblue] at (0,0) {
+    \textbf{\normalsize Semi-Structured}\\[4pt]
+    \faFileCode\ JSON (OFF API)\\[2pt]
+    Nested fields: ingredients,\\
+    allergens, nutriments\\[2pt]
+    31 fields per product\\
+    Variable completeness\\[2pt]
+    {\tiny\color{ntblue} Parsed by extraction scripts}
+  };
+  \node[col, fill=ntpurple!5, draw=ntpurple] at (4.5,0) {
+    \textbf{\normalsize File-Based}\\[4pt]
+    \faFile\ Parquet (columnar)\\[2pt]
+    OFF bulk export (798k rows)\\
+    Lake: bronze/silver/gold\\[2pt]
+    CSV (legacy exports)\\
+    HTML (scraped pages)\\[2pt]
+    {\tiny\color{ntpurple} Immutable, schema-on-read}
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 4: FLUX MATRIX ===============
+\begin{frame}{Topography Part 3 --- Flux Matrix \competency{C2} \competency{C3}}
+\small
+\begin{center}
+\begin{tabular}{lllll}
+  \toprule
+  \textbf{Source} & \textbf{Format} & \textbf{Target} & \textbf{Script} & \textbf{Freq.} \\
+  \midrule
+  OFF API & JSON & /data/raw/api/ & extract\_off\_api.py & Daily \\
+  OFF Parquet & Parquet & /data/raw/parquet/ & extract\_off\_parquet.py & Weekly \\
+  ANSES/EFSA & HTML & /data/raw/scraping/ & extract\_scraping.py & Monthly \\
+  PostgreSQL & SQL & /data/raw/database/ & extract\_from\_db.py & On-demand \\
+  DuckDB & Parquet & /data/raw/duckdb/ & extract\_duckdb.py & On-demand \\
+  Cleaned data & Parquet & PostgreSQL app & import\_to\_db.py & Daily \\
+  App schema & SQL & DW star schema & etl\_load\_warehouse & Daily \\
+  Raw files & Mixed & MinIO buckets & etl\_datalake\_ingest & Daily \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.15cm}
+\whycallout{C2 Part 3: every data movement is documented --- source, format, destination, responsible script, and frequency. This is the ``applicative representation'' with flux matrix required by C3.}
+\end{frame}
+
+% ======================= E2 SLIDE 5: ACCESS & USAGE ============
+\begin{frame}{Topography Part 4 --- Access \& Usage Conditions \competency{C2}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{lcccc}
+      \toprule
+      \textbf{Resource} & \textbf{User} & \textbf{Nutritionist} & \textbf{Analyst} & \textbf{Admin} \\
+      \midrule
+      Product search         & \fullcov & \fullcov & \fullcov & \fullcov \\
+      Meal logging           & \fullcov & ---      & ---      & \fullcov \\
+      Patient dashboard      & ---      & \fullcov & ---      & \fullcov \\
+      DW / datamart queries  & ---      & ---      & \fullcov & \fullcov \\
+      Data catalog browse    & ---      & ---      & \fullcov & \fullcov \\
+      User management        & ---      & ---      & ---      & \fullcov \\
+      Grafana monitoring     & ---      & ---      & ---      & \fullcov \\
+      MinIO lake access      & ---      & ---      & \fullcov & \fullcov \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntred!5, draw=ntred!40, inner sep=6pt,
+        text width=0.9\linewidth, font=\scriptsize] {
+    \faLock\ \textbf{RGPD constraint:} Health-related data (meals, patient info) restricted to authorized roles only. User data never enters MinIO lake (Parquet = immutable, no row-level delete).
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 6: ARCHITECTURE OVERVIEW ======
+\begin{frame}{System Architecture --- 14 Services \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.62, transform shape,
+  svc/.style={rounded corners=4pt, minimum width=1.7cm, minimum height=0.6cm,
+              draw, thick, font=\tiny\bfseries, align=center, drop shadow={opacity=0.1}},
+]
+  \node[svc, fill=ntgreen!15, draw=ntgreen] (s1) at (0,5) {OFF API};
+  \node[svc, fill=ntgreen!15, draw=ntgreen] (s2) at (2.5,5) {Parquet};
+  \node[svc, fill=ntgreen!15, draw=ntgreen] (s3) at (5,5) {Scraping};
+  \node[svc, fill=ntpurple!15, draw=ntpurple, minimum width=5cm] (af) at (2.5,3.2)
+    {Airflow (Web + Sched + Worker)};
+  \node[svc, fill=ntblue!15, draw=ntblue] (pg) at (0,1.4) {PostgreSQL\\{\tiny :5432}};
+  \node[svc, fill=ntblue!15, draw=ntblue] (mn) at (2.5,1.4) {MinIO\\{\tiny :9000}};
+  \node[svc, fill=ntblue!15, draw=ntblue] (rd) at (5,1.4) {Redis\\{\tiny :6379}};
+  \node[svc, fill=ntaccent!15, draw=ntaccent] (api) at (0,-0.4) {FastAPI\\{\tiny :8000}};
+  \node[svc, fill=ntaccent!15, draw=ntaccent, minimum width=2.5cm] (st) at (3.5,-0.4)
+    {Streamlit\\{\tiny :8501 (4 roles)}};
+  \node[svc, fill=ntred!15, draw=ntred] (pr) at (8.5,3.2) {Prometheus};
+  \node[svc, fill=ntred!15, draw=ntred] (gf) at (8.5,1.4) {Grafana\\{\tiny :3000}};
+  \node[svc, fill=ntred!15, draw=ntred] (mh) at (8.5,-0.4) {MailHog\\{\tiny :8025}};
+
+  \foreach \s in {s1,s2,s3} \draw[-{Stealth}, gray, thick] (\s) -- (af);
+  \draw[-{Stealth}, gray, thick] (af) -- (pg);
+  \draw[-{Stealth}, gray, thick] (af) -- (mn);
+  \draw[-{Stealth}, gray, thick] (pg) -- (api);
+  \draw[-{Stealth}, gray, thick] (api) -- (st);
+  \draw[-{Stealth}, gray, thick] (rd) -- (api);
+  \draw[-{Stealth}, gray, thick] (pr) -- (gf);
+  \draw[-{Stealth}, dashed, ntaccent, thick] (af) -- (mh);
+
+  \node[font=\scriptsize] at (0,-1.3) {\faCode\ Devs};
+  \node[font=\scriptsize] at (3.5,-1.3) {\faUsers\ All audiences};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+{\scriptsize \faDocker\ \texttt{docker compose up -d} --- 14 services, one command, fully reproducible.}
+\end{frame}
+
+% ======================= E2 SLIDE 7: TECH DECISIONS TABLE =======
+\begin{frame}{Technical Decisions --- Alternatives Considered \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{lllll}
+      \toprule
+      \textbf{Decision} & \textbf{Chosen} & \textbf{Alt 1} & \textbf{Alt 2} & \textbf{Why Chosen} \\
+      \midrule
+      Database     & \textbf{PostgreSQL 16} & MongoDB       & MySQL     & ACID + RGPD row-delete + JSON \\
+      Orchestrator & \textbf{Airflow 2.8}   & Prefect       & Luigi     & Mature, Web UI, Celery scaling \\
+      Data Lake    & \textbf{MinIO}         & AWS S3        & HDFS      & Self-hosted, S3-compat, free \\
+      ETL Engine   & \textbf{PySpark 3.5}   & pandas        & dbt       & Distributed, 800K+ rows \\
+      API          & \textbf{FastAPI}       & Flask         & Django    & Async, auto OpenAPI, Pydantic \\
+      Frontend     & \textbf{Streamlit}     & Dash          & React     & Rapid proto, 4-role RBAC \\
+      Monitoring   & \textbf{Prom+Grafana}  & Datadog       & ELK       & Open-source, Docker-native \\
+      Big Data SQL & \textbf{DuckDB}        & Spark SQL     & Presto    & Zero infra, SQL on Parquet \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\whycallout{Every choice respects project constraints: open-source, Docker-deployable, RGPD-capable, and within solo-developer scope. Alternatives rejected for cost, complexity, or compliance gaps.}
+\end{frame}
+
+% ======================= E2 SLIDE 8: NON-FUNCTIONAL NEEDS =======
+\begin{frame}{Non-Functional Requirements \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{llll}
+      \toprule
+      \textbf{Category} & \textbf{Requirement} & \textbf{Target} & \textbf{How} \\
+      \midrule
+      Performance   & API response time      & $<$200ms          & FastAPI async + Redis cache \\
+      Performance   & Dashboard load          & $<$5s             & Materialized DW views \\
+      Availability  & Service uptime          & 99\% (local)      & Docker restart policies \\
+      Scalability   & Product volume          & 800K+ rows        & PySpark distributed ETL \\
+      Security      & Authentication          & JWT + bcrypt      & FastAPI middleware \\
+      Security      & Data at rest            & UUID pseudonym.   & PostgreSQL + SHA256 in DW \\
+      Compliance    & RGPD Art.\ 9, 30        & Full registry     & Consent + auto-cleanup \\
+      Portability   & Deployment              & Any Docker host   & docker-compose.yml \\
+      Accessibility & WCAG 2.1 AA            & Keyboard + contrast & Streamlit theme config \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 9: RGPD COMPLIANCE ===========
+\begin{frame}{RGPD Compliance Processes \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  box/.style={rounded corners=6pt, minimum width=3cm, minimum height=2cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[box, fill=ntred!8, draw=ntred] at (0,0) {
+    \faFile\ \textbf{Data Registry}\\[4pt]
+    {\tiny \texttt{rgpd\_data\_registry} table}\\
+    {\tiny Legal basis per field}\\
+    {\tiny Retention periods}
+  };
+  \node[box, fill=ntblue!8, draw=ntblue] at (4,0) {
+    \faUserCheck\ \textbf{Consent}\\[4pt]
+    {\tiny \texttt{consent\_data\_processing}}\\
+    {\tiny \texttt{consent\_date} column}\\
+    {\tiny Mandatory at registration}
+  };
+  \node[box, fill=ntgreen!8, draw=ntgreen] at (8,0) {
+    \faTrash\ \textbf{Auto-Cleanup}\\[4pt]
+    {\tiny \texttt{rgpd\_cleanup\_expired}}\\
+    {\tiny Meals $>$2y deleted}\\
+    {\tiny Users past retention}
+  };
+  \node[box, fill=ntpurple!8, draw=ntpurple] at (12,0) {
+    \faLock\ \textbf{Security}\\[4pt]
+    {\tiny bcrypt passwords}\\
+    {\tiny UUID identification}\\
+    {\tiny SHA256 in DW}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\whycallout{Personal data stays in PostgreSQL (row-level delete). Public product data goes to both DW and Lake. User data never enters MinIO --- Parquet is immutable.}
+\end{frame}
+
+% ======================= E2 SLIDE 10: ECO-RESPONSIBILITY =======
+\begin{frame}{Eco-Responsibility Strategy (RGESN) \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[
+  item/.style={rounded corners=5pt, minimum width=5cm, minimum height=1.1cm,
+               draw, thick, align=left, font=\scriptsize, inner sep=6pt},
+]
+  \node[font=\small\bfseries, ntgreen] at (0,3.2) {\faLeaf\ RGESN Framework Compliance};
+
+  \node[item, fill=ntgreen!8, draw=ntgreen] at (0,2.2) {
+    \faServer\ \textbf{Minimal infrastructure:} single Docker host, no cloud waste};
+  \node[item, fill=ntgreen!8, draw=ntgreen] at (0,1) {
+    \faCompress\ \textbf{Parquet columnar format:} 10x smaller than CSV, less I/O};
+  \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-0.2) {
+    \faClock\ \textbf{Scheduled ETL:} nightly runs only, no idle compute};
+  \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-1.4) {
+    \faMemory\ \textbf{Lightweight stack:} DuckDB in-process, Redis caching, no JVM bloat};
+  \node[item, fill=ntgreen!8, draw=ntgreen] at (0,-2.6) {
+    \faTrash\ \textbf{Data lifecycle:} auto-cleanup of expired data reduces storage};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\scriptsize, align=center] {
+    \textbf{RGESN reference:} Referentiel General d'Ecoconception de Services Numeriques (French government framework for eco-responsible digital services)
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 11: CAPEX / FINANCIAL ========
+\begin{frame}{Financial Report --- CAPEX \& TCO \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.85, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{lrrl}
+      \toprule
+      \textbf{Cost Item} & \textbf{NutriTrack} & \textbf{Cloud Alt.} & \textbf{Notes} \\
+      \midrule
+      Infrastructure (hardware)   & 0 EUR      & ---            & Existing dev machine \\
+      Software licenses           & 0 EUR      & ---            & 100\% open-source stack \\
+      Cloud compute (monthly)     & ---         & 500--800 EUR   & AWS RDS + S3 + MWAA \\
+      Development cost            & 12 wk x 1 eng. & 12 wk x 1 eng. & Same either way \\
+      Domain + DNS (annual)       & $<$50 EUR  & $<$50 EUR      & Optional for demo \\
+      Electricity (annual)        & $<$50 EUR  & 0 EUR          & Local server power \\
+      \midrule
+      \textbf{Annual TCO}         & \textbf{$<$100 EUR} & \textbf{6,000--10,000 EUR} & \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\whycallout{100\% open-source + Docker self-hosting = 60--100x cheaper than cloud. Trade-off: no managed HA, but acceptable for a single-practitioner workload.}
+\end{frame}
+
+% ======================= E2 SLIDE 12: RISKS & COSTS ============
+\begin{frame}{Risk Analysis \competency{C3}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{llll}
+      \toprule
+      \textbf{Risk} & \textbf{Probability} & \textbf{Impact} & \textbf{Mitigation} \\
+      \midrule
+      OFF API rate limiting     & Medium & Medium & Parquet bulk fallback \\
+      OFF schema changes        & Low    & High   & Schema validation in ETL \\
+      Data quality (missing values) & High & Medium & 7 cleaning rules in PySpark \\
+      RGPD breach (data leak)   & Low    & Critical & Encryption + access control \\
+      Single point of failure   & Medium & High   & Docker restart + backups \\
+      Scope creep (12-week limit) & Medium & High & RICE prioritization \\
+      Dependency vulnerabilities & Low   & Medium & Dependabot + pinned versions \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 13: TECH MONITORING ==========
+\begin{frame}{Technical Monitoring Newsletter \competency{C4}}
+\begin{center}
+\begin{tikzpicture}[
+  topic/.style={rounded corners=6pt, minimum width=3.6cm, minimum height=2.6cm,
+                draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[topic, fill=ntaccent!8, draw=ntaccent] at (0,0) {
+    \faDesktop\ \textbf{Streamlit RBAC}\\[3pt]
+    {\tiny 4-role dashboard}\\{\tiny Replaced Superset BI}\\{\tiny Rapid prototyping}\\[3pt]
+    {\tiny\color{ntgreen}\faCheckCircle\ Applied in project}
+  };
+  \node[topic, fill=ntblue!8, draw=ntblue] at (4.5,0) {
+    \faGavel\ \textbf{GDPR / EDPB 01/2026}\\[3pt]
+    {\tiny Wellness = sensitive data}\\{\tiny Art.\ 9 health data rules}\\{\tiny Strengthened consent}\\[3pt]
+    {\tiny\color{ntgreen}\faCheckCircle\ Compliant}
+  };
+  \node[topic, fill=ntpurple!8, draw=ntpurple] at (9,0) {
+    \faStream\ \textbf{PySpark 3.5 + Airflow 2.8}\\[3pt]
+    {\tiny Object storage backend}\\{\tiny Listener hooks}\\{\tiny Distributed ETL}\\[3pt]
+    {\tiny\color{ntgreen}\faCheckCircle\ Adopted}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=\linewidth-25pt, font=\small] {
+    \faClock\ Weekly schedule (min.\ 1h/week) \quad
+    \faCheckDouble\ Source reliability verified \quad
+    \faFile\ \texttt{docs/veille\_technologique.md} \quad
+    \faUniversalAccess\ Accessible format
+  };
+\end{tikzpicture}
+\end{frame}
+
+% ======================= E2 SLIDE 14: TRACKING INDICATORS ======
+\begin{frame}{Project Tracking Indicators \competency{C6}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  metric/.style={rounded corners=6pt, minimum width=3.3cm, minimum height=2cm,
+                 draw=ntgreen, thick, fill=ntgreen!8, align=center, font=\scriptsize},
+]
+  \node[metric] at (0,0) {\faChartLine\\[3pt]\textbf{DAG Success Rate}\\{\tiny Pass/fail per run}\\{\tiny Updated daily}};
+  \node[metric] at (4.2,0) {\faDatabase\\[3pt]\textbf{Activity Log}\\{\tiny 22+ entries, 14 days}\\{\tiny Airflow logs}};
+  \node[metric] at (8.4,0) {\faChartLine\\[3pt]\textbf{Completeness \%}\\{\tiny Per dataset}\\{\tiny Quality gate}};
+  \node[metric] at (12.6,0) {\faClock\\[3pt]\textbf{ETL Duration}\\{\tiny Trend over time}\\{\tiny Grafana panel}};
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\small, align=center] {
+    \textbf{Tools:}\; Airflow UI (DAG history) $\bullet$ Grafana SLA Dashboard $\bullet$
+    GitHub Issues/PRs $\bullet$ Git commit history\\
+    \textbf{Indicators updated throughout project lifecycle} --- not just at delivery.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E2 SLIDE 15: LESSONS LEARNED ==========
+\begin{frame}{Lessons Learned \& Experience Feedback \competency{C3}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.5cm, minimum height=0.8cm,
+                 font=\scriptsize, align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntred] at (0,3) {\faExclamationTriangle\ Problems Encountered};
+    \node[item, fill=ntred!8, draw=ntred!40] at (0,2.1) {\faBug\ OFF data quality: 30\% missing fields};
+    \node[item, fill=ntred!8, draw=ntred!40] at (0,1.2) {\faServer\ Superset memory overhead $\to$ dropped};
+    \node[item, fill=ntred!8, draw=ntred!40] at (0,0.3) {\faClock\ PySpark startup time on small data};
+    \node[item, fill=ntred!8, draw=ntred!40] at (0,-0.6) {\faDocker\ Docker network conflicts on macOS};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.5cm, minimum height=0.8cm,
+                 font=\scriptsize, align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntgreen] at (0,3) {\faCheckCircle\ Trade-offs \& Solutions};
+    \node[item, fill=ntgreen!8, draw=ntgreen!40] at (0,2.1) {\faFilter\ 7 cleaning rules $\to$ 2.6\% removal};
+    \node[item, fill=ntgreen!8, draw=ntgreen!40] at (0,1.2) {\faDesktop\ Streamlit: lighter, multi-role};
+    \node[item, fill=ntgreen!8, draw=ntgreen!40] at (0,0.3) {\faCubes\ DuckDB for ad-hoc queries};
+    \node[item, fill=ntgreen!8, draw=ntgreen!40] at (0,-0.6) {\faNetworkWired\ Fixed port mapping strategy};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\vspace{0.3cm}
+\whycallout{Key takeaway: start with the simplest tool that works (Streamlit over Superset), add complexity only when justified by data volume (PySpark for 800K+ rows).}
+\end{frame}
+
+% =============================================================
+\section{E3 --- Project Kickoff Simulation (C5, C6, C7)}
+% =============================================================
+
+% ======================= E3 KICKOFF SLIDE A: AGENDA ============
+\begin{frame}{Project NutriTrack --- Kickoff Meeting \competency{C5} \competency{C6} \competency{C7}}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!10, draw=ntgreen, very thick,
+        inner sep=10pt, text width=0.90\linewidth, align=center] {
+    {\large\bfseries\color{ntgreen}\faHandshake\ Welcome Sophie}\\[4pt]
+    {\small\itshape This is how we will build your platform together.}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.92, transform shape,
+  ag/.style={rounded corners=5pt, minimum width=11cm, minimum height=0.75cm,
+             fill=ntblue!8, draw=ntblue!40, font=\small, align=left,
+             inner xsep=10pt},
+  num/.style={circle, fill=ntblue, text=white, font=\scriptsize\bfseries,
+              minimum size=0.55cm, inner sep=0pt},
+]
+  \node[font=\small\bfseries, ntblue, anchor=west] at (-5.5,3.4) {\faListOl\ Today's agenda (10 minutes)};
+
+  \node[ag] at (0,2.6)  {\phantom{1.}\quad Scope recap --- what NutriTrack delivers to your practice};
+  \node[num] at (-5.0,2.6) {1};
+
+  \node[ag] at (0,1.75) {\phantom{1.}\quad CAPEX, resources \& team commitment};
+  \node[num] at (-5.0,1.75) {2};
+
+  \node[ag] at (0,0.9)  {\phantom{1.}\quad OPEX \& tech stack choices (why these tools)};
+  \node[num] at (-5.0,0.9) {3};
+
+  \node[ag] at (0,0.05) {\phantom{1.}\quad Timeline, milestones \& risk checkpoints};
+  \node[num] at (-5.0,0.05) {4};
+
+  \node[ag] at (0,-0.8) {\phantom{1.}\quad Go/No-Go decision --- any questions before sprint~1?};
+  \node[num] at (-5.0,-0.8) {5};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE B: CAPEX + TEAM ======
+\begin{frame}{CAPEX \& Team Commitment \competency{C5}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.7cm,
+                 fill=ntaccent!8, draw=ntaccent!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.85cm,
+                fill=ntgreen!12, draw=ntgreen, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntaccent] at (0,3.3) {\faEuroSign\ CAPEX --- One-Time Investment};
+    \node[item] at (0,2.55) {\faServer\ Infrastructure: \textbf{0 EUR} (Docker, local)};
+    \node[item] at (0,1.80) {\faFileCode\ Software licenses: \textbf{0 EUR} (open-source)};
+    \node[item] at (0,1.05) {\faCloud\ Cloud avoided: \textbf{\textasciitilde8,000 EUR/yr}};
+    \node[item] at (0,0.30) {\faClock\ Setup effort: \textbf{\textasciitilde5 engineer-days}};
+    \node[tot]  at (0,-0.65) {\faCheckCircle\ Total CAPEX to start: \textbf{0 EUR}};
+    \node[font=\tiny\itshape, gray, text width=5.2cm, align=center] at (0,-1.55)
+      {Sophie, you commit zero upfront\\ --- we reuse your existing hardware.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    role/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.7cm,
+                 fill=ntblue!8, draw=ntblue!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.2cm, minimum height=0.85cm,
+                fill=ntblue!15, draw=ntblue, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,3.3) {\faUsersCog\ Team \& Resources};
+    \node[role] at (0,2.55) {\faDatabase\ Data Engineer (lead) --- \textbf{12 wk FT}};
+    \node[role] at (0,1.80) {\faServer\ Platform Engineer --- \textbf{4 wk PT}};
+    \node[role] at (0,1.05) {\faClipboardCheck\ Reviewer / Auditor --- \textbf{2 wk}};
+    \node[role] at (0,0.30) {\faPaintBrush\ Designer (optional) --- \textbf{1 wk}};
+    \node[tot]  at (0,-0.65) {\faUsers\ Total effort: \textbf{\textasciitilde18 person-weeks}};
+    \node[font=\tiny\itshape, gray, text width=5.2cm, align=center] at (0,-1.55)
+      {Quality gates at every phase ---\\ you always know who is on deck.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE C: OPEX + STACK ======
+\begin{frame}{OPEX \& Tech Stack Chosen \competency{C5} \competency{C6}}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.65cm,
+                 fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+    tot/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.85cm,
+                fill=ntgreen!15, draw=ntgreen, very thick, font=\scriptsize\bfseries,
+                align=left, inner xsep=6pt},
+    vs/.style={rounded corners=5pt, minimum width=5.0cm, minimum height=0.75cm,
+               fill=ntred!8, draw=ntred!50, font=\scriptsize,
+               align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntgreen] at (0,3.3) {\faLeaf\ OPEX --- Annual Running Cost};
+    \node[item] at (0,2.55) {\faGlobe\ Domain name: \textbf{\textasciitilde15 EUR/yr}};
+    \node[item] at (0,1.85) {\faBolt\ Electricity (local): \textbf{\textasciitilde80 EUR/yr}};
+    \node[item] at (0,1.15) {\faBell\ Monitoring \& SMS: \textbf{0 EUR}};
+    \node[tot]  at (0,0.30) {\faCheckCircle\ Total OPEX: \textbf{$<$100 EUR/yr}};
+    \node[vs]   at (0,-0.70) {\faCloud\ Cloud equivalent:\\\textbf{8,000--10,000 EUR/yr}};
+    \node[font=\tiny\itshape, gray, text width=5.0cm, align=center] at (0,-1.75)
+      {100x cheaper --- zero vendor lock-in.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.54\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.92, transform shape]
+    \node[font=\small\bfseries, ntblue] at (0,3.5) {\faTools\ Tech Stack --- Chosen \& Justified};
+    \node[font=\scriptsize] at (0,0.7) {
+      \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Tool} & \textbf{Why chosen} \\
+        \midrule
+        \faDatabase\ PostgreSQL 16 & ACID + RGPD delete \\
+        \faCogs\ Airflow 2.8      & Mature ETL + UI \\
+        \faCloud\ MinIO           & Self-hosted S3 (free) \\
+        \faFire\ PySpark 3.5      & Distributed cleaning \\
+        \faBolt\ FastAPI          & Async + OpenAPI docs \\
+        \faChartBar\ Streamlit    & 4-role frontend, no BI \\
+        \bottomrule
+      \end{tabular}
+    };
+    \node[font=\tiny\itshape, gray, text width=7cm, align=center] at (0,-2.0)
+      {Every tool picked for Sophie's scale (777k products) --- no over-engineering.};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 KICKOFF SLIDE D: TIMELINE + GO/NOGO
+\begin{frame}{Timeline \& Kickoff Go/No-Go \competency{C5} \competency{C7}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  phase/.style={rounded corners=4pt, minimum width=1.85cm, minimum height=0.75cm,
+                font=\tiny\bfseries, align=center, text=white, inner sep=3pt},
+  wk/.style={font=\tiny, gray},
+  ms/.style={circle, fill=ntaccent, draw=ntdarkgreen, very thick,
+             minimum size=0.55cm, inner sep=0pt, font=\tiny\bfseries, text=white},
+  gate/.style={font=\tiny\bfseries, ntred, rotate=0, align=center},
+]
+  % Phase bars
+  \node[phase, fill=ntblue]   (p1) at (0,1.2)     {\faServer\ Setup};
+  \node[phase, fill=ntgreen]  (p2) at (2.1,1.2)   {\faDownload\ Extract};
+  \node[phase, fill=ntpurple] (p3) at (4.2,1.2)   {\faFilter\ Transform};
+  \node[phase, fill=ntaccent] (p4) at (6.3,1.2)   {\faStar\ DW};
+  \node[phase, fill=bronze]   (p5) at (8.4,1.2)   {\faCloud\ Lake};
+  \node[phase, fill=ntred]    (p6) at (10.5,1.2)  {\faRocket\ Deploy};
+
+  % Week labels
+  \node[wk] at (0,0.55)    {Wk 1--2};
+  \node[wk] at (2.1,0.55)  {Wk 3--4};
+  \node[wk] at (4.2,0.55)  {Wk 5--6};
+  \node[wk] at (6.3,0.55)  {Wk 7--8};
+  \node[wk] at (8.4,0.55)  {Wk 9--10};
+  \node[wk] at (10.5,0.55) {Wk 11--12};
+
+  % Risk checkpoints (small warning markers between phases)
+  \foreach \x in {1.05,3.15,5.25,7.35,9.45}
+    \node[font=\tiny, ntred] at (\x,1.2) {\faExclamationTriangle};
+
+  % Milestone markers (above)
+  \node[ms] at (4.2,2.4)  {\faFlag};
+  \node[ms] at (8.4,2.4)  {\faFlag};
+  \node[ms] at (10.5,2.4) {\faFlagCheckered};
+  \draw[ntaccent, dashed, very thick] (4.2,2.1)  -- (4.2,1.55);
+  \draw[ntaccent, dashed, very thick] (8.4,2.1)  -- (8.4,1.55);
+  \draw[ntaccent, dashed, very thick] (10.5,2.1) -- (10.5,1.55);
+
+  \node[font=\tiny\bfseries, ntaccent] at (4.2,3.0)  {MVP (Wk 6)};
+  \node[font=\tiny\bfseries, ntaccent] at (8.4,3.0)  {DW Ready (Wk 10)};
+  \node[font=\tiny\bfseries, ntgreen]  at (10.5,3.0) {Go-Live (Wk 12)};
+
+  % Gate legend
+  \node[font=\tiny, ntred] at (5.25,-0.1) {\faExclamationTriangle\ Risk checkpoint at each phase gate};
+\end{tikzpicture}
+\end{center}
+\vspace{0.25cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!10, draw=ntgreen, very thick,
+        inner sep=10pt, text width=0.90\linewidth, align=center] {
+    {\small\bfseries\color{ntgreen}\faQuestionCircle\ Sophie, any questions before we start sprint~1?}\\[3pt]
+    {\scriptsize\itshape 12 weeks, 6 phases, 3 milestones --- your Go/No-Go decision today.}
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 SLIDE 1: KICKOFF INTRO =============
+\begin{frame}{Kickoff Meeting --- Pre-Project Defense \competency{C5}}
+\begin{center}
+\begin{tikzpicture}[
+  need/.style={rounded corners=6pt, fill=ntred!8, draw=ntred, thick,
+               minimum width=4.5cm, minimum height=1.2cm, align=center, font=\scriptsize},
+  sol/.style={rounded corners=6pt, fill=ntgreen!8, draw=ntgreen, thick,
+              minimum width=4.5cm, minimum height=1.2cm, align=center, font=\scriptsize},
+]
+  \node[font=\small\bfseries, ntred] at (-3.5,2.2) {Sophie's Pain Points};
+  \node[font=\small\bfseries, ntgreen] at (3.5,2.2) {NutriTrack Solution};
+
+  \node[need] (n1) at (-3.5,1.1) {``I search products manually\\across multiple sites''};
+  \node[sol]  (s1) at (3.5,1.1) {\faDownload\ 5 automated extractors\\+ unified product search};
+
+  \node[need] (n2) at (-3.5,-0.3) {``I can't track patient\\meals over time''};
+  \node[sol]  (s2) at (3.5,-0.3) {\faUtensils\ Meal logger + daily dashboard\\+ weekly macro trends};
+
+  \node[need] (n3) at (-3.5,-1.7) {``Patient data is sensitive\\--- I worry about compliance''};
+  \node[sol]  (s3) at (3.5,-1.7) {\faLock\ Full RGPD: consent, registry,\\auto-cleanup, pseudonymization};
+
+  \draw[-{Stealth}, very thick, ntaccent] (n1) -- (s1);
+  \draw[-{Stealth}, very thick, ntaccent] (n2) -- (s2);
+  \draw[-{Stealth}, very thick, ntaccent] (n3) -- (s3);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!5, draw=ntgreen!40,
+        inner sep=8pt, font=\small] {
+    \faDatabase\ \textbf{777k+} products \quad
+    \faDocker\ \textbf{14} services \quad
+    \faCogs\ \textbf{7} DAGs \quad
+    \faUsers\ \textbf{4} roles \quad
+    \faTerminal\ \textbf{1} command to deploy
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 SLIDE 2: ROADMAP ====================
+\begin{frame}{6-Phase Roadmap \competency{C5}}
+\begin{center}
+\begin{tikzpicture}[scale=0.9, transform shape,
+  phase/.style={rounded corners=5pt, minimum width=1.6cm, minimum height=1.7cm,
+                draw=ntgreen, thick, fill=ntgreen!8, font=\tiny\bfseries, align=center},
+  week/.style={font=\tiny, ntgreen!70},
+]
+  \node[phase] (p1) at (0,0) {\faServer\\[2pt]Setup\\{\tiny Docker}\\{\tiny DB init}};
+  \node[phase] (p2) at (2.5,0) {\faDownload\\[2pt]Extract\\{\tiny 5 scripts}\\{\tiny 3 DAGs}};
+  \node[phase] (p3) at (5,0) {\faFilter\\[2pt]Transform\\{\tiny Clean}\\{\tiny Aggregate}};
+  \node[phase] (p4) at (7.5,0) {\faStar\\[2pt]Warehouse\\{\tiny Star schema}\\{\tiny SCD}};
+  \node[phase] (p5) at (10,0) {\faCloud\\[2pt]Lake\\{\tiny Medallion}\\{\tiny Catalog}};
+  \node[phase] (p6) at (12.5,0) {\faRocket\\[2pt]Deploy\\{\tiny Monitor}\\{\tiny Docs}};
+  \node[week] at (0,-1.2) {Wk 1--2};
+  \node[week] at (2.5,-1.2) {Wk 3--4};
+  \node[week] at (5,-1.2) {Wk 5--6};
+  \node[week] at (7.5,-1.2) {Wk 7--8};
+  \node[week] at (10,-1.2) {Wk 9--10};
+  \node[week] at (12.5,-1.2) {Wk 11--12};
+  \foreach \i/\j in {p1/p2,p2/p3,p3/p4,p4/p5,p5/p6}
+    \draw[-{Stealth}, very thick, ntgreen!40] (\i)--(\j);
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\scriptsize, align=center] {
+    \textbf{Scope:} Each phase produces deployable deliverables. Task sequencing ensures each phase's dependencies are met before starting the next.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 SLIDE 3: GANTT / CALENDAR ==========
+\begin{frame}{Production Calendar with Effort Weighting \competency{C5}}
+\begin{center}
+\begin{tikzpicture}[scale=0.72, transform shape,
+  bar/.style={minimum height=0.35cm, rounded corners=2pt, font=\tiny\bfseries, text=white,
+              inner xsep=3pt, anchor=west},
+  lbl/.style={font=\tiny, anchor=east, text width=2.8cm, align=right},
+  wk/.style={font=\tiny\bfseries, gray},
+]
+  % Header
+  \foreach \w/\x in {1/0,2/1,3/2,4/3,5/4,6/5,7/6,8/7,9/8,10/9,11/10,12/11}
+    \node[wk] at (\x+0.5, 4.2) {W\w};
+  \draw[gray!30] (0,4) -- (12,4);
+
+  % Phase bars
+  \node[lbl] at (-0.2, 3.5) {Docker + DB init};
+  \node[bar, fill=ntblue, minimum width=2cm] at (0, 3.5) {};
+  \node[font=\tiny, white] at (1, 3.5) {8 pts};
+
+  \node[lbl] at (-0.2, 2.9) {5 Extractors + DAGs};
+  \node[bar, fill=ntgreen, minimum width=2cm] at (2, 2.9) {};
+  \node[font=\tiny, white] at (3, 2.9) {13 pts};
+
+  \node[lbl] at (-0.2, 2.3) {PySpark clean + agg};
+  \node[bar, fill=ntpurple, minimum width=2cm] at (4, 2.3) {};
+  \node[font=\tiny, white] at (5, 2.3) {13 pts};
+
+  \node[lbl] at (-0.2, 1.7) {Star schema + SCD};
+  \node[bar, fill=ntaccent, minimum width=2cm] at (6, 1.7) {};
+  \node[font=\tiny, white] at (7, 1.7) {8 pts};
+
+  \node[lbl] at (-0.2, 1.1) {Lake + catalog};
+  \node[bar, fill=bronze, minimum width=2cm] at (8, 1.1) {};
+  \node[font=\tiny, white] at (9, 1.1) {8 pts};
+
+  \node[lbl] at (-0.2, 0.5) {Monitor + docs + deploy};
+  \node[bar, fill=ntred, minimum width=2cm] at (10, 0.5) {};
+  \node[font=\tiny, white] at (11, 0.5) {5 pts};
+
+  % Milestones
+  \draw[ntaccent, very thick, dashed] (4, 0) -- (4, 4);
+  \node[font=\tiny\bfseries, ntaccent, rotate=90, anchor=south] at (4, -0.3) {MVP};
+  \draw[ntgreen, very thick, dashed] (8, 0) -- (8, 4);
+  \node[font=\tiny\bfseries, ntgreen, rotate=90, anchor=south] at (8, -0.3) {DW Ready};
+  \draw[ntred, very thick, dashed] (12, 0) -- (12, 4);
+  \node[font=\tiny\bfseries, ntred, rotate=90, anchor=south] at (12, -0.3) {Go-Live};
+
+  % Total
+  \node[font=\scriptsize\bfseries, ntblue] at (6, -0.9) {Total: 55 story points (Fibonacci scale) --- Poker Planning per sprint};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 SLIDE 4: TEAM & BUDGET =============
+\begin{frame}{Team Composition \& Budget \competency{C5}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    role/.style={rounded corners=4pt, fill=ntblue!8, draw=ntblue!40,
+                 minimum width=4.5cm, minimum height=0.6cm, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,3.2) {\faUsersCog\ Team Roles (Skills Required)};
+    \node[role] at (0,2.4) {\faDatabase\ Data Engineer (Python, SQL, ETL)};
+    \node[role] at (0,1.7) {\faServer\ Platform Engineer (Docker, infra)};
+    \node[role] at (0,1.0) {\faCogs\ CI/CD Engineer (GitHub Actions)};
+    \node[role] at (0,0.3) {\faClipboardCheck\ Cert Auditor (RNCP compliance)};
+    \node[role] at (0,-0.4) {\faCode\ Senior Dev Reviewer (code quality)};
+    \node[font=\tiny\itshape, gray, text width=4.5cm] at (0,-1.2)
+      {Solo project: 1 engineer fills all roles.\\Agent-team simulation for quality gates.};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.5cm, minimum height=0.6cm,
+                 font=\scriptsize, align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntaccent] at (0,3.2) {\faEuroSign\ Budget Allocation};
+    \node[item, fill=ntaccent!8, draw=ntaccent!40] at (0,2.4) {\faServer\ Infrastructure: 0 EUR (Docker)};
+    \node[item, fill=ntaccent!8, draw=ntaccent!40] at (0,1.7) {\faFileCode\ Licenses: 0 EUR (open-source)};
+    \node[item, fill=ntaccent!8, draw=ntaccent!40] at (0,1.0) {\faBolt\ Electricity: $<$50 EUR/year};
+    \node[item, fill=ntaccent!8, draw=ntaccent!40] at (0,0.3) {\faGlobe\ Domain: $<$50 EUR/year (optional)};
+    \node[item, fill=ntgreen!10, draw=ntgreen, thick] at (0,-0.5)
+      {\textbf{Total annual TCO: $<$100 EUR}};
+    \node[font=\tiny\itshape, gray, text width=4.5cm] at (0,-1.3)
+      {vs.\ cloud alternative: 6,000--10,000 EUR/year};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 SLIDE 5: RISK PER STAGE ============
+\begin{frame}{Risk Evaluation per Stage \competency{C5}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape]
+  \node[font=\scriptsize] {
+    \begin{tabular}{llll}
+      \toprule
+      \textbf{Phase} & \textbf{Key Risk} & \textbf{Level} & \textbf{Mitigation} \\
+      \midrule
+      Wk 1--2: Setup      & Docker conflicts on macOS     & Medium & Documented port mapping \\
+      Wk 3--4: Extract     & OFF API rate limits / downtime & High   & Parquet bulk fallback \\
+      Wk 5--6: Transform   & Data quality (30\% missing)   & High   & 7 PySpark cleaning rules \\
+      Wk 7--8: Warehouse   & Schema design errors           & Medium & Iterative star-schema review \\
+      Wk 9--10: Lake       & MinIO config complexity        & Low    & S3-compatible, well-documented \\
+      Wk 11--12: Deploy    & Scope creep / doc debt         & Medium & RICE priority enforcement \\
+      \bottomrule
+    \end{tabular}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\whycallout{Highest-risk phases (Extract, Transform) are scheduled mid-project, leaving buffer for iteration. Setup and Deploy are lower-risk bookends.}
+\end{frame}
+
+% ======================= E3 SLIDE 6: RITUALS & TRACKING ========
+\begin{frame}{Agile Rituals \& Tracking Tools \competency{C5} \competency{C6}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    rit/.style={rounded corners=5pt, minimum width=4.5cm, minimum height=0.8cm,
+                fill=ntpurple!8, draw=ntpurple!40, font=\scriptsize,
+                align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntpurple] at (0,3) {\faSync\ Sprint Rituals (2-week sprints)};
+    \node[rit] at (0,2.2) {\faPlay\ Sprint Planning (Fibonacci estimation)};
+    \node[rit] at (0,1.4) {\faCoffee\ Daily standup (15 min, async)};
+    \node[rit] at (0,0.6) {\faDesktop\ Sprint review / demo (end of sprint)};
+    \node[rit] at (0,-0.2) {\faSearchPlus\ Retrospective (what to improve)};
+    \node[rit] at (0,-1.0) {\faCalculator\ Poker planning: Fibonacci scale};
+    \node[font=\tiny\itshape, gray, text width=4.5cm] at (0,-1.8)
+      {Effort weighting shared: 1, 2, 3, 5, 8, 13 pts};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{tikzpicture}[
+    tool/.style={rounded corners=5pt, minimum width=4.5cm, minimum height=0.8cm,
+                 fill=ntblue!8, draw=ntblue!40, font=\scriptsize,
+                 align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,3) {\faTools\ Tracking Tools};
+    \node[tool] at (0,2.2) {\faGithub\ GitHub Issues + Projects board};
+    \node[tool] at (0,1.4) {\faCogs\ Airflow UI (DAG run history)};
+    \node[tool] at (0,0.6) {\faChartLine\ Grafana SLA dashboards};
+    \node[tool] at (0,-0.2) {\faCodeBranch\ Git commit + PR history};
+    \node[tool] at (0,-1.0) {\faFile\ CLAUDE.md progress tracker};
+    \node[font=\tiny\itshape, gray, text width=4.5cm] at (0,-1.8)
+      {All tools accessible, configured, indicators updated};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E3 SLIDE 7: COMMUNICATION STRATEGY =====
+\begin{frame}{Communication Strategy \competency{C7}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  procstep/.style={rounded corners=5pt, minimum width=2.4cm, minimum height=1.8cm,
+               draw, thick, align=center, font=\scriptsize, inner sep=5pt},
+]
+  \node[procstep, fill=ntgreen!8, draw=ntgreen] (c1) at (0,0) {
+    \faRocket\ \textbf{Launch}\\[2pt]
+    {\tiny Kickoff meeting}\\
+    {\tiny Scope presentation}\\
+    {\tiny Team assignment}
+  };
+  \node[procstep, fill=ntblue!8, draw=ntblue] (c2) at (3.5,0) {
+    \faFlag\ \textbf{Milestones}\\[2pt]
+    {\tiny Sprint reviews}\\
+    {\tiny Progress reports}\\
+    {\tiny Blocker escalation}
+  };
+  \node[procstep, fill=ntpurple!8, draw=ntpurple] (c3) at (7,0) {
+    \faDesktop\ \textbf{Demos}\\[2pt]
+    {\tiny Live demo per sprint}\\
+    {\tiny Stakeholder feedback}\\
+    {\tiny Iteration planning}
+  };
+  \node[procstep, fill=ntaccent!8, draw=ntaccent] (c4) at (10.5,0) {
+    \faFlagCheckered\ \textbf{Delivery}\\[2pt]
+    {\tiny Final demo}\\
+    {\tiny User documentation}\\
+    {\tiny Handoff meeting}
+  };
+
+  \draw[-{Stealth}, very thick, gray!40] (c1) -- (c2);
+  \draw[-{Stealth}, very thick, gray!40] (c2) -- (c3);
+  \draw[-{Stealth}, very thick, gray!40] (c3) -- (c4);
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\scriptsize, align=left] {
+    \faBook\ \textbf{User documentation:} planned in Phase 6, distributed to Sophie before handoff.\\
+    \faGraduationCap\ \textbf{Onboarding sessions:} 2 planned (Streamlit walkthrough + API tutorial).\\
+    \faComments\ \textbf{Feedback collection:} structured form after each demo, integrated into sprint backlog.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E3 SLIDE 8: MULTI-AUDIENCE =============
+\begin{frame}{Adapted Communication per Audience \competency{C7}}
+\begin{center}
+\begin{tikzpicture}[
+  aud/.style={rounded corners=6pt, minimum width=3.5cm, minimum height=3cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[aud, fill=ntgreen!8, draw=ntgreen] at (0,0) {
+    \faCode\ \textbf{Developers}\\[6pt]
+    Swagger / ReDoc (OpenAPI)\\Grafana dashboards\\Git + code documentation\\MkDocs technical site
+  };
+  \node[aud, fill=ntblue!8, draw=ntblue] at (5,0) {
+    \faChartPie\ \textbf{Analysts}\\[6pt]
+    Streamlit analytics view\\Product insights \& trends\\Data catalog browser\\DW query access
+  };
+  \node[aud, fill=ntaccent!8, draw=ntaccent] at (10,0) {
+    \faUsers\ \textbf{End Users (Sophie)}\\[6pt]
+    Streamlit meal tracker\\Product search\\Onboarding guide\\Accessible UI (WCAG 2.1)
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.15cm}
+\whycallout{Right tool, right audience. Communications present chosen orientations and trade-offs. Content adapted to technical level of each stakeholder group.}
+\end{frame}
+
+% =============================================================
+\section{E4 --- Data Collection \& API (C8--C12)}
+% =============================================================
+
+% ======================= E4 SLIDE 1: 5 SOURCES ================
+\begin{frame}{5 Extraction Sources \competency{C8}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  src/.style={rounded corners=5pt, minimum width=2.3cm, minimum height=1.6cm,
+              draw, very thick, font=\scriptsize, align=center},
+]
+  \node[src, fill=ntgreen!10, draw=ntgreen] (a) at (0,0) {\faGlobe\\[2pt]\textbf{REST API}\\{\tiny OFF: 1k+/day}};
+  \node[src, fill=ntblue!10, draw=ntblue] (b) at (3.2,0) {\faFile\\[2pt]\textbf{Data File}\\{\tiny 798k Parquet}};
+  \node[src, fill=ntpurple!10, draw=ntpurple] (c) at (6.4,0) {\faCode\\[2pt]\textbf{Scraping}\\{\tiny ANSES/EFSA}};
+  \node[src, fill=ntaccent!10, draw=ntaccent] (d) at (9.6,0) {\faServer\\[2pt]\textbf{Database}\\{\tiny PostgreSQL}};
+  \node[src, fill=ntred!10, draw=ntred] (e) at (12.8,0) {\faCubes\\[2pt]\textbf{Big Data}\\{\tiny DuckDB 3M+}};
+
+  \node[rounded corners=8pt, fill=ntgreen!5, draw=ntgreen, very thick,
+        minimum width=4cm, minimum height=0.8cm, font=\small\bfseries]
+        (out) at (6.4,-2.5) {\faFilter\ aggregate\_clean.py};
+
+  \foreach \s in {a,b,c,d,e}
+    \draw[-{Stealth}, thick, gray!60] (\s) -- (out);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\whycallout{C8 requires extraction from a mix of: REST API, data file, web scraping, database, and big data system. All 5 types are implemented, Git-versioned, and orchestrated by Airflow.}
+\end{frame}
+
+% ======================= E4 SLIDE 2: SCRIPT STRUCTURE =========
+\begin{frame}{Script Structure --- All 5 Extractors \competency{C8}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  procstep/.style={rounded corners=4pt, minimum width=2.8cm, minimum height=1.1cm,
+               draw, very thick, align=center, font=\scriptsize},
+]
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (ep) at (0,0) {\faPlay\\[2pt]\textbf{1. Entry Point}\\{\tiny \texttt{main()} / DAG task}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (dep) at (3.5,0) {\faCubes\\[2pt]\textbf{2. Dep Init}\\{\tiny imports, config}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (conn) at (7,0) {\faPlug\\[2pt]\textbf{3. Connections}\\{\tiny API/DB/S3 clients}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (logic) at (10.5,0) {\faCogs\\[2pt]\textbf{4. Logic Rules}\\{\tiny pagination, filters}};
+  \node[procstep, fill=ntred!10, draw=ntred] (err) at (3.5,-2.5) {\faExclamationTriangle\\[2pt]\textbf{5. Error Handling}\\{\tiny try/except, retries}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (save) at (7,-2.5) {\faSave\\[2pt]\textbf{6. Result Save}\\{\tiny JSON/Parquet to disk}};
+  \node[procstep, fill=gray!10, draw=gray] (git) at (10.5,-2.5) {\faGit\\[2pt]\textbf{7. Git Versioned}\\{\tiny airflow/dags/}};
+
+  \draw[-{Stealth}, very thick, gray!50] (ep)--(dep);
+  \draw[-{Stealth}, very thick, gray!50] (dep)--(conn);
+  \draw[-{Stealth}, very thick, gray!50] (conn)--(logic);
+  \draw[-{Stealth}, very thick, gray!50] (logic.south)--++(0,-0.5)-|([xshift=0.5cm]err.north);
+  \draw[-{Stealth}, very thick, gray!50] (err)--(save);
+  \draw[-{Stealth}, very thick, gray!50] (save)--(git);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+{\scriptsize\textbf{Every script follows this 7-step contract} --- consistent, testable, documented.}
+\end{center}
+\end{frame}
+
+% ======================= E4 SLIDE 3: REST API DETAIL ==========
+\begin{frame}{Source 1: Open Food Facts REST API \competency{C8}}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\begin{tikzpicture}[
+  stepnode/.style={rounded corners=4pt, minimum width=4.5cm, minimum height=0.5cm,
+               fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize, align=left, inner xsep=6pt},
+]
+  \node[font=\small\bfseries, ntgreen] at (0,2.5) {extract\_off\_api.py};
+  \node[stepnode] at (0,1.8) {\faCog\ Configure 5 food categories};
+  \node[stepnode] at (0,1.1) {\faGlobe\ Paginated GET requests};
+  \node[stepnode] at (0,0.4) {\faClock\ Rate limiting (0.6s delay)};
+  \node[stepnode] at (0,-0.3) {\faLock\ User-Agent header (polite bot)};
+  \node[stepnode] at (0,-1.0) {\faExclamationTriangle\ Try/except per page + retry};
+  \node[stepnode] at (0,-1.7) {\faSave\ Save JSON to /data/raw/api/};
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{lstlisting}[language=Python, title={\tiny Simplified extract\_off\_api.py}]
+def main():
+    session = requests.Session()
+    session.headers = {"User-Agent":
+      "NutriTrack/1.0"}
+    for cat in CATEGORIES:
+        for page in range(1, MAX_PAGES):
+            try:
+                resp = session.get(
+                    OFF_URL, params={...})
+                resp.raise_for_status()
+                save_json(resp.json())
+            except Exception as e:
+                log.error(f"{cat} p{page}: {e}")
+            time.sleep(0.6)
+\end{lstlisting}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E4 SLIDE 4: OTHER SOURCES ============
+\begin{frame}{Sources 2--5: File, Scraping, Database, Big Data \competency{C8}}
+\begin{center}
+\begin{tikzpicture}[scale=0.78, transform shape,
+  card/.style={rounded corners=6pt, minimum width=3.2cm, minimum height=3.5cm,
+               draw, thick, align=left, font=\scriptsize, inner sep=6pt},
+]
+  \node[card, fill=ntblue!5, draw=ntblue] at (0,0) {
+    \faFile\ \textbf{Data File}\\[3pt]
+    \texttt{extract\_off\_parquet.py}\\[3pt]
+    \faDownload\ HuggingFace bulk\\
+    \faFilter\ country = France\\
+    \faDatabase\ 798{,}177 products\\
+    \faSave\ Parquet output\\[3pt]
+    {\tiny Freq: Weekly}
+  };
+  \node[card, fill=ntpurple!5, draw=ntpurple] at (4.2,0) {
+    \faCode\ \textbf{Web Scraping}\\[3pt]
+    \texttt{extract\_scraping.py}\\[3pt]
+    \faGlobe\ ANSES + EFSA\\
+    \faFilter\ BeautifulSoup\\
+    \faAppleAlt\ RDA guidelines\\
+    \faSave\ JSON output\\[3pt]
+    {\tiny Freq: Monthly}
+  };
+  \node[card, fill=ntaccent!5, draw=ntaccent] at (8.4,0) {
+    \faServer\ \textbf{Database}\\[3pt]
+    \texttt{extract\_from\_db.py}\\[3pt]
+    \faDatabase\ PostgreSQL\\
+    \faCogs\ psycopg2 driver\\
+    \faTable\ SELECT + JOIN\\
+    \faSave\ CSV output\\[3pt]
+    {\tiny Freq: On-demand}
+  };
+  \node[card, fill=ntred!5, draw=ntred] at (12.6,0) {
+    \faCubes\ \textbf{Big Data}\\[3pt]
+    \texttt{extract\_duckdb.py}\\[3pt]
+    \faDatabase\ SQL on Parquet\\
+    \faExpand\ 3M+ rows in-memory\\
+    \faChartBar\ Aggregations\\
+    \faSave\ Parquet output\\[3pt]
+    {\tiny Freq: On-demand}
+  };
+\end{tikzpicture}
+\end{center}
+\democallout{Trigger extract DAG in Airflow --- show logs with entry point, connections, error handling}
+\end{frame}
+
+% ======================= E4 SLIDE 5: SQL QUERIES ==============
+\begin{frame}{7 Optimized SQL Queries \competency{C9}}
+\small
+\begin{center}
+\begin{tabular}{clll}
+  \toprule
+  \textbf{\#} & \textbf{Query} & \textbf{Technique} & \textbf{Optimization} \\
+  \midrule
+  1 & Full-text product search & GIN index, \texttt{ts\_rank} & Index scan \\
+  2 & User nutrition summary & \texttt{ROW\_NUMBER() OVER} & Window partition \\
+  3 & Product market analysis & CTE + aggregation & CTE avoids re-scan \\
+  4 & Brand comparison & Analytical functions & Composite index \\
+  5 & Temporal trends & \texttt{LAG()}, moving avg & Partial index \\
+  6 & Category aggregation & \texttt{GROUP BY + HAVING} & Aggregate pushdown \\
+  7 & Complex joins & Materialized + joins & Pre-computed \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.15cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\scriptsize, align=center] {
+    All queries documented with \texttt{EXPLAIN ANALYZE} \;$\bullet$\;
+    Selection/filtering/join choices justified \;$\bullet$\;
+    Optimization rationale in \texttt{sql/} directory
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E4 SLIDE 6: CLEANING PIPELINE ========
+\begin{frame}{PySpark Cleaning Pipeline \competency{C10}}
+\begin{center}
+\begin{tikzpicture}[
+  sn/.style={rounded corners=4pt, minimum width=10.5cm, minimum height=0.55cm,
+               font=\scriptsize, align=left, inner xsep=8pt},
+]
+  \node[font=\small\bfseries] at (0,3.5) {aggregate\_clean.py --- 7 cleaning rules (PySpark 3.5)};
+
+  \node[sn, fill=ntred!8, draw=ntred]       at (0,2.5) {\faColumns\ \textbf{1.} Standardize 30+ column names across all sources};
+  \node[sn, fill=ntaccent!8, draw=ntaccent]  at (0,1.7) {\faBarcode\ \textbf{2.} Validate barcodes (strip non-numeric, check 8--14 digits)};
+  \node[sn, fill=ntaccent!8, draw=ntaccent]  at (0,0.9) {\faTrash\ \textbf{3.} Remove rows with null product names};
+  \node[sn, fill=ntpurple!8, draw=ntpurple]  at (0,0.1) {\faRuler\ \textbf{4.} Cap nutritional values at physiological max per 100g};
+  \node[sn, fill=ntblue!8, draw=ntblue]      at (0,-0.7) {\faFont\ \textbf{5.} Normalize Nutri-Score to uppercase A--E};
+  \node[sn, fill=ntgreen!8, draw=ntgreen]    at (0,-1.5) {\faCopy\ \textbf{6.} Deduplicate by barcode (keep most complete)};
+  \node[sn, fill=ntgreen!8, draw=ntgreen]    at (0,-2.3) {\faClipboardCheck\ \textbf{7.} Generate cleaning\_report.json};
+
+  \draw[-{Stealth}, very thick, gray!30] (5.8,2.7) -- (5.8,-2.5);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+{\scriptsize\textbf{Result:} 798{,}177 raw $\to$ 777{,}116 clean products (2.6\% removal). Git-versioned, documented.}
+\end{frame}
+
+% ======================= E4 SLIDE 7: BEFORE/AFTER QUALITY =====
+\begin{frame}{Before/After Data Quality Comparison \competency{C10}}
+\begin{center}
+\begin{tikzpicture}[
+  raw/.style={rounded corners=3pt, fill=ntred!8, draw=ntred!40,
+              minimum width=5cm, minimum height=0.45cm, font=\tiny\ttfamily, align=left, inner xsep=5pt},
+  clean/.style={rounded corners=3pt, fill=ntgreen!8, draw=ntgreen!40,
+                minimum width=5cm, minimum height=0.45cm, font=\tiny\ttfamily, align=left, inner xsep=5pt},
+  rule/.style={font=\tiny\bfseries, ntpurple, text width=2.5cm, align=center},
+]
+  \node[font=\scriptsize\bfseries, ntred] at (-4.5,2.8) {Raw (before)};
+  \node[font=\scriptsize\bfseries, ntgreen] at (4.5,2.8) {Cleaned (after)};
+  \node[font=\scriptsize\bfseries, ntpurple] at (0,2.8) {Rule Applied};
+
+  \node[raw]   at (-4.5,2.15) {energy-kcal\_100g: 539};
+  \node[rule, above]  at (0,2.35) {Column rename};
+  \node[clean] at (4.5,2.15) {energy\_kcal: 539.0};
+
+  \node[raw]   at (-4.5,1.45) {code: " 3017620422003-X"};
+  \node[rule, above]  at (0,1.65) {Barcode clean};
+  \node[clean] at (4.5,1.45) {barcode: "3017620422003"};
+
+  \node[raw]   at (-4.5,0.75) {nutriscore\_grade: "d"};
+  \node[rule, above]  at (0,0.95) {Normalize A--E};
+  \node[clean] at (4.5,0.75) {nutriscore\_grade: "D"};
+
+  \node[raw]   at (-4.5,0.05) {energy\_kcal: 2000};
+  \node[rule, above]  at (0,0.25) {Range cap $\leq$1000};
+  \node[clean] at (4.5,0.05) {energy\_kcal: NULL};
+
+  \node[raw]   at (-4.5,-0.65) {product\_name: NULL};
+  \node[rule, above]  at (0,-0.45) {Remove row};
+  \node[clean] at (4.5,-0.65) {\color{ntred}(row deleted)};
+
+  \node[raw]   at (-4.5,-1.35) {barcode 123 (dup, score 0.6)};
+  \node[rule, above]  at (0,-1.15) {Dedup by barcode};
+  \node[clean] at (4.5,-1.35) {barcode 123 (score 0.9 kept)};
+
+  \node[raw]   at (-4.5,-2.05) {energy\_kj: 840, kcal: NULL};
+  \node[rule, above]  at (0,-1.85) {kJ $\div$ 4.184};
+  \node[clean] at (4.5,-2.05) {energy\_kcal: 200.77};
+
+  \foreach \y in {2.15,1.45,0.75,0.05,-0.65,-1.35,-2.05}
+    \draw[-{Stealth}, thick, ntpurple!40] (-2.2,\y) -- (2.2,\y);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E4 SLIDE 8: DATA QUALITY CHECKS ======
+\begin{frame}{6 Data Quality Checks \competency{C10}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  chk/.style={rounded corners=5pt, minimum width=3.5cm, minimum height=1.6cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[chk, fill=ntred!8, draw=ntred] at (0,1.5) {\faTimesCircle\\[2pt]\textbf{1. Null Check}\\{\tiny NULL counts per column}};
+  \node[chk, fill=ntaccent!8, draw=ntaccent] at (4.5,1.5) {\faRuler\\[2pt]\textbf{2. Range Check}\\{\tiny kcal $\leq$ 1000, fat $\leq$ 100}};
+  \node[chk, fill=ntpurple!8, draw=ntpurple] at (9,1.5) {\faCopy\\[2pt]\textbf{3. Duplicate Check}\\{\tiny Unique barcodes}};
+  \node[chk, fill=ntblue!8, draw=ntblue] at (0,-1) {\faBarcode\\[2pt]\textbf{4. Format Check}\\{\tiny Barcode 8--14 digits}};
+  \node[chk, fill=ntgreen!8, draw=ntgreen] at (4.5,-1) {\faLink\\[2pt]\textbf{5. Referential}\\{\tiny FK constraints valid}};
+  \node[chk, fill=ntgreen!8, draw=ntgreen] at (9,-1) {\faCheckDouble\\[2pt]\textbf{6. Completeness}\\{\tiny \% non-null per field}};
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=whybox, draw=ntblue!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    All 6 checks logged to \texttt{staging.data\_quality\_checks} table with timestamp, check name, result, and row counts.
+    Sophie gets clean data --- every product in her search has been validated.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E4 SLIDE 9: MERISE MCD/MLD/MPD =======
+\begin{frame}{MERISE Models: MCD $\to$ MLD $\to$ MPD \competency{C11}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  model/.style={rounded corners=8pt, minimum width=3.8cm, minimum height=4cm,
+                draw, very thick, align=left, font=\scriptsize, inner sep=8pt},
+  numcirc/.style={circle, text=white, font=\normalsize\bfseries, minimum size=0.7cm},
+]
+  \node[model, fill=ntblue!5, draw=ntblue] (mcd) at (0,0) {
+    \textbf{MCD (Conceptual)}\\[4pt]
+    \faProjectDiagram\ Entities:\\
+    User, Product, Meal,\\
+    Brand, Category, Country\\[3pt]
+    \faLink\ Relationships:\\
+    logs, contains, belongs\_to,\\
+    produced\_by, sold\_in
+  };
+  \node[numcirc, fill=ntblue] at (-1.4,2.5) {1};
+
+  \node[model, fill=ntpurple!5, draw=ntpurple] (mld) at (5,0) {
+    \textbf{MLD (Logical)}\\[4pt]
+    \faTable\ Tables with PKs/FKs:\\
+    users(\underline{id}, email, role)\\
+    products(\underline{barcode}, name,\\
+    \quad brand\_id, category\_id)\\
+    meals(\underline{id}, user\_id, date)\\
+    meal\_items(\underline{id}, meal\_id,\\
+    \quad barcode, qty)
+  };
+  \node[numcirc, fill=ntpurple] at (3.6,2.5) {2};
+
+  \node[model, fill=ntgreen!5, draw=ntgreen] (mpd) at (10,0) {
+    \textbf{MPD (Physical)}\\[4pt]
+    \faDatabase\ PostgreSQL 16:\\
+    UUID PKs, SERIAL ids\\
+    JSONB for metadata\\
+    GIN indexes (search)\\
+    B-tree on FKs\\
+    CHECK constraints\\
+    ON DELETE CASCADE
+  };
+  \node[numcirc, fill=ntgreen] at (8.6,2.5) {3};
+
+  \draw[-{Stealth}, very thick, gray!50] (mcd)--(mld);
+  \draw[-{Stealth}, very thick, gray!50] (mld)--(mpd);
+\end{tikzpicture}
+\end{center}
+\whycallout{C11 requires MERISE progression: conceptual to physical. DB chosen (PostgreSQL) for ACID, RGPD delete, and mature ecosystem.}
+\end{frame}
+
+% ======================= E4 SLIDE 10: DB + RGPD ===============
+\begin{frame}{RGPD-Compliant Database \competency{C11}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  tbl/.style={rounded corners=3pt, minimum width=1.7cm, minimum height=0.6cm,
+              draw=ntblue, fill=ntblue!8, font=\tiny\bfseries},
+]
+  \node[tbl] (u) at (0,2.5) {users};
+  \node[tbl] (p) at (3,2.5) {products};
+  \node[tbl] (b) at (3,1.5) {brands};
+  \node[tbl] (c) at (3,0.5) {categories};
+  \node[tbl] (m) at (0,1.5) {meals};
+  \node[tbl] (mi) at (0,0.5) {meal\_items};
+  \node[tbl] (cc) at (0,-0.5) {countries};
+  \node[tbl, draw=ntred, fill=ntred!8] (r) at (3,-0.5) {rgpd\_registry};
+  \draw[-{Stealth}, gray, thin] (u)--(m);
+  \draw[-{Stealth}, gray, thin] (m)--(mi);
+  \draw[-{Stealth}, gray, thin] (p)--(mi);
+  \draw[-{Stealth}, gray, thin] (b)--(p);
+  \draw[-{Stealth}, gray, thin] (c)--(p);
+\end{tikzpicture}
+\end{center}
+{\scriptsize \textbf{8 tables}, full referential integrity, Docker-reproducible install via \texttt{docker-compose.yml} + \texttt{sql/migrations/}}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntred!5, draw=ntred, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faLock\ RGPD Measures:}\\[4pt]
+    \faFile\ \texttt{rgpd\_data\_registry} table\\
+    {\tiny Legal basis per field, retention periods}\\[3pt]
+    \faUserCheck\ Consent at registration\\
+    {\tiny \texttt{consent\_data\_processing} column}\\[3pt]
+    \faTrash\ Auto-cleanup function\\
+    {\tiny \texttt{rgpd\_cleanup\_expired\_data()}}\\[3pt]
+    \faLock\ bcrypt hashing, UUID IDs\\[3pt]
+    \faKey\ Import script: \texttt{import\_to\_db.py}\\
+    {\tiny Git-versioned, documented}
+  };
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E4 SLIDE 11: REST API ================
+\begin{frame}{FastAPI REST API --- 8 Endpoints \competency{C12}}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    ep/.style={rounded corners=3pt, minimum width=4.3cm, minimum height=0.42cm,
+               draw=ntaccent!60, fill=ntaccent!5, font=\tiny, align=left, inner xsep=5pt},
+  ]
+    \node[font=\small\bfseries, ntaccent] at (0,2.2) {8 Endpoints (OpenAPI-documented)};
+    \node[ep] at (0,1.65) {\faLock\ POST /auth/register};
+    \node[ep] at (0,1.1) {\faLock\ POST /auth/login};
+    \node[ep] at (0,0.55) {\faSearch\ GET /products/?q=\&nutriscore=};
+    \node[ep] at (0,0) {\faBarcode\ GET /products/\{barcode\}};
+    \node[ep] at (0,-0.55) {\faHeart\ GET /products/\{barcode\}/alternatives};
+    \node[ep] at (0,-1.1) {\faUtensils\ POST /meals};
+    \node[ep] at (0,-1.65) {\faChartLine\ GET /meals/daily-summary};
+    \node[ep] at (0,-2.2) {\faChartArea\ GET /meals/weekly-trends};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.45\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    stepnode/.style={rounded corners=5pt, minimum width=3.3cm, minimum height=0.75cm,
+                 draw, thick, align=center, font=\scriptsize},
+  ]
+    \node[font=\small\bfseries, ntblue] at (0,2.0) {JWT Auth Flow};
+    \node[stepnode, fill=ntaccent!8, draw=ntaccent] at (0,1.15) {Login\\{\tiny username + password}};
+    \node[stepnode, fill=ntblue!8, draw=ntblue] at (0,0.1) {JWT Token\\{\tiny 60-min expiry, role claim}};
+    \node[stepnode, fill=ntgreen!8, draw=ntgreen] at (0,-0.95) {Role Check\\{\tiny user / nutritionist / admin}};
+    \node[stepnode, fill=ntpurple!8, draw=ntpurple] at (0,-2.0) {Response\\{\tiny Pydantic validated}};
+    \draw[-{Stealth}, thick, gray!50] (0,0.7)--(0,0.5);
+    \draw[-{Stealth}, thick, gray!50] (0,-0.3)--(0,-0.5);
+    \draw[-{Stealth}, thick, gray!50] (0,-1.4)--(0,-1.6);
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\vspace{-0.1cm}
+\democallout{Show Swagger UI at localhost:8000/docs --- OpenAPI spec auto-generated}
+\end{frame}
+
+% ======================= E4 SLIDE 12: API ROLE DEMO ===========
+\begin{frame}{API Role-Based Access Demo \competency{C12}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  rolerow/.style={rounded corners=4pt, minimum width=12cm, minimum height=0.7cm,
+                  draw, thick, font=\scriptsize, align=left, inner xsep=8pt},
+]
+  \node[font=\normalsize\bfseries] at (0,3.2) {3 Roles --- Different Access, Same API};
+
+  \node[rolerow, fill=ntaccent!8, draw=ntaccent] at (0,2.2) {
+    \faUser\ \textbf{user} \hfill
+    /products (read) \;$\bullet$\; /meals (own only) \;$\bullet$\; /auth \quad
+    {\tiny\color{ntred}\faTimesCircle\ Cannot access /nutritionist or /analytics}};
+  \node[rolerow, fill=ntblue!8, draw=ntblue] at (0,1.1) {
+    \faUserMd\ \textbf{nutritionist} \hfill
+    /products \;$\bullet$\; /meals (all users) \;$\bullet$\; /nutritionist/users \quad
+    {\tiny\color{ntred}\faTimesCircle\ Cannot access /analytics}};
+  \node[rolerow, fill=ntred!8, draw=ntred] at (0,0) {
+    \faUserShield\ \textbf{admin} \hfill
+    All endpoints \;$\bullet$\; /analytics \;$\bullet$\; /nutritionist \;$\bullet$\; User management \quad
+    {\tiny\color{ntgreen}\faCheckCircle\ Full access}};
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\democallout{Demo: Login as user (403 on /nutritionist) $\to$ Login as nutritionist (200) $\to$ Login as admin (full)}
+\vspace{0.1cm}
+\whycallout{Sophie sees only her patients. Analysts see only product data. Defense-in-depth: UI hides + API rejects.}
+\end{frame}
+
+% ======================= E4 SLIDE 13: STREAMLIT ===============
+\begin{frame}{Streamlit --- 4 Roles, 1 Frontend \competency{C7} \competency{C12}}
+\begin{center}
+\begin{tikzpicture}[
+  rolecard/.style={rounded corners=6pt, minimum width=2.8cm, minimum height=3.5cm,
+                   draw, thick, align=left, font=\scriptsize, inner sep=6pt},
+]
+  \node[rolecard, fill=ntaccent!8, draw=ntaccent] at (0,0) {
+    \faUser\ \textbf{User}\\[4pt]
+    \faSearch\ Product search\\
+    \faUtensils\ Meal logger\\
+    \faChartPie\ Daily dashboard\\
+    \faChartLine\ Weekly trends\\
+    \faBalanceScale\ Comparison\\
+    \faHeart\ Alternatives
+  };
+  \node[rolecard, fill=ntblue!8, draw=ntblue] at (3.5,0) {
+    \faUserMd\ \textbf{Nutritionist}\\[4pt]
+    {\tiny All user pages +}\\
+    \faUsers\ User analytics\\
+    \faChartBar\ Caloric analysis\\
+    \faTrash\ User management\\
+    \faFilter\ Goal/activity filters
+  };
+  \node[rolecard, fill=ntpurple!8, draw=ntpurple] at (7,0) {
+    \faChartPie\ \textbf{Analyst}\\[4pt]
+    {\tiny All user pages +}\\
+    \faStar\ Product analytics\\
+    \faDatabase\ Data catalog\\
+    \faSearch\ Brand rankings\\
+    \faChartBar\ Nutri-Score stats
+  };
+  \node[rolecard, fill=ntred!8, draw=ntred] at (10.5,0) {
+    \faUserShield\ \textbf{Admin}\\[4pt]
+    {\tiny All pages +}\\
+    \faUsers\ Nutritionist view\\
+    \faStar\ Analyst view\\
+    \faDatabase\ Data catalog\\
+    \faTrash\ Full management
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\democallout{Show role switching: user $\to$ nutritionist $\to$ analyst $\to$ admin}
+\end{frame}
+
+% ======================= E4 SLIDE 14: RGPD ANALYSIS ===========
+\begin{frame}{RGPD Compliance Analysis \competency{C11} \competency{C12}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  box/.style={rounded corners=6pt, minimum width=3cm, minimum height=2cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[box, fill=ntred!8, draw=ntred] at (0,0) {
+    \faFile\ \textbf{Data Registry}\\[4pt]
+    {\tiny \texttt{rgpd\_data\_registry}}\\
+    {\tiny Legal basis per field}\\
+    {\tiny Retention periods}
+  };
+  \node[box, fill=ntblue!8, draw=ntblue] at (4,0) {
+    \faUserCheck\ \textbf{Consent}\\[4pt]
+    {\tiny \texttt{consent\_data\_processing}}\\
+    {\tiny Mandatory at registration}\\
+    {\tiny Revocable via API}
+  };
+  \node[box, fill=ntgreen!8, draw=ntgreen] at (8,0) {
+    \faTrash\ \textbf{Auto-Cleanup}\\[4pt]
+    {\tiny Meals $>$ 2 years deleted}\\
+    {\tiny Users past retention}\\
+    {\tiny Scheduled DAG}
+  };
+  \node[box, fill=ntpurple!8, draw=ntpurple] at (12,0) {
+    \faLock\ \textbf{Security}\\[4pt]
+    {\tiny bcrypt passwords}\\
+    {\tiny UUID identification}\\
+    {\tiny SHA256 in DW}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\whycallout{Personal data stays in PostgreSQL (row-level delete possible). Public product data goes to DW and Lake. Lake never stores user data --- Parquet files are immutable.}
+\end{frame}
+
+% =============================================================
+\section{E5 --- Data Warehouse (C13--C15)}
+% =============================================================
+
+% ======================= E5 SLIDE 1: DATA NEEDED =============
+\begin{frame}{Data Needed for Analyses \competency{C13}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  need/.style={rounded corners=5pt, minimum width=5.5cm, minimum height=0.55cm,
+               draw, thick, font=\scriptsize, align=left, inner xsep=8pt},
+]
+  \node[font=\normalsize\bfseries] at (0,3.5) {Exhaustive List of Analytical Needs};
+
+  \node[need, fill=ntaccent!8, draw=ntaccent] at (-3.2,2.5) {\faUtensils\ Daily calorie/macro intake per user};
+  \node[need, fill=ntaccent!8, draw=ntaccent] at (-3.2,1.7) {\faChartLine\ Weekly/monthly nutrition trends};
+  \node[need, fill=ntaccent!8, draw=ntaccent] at (-3.2,0.9) {\faAppleAlt\ Nutri-Score distribution (A--E)};
+  \node[need, fill=ntaccent!8, draw=ntaccent] at (-3.2,0.1) {\faIndustry\ Brand quality rankings};
+
+  \node[need, fill=ntblue!8, draw=ntblue] at (3.2,2.5) {\faTags\ Product availability by category};
+  \node[need, fill=ntblue!8, draw=ntblue] at (3.2,1.7) {\faGlobe\ Country-level market analysis};
+  \node[need, fill=ntblue!8, draw=ntblue] at (3.2,0.9) {\faStar\ Popular product identification};
+  \node[need, fill=ntblue!8, draw=ntblue] at (3.2,0.1) {\faDatabase\ DW operational health};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=0.9\linewidth, font=\scriptsize, align=center] {
+    These 8 analytical needs drive the star schema design: \textbf{7 dimensions}, \textbf{2 fact tables}, and \textbf{6 datamart views}.
+    Sophie's nutritionist dashboard queries \texttt{dm\_user\_daily\_nutrition} in real time.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E5 SLIDE 2: STAR SCHEMA =============
+\begin{frame}{Star Schema --- Bottom-Up (Kimball) \competency{C13}}
+\begin{center}
+\begin{tikzpicture}[scale=0.75, transform shape,
+  dim/.style={rounded corners=4pt, minimum width=1.8cm, minimum height=0.7cm,
+              draw=ntblue, very thick, fill=ntblue!10, font=\tiny\bfseries, align=center},
+  fact/.style={rounded corners=4pt, minimum width=2.5cm, minimum height=1cm,
+               draw=ntaccent, very thick, fill=ntaccent!15, font=\small\bfseries, align=center,
+               drop shadow={opacity=0.15}},
+]
+  \node[fact] (f1) at (-3,0) {fact\_daily\\nutrition};
+  \node[fact] (f2) at (8,0) {fact\_product\\market};
+  \node[dim] (d3) at (2.5,0) {\faBox\ dim\_product};
+  \node[dim] (d1) at (2.5,2.5) {\faClock\ dim\_time};
+  \node[dim] (d2) at (-3,2.5) {\faUser\ dim\_user};
+  \node[dim] (d7) at (-6,-2) {\faAppleAlt\ dim\_nutriscore};
+  \node[dim] (d4) at (5,-2.5) {\faTags\ dim\_brand};
+  \node[dim] (d5) at (8,-2.5) {\faThList\ dim\_category};
+  \node[dim] (d6) at (11,-2) {\faGlobe\ dim\_country};
+  \draw[very thick, ntblue!50] (d2)--(f1);
+  \draw[very thick, ntblue!50] (d7)--(f1);
+  \draw[very thick, ntblue!50] (d3)--(f1);
+  \draw[very thick, ntblue!50] (d3)--(f2);
+  \draw[very thick, ntblue!50] (d1)--(f1);
+  \draw[very thick, ntblue!50] (d1)--(f2);
+  \draw[very thick, ntblue!50] (d4)--(f2);
+  \draw[very thick, ntblue!50] (d5)--(f2);
+  \draw[very thick, ntblue!50] (d6)--(f2);
+  \node[font=\tiny\bfseries, ntpurple, fill=white, inner sep=2pt] at (2.5,-0.8) {shared};
+  \node[rounded corners=5pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=5pt, font=\scriptsize]
+    at (2.5,-4) {\textbf{7 dims} + \textbf{2 facts} + \textbf{6 datamart views}
+    \;\;$\bullet$\;\; Bottom-up (Kimball)};
+\end{tikzpicture}
+\end{center}
+\whycallout{Bottom-up (Kimball) chosen over top-down (Inmon): faster to deliver, driven by Sophie's concrete analytical needs. Star schema optimizes for simple joins and fast aggregations.}
+\end{frame}
+
+% ======================= E5 SLIDE 3: DATAMARTS ================
+\begin{frame}{6 Datamart Views \competency{C13} \competency{C14}}
+\small
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Datamart View} & \textbf{Purpose} & \textbf{Audience} \\
+  \midrule
+  dm\_user\_daily\_nutrition & Daily calorie \& macro tracking & Nutritionists \\
+  dm\_product\_market\_by\_category & Product availability by category & Market analysts \\
+  dm\_brand\_quality\_ranking & Brand ranking by Nutri-Score & Quality team \\
+  dm\_nutriscore\_distribution & Nutri-Score distribution (A--E) & Public health \\
+  dm\_nutrition\_trends & Weekly/monthly nutrition trends & Data scientists \\
+  dm\_dw\_health & DW operational health metrics & DW admins \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    Datamarts are pre-built SQL views over the star schema.
+    Analyst access is configured via PostgreSQL \texttt{GRANT SELECT} on \texttt{dw} schema.
+    Streamlit Analyst dashboard queries these via FastAPI.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E5 SLIDE 4: 4 GOLD AGGREGATES =======
+\begin{frame}{4 Gold Aggregate Datasets \competency{C13} \competency{C15}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  agg/.style={rounded corners=6pt, minimum width=2.8cm, minimum height=2.5cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[agg, fill=gold!15, draw=gold] at (0,0) {
+    \faChartBar\\[3pt]\textbf{nutrition\_}\\[1pt]\textbf{patterns}\\[4pt]
+    {\tiny Avg kcal, fat, sugar}\\
+    {\tiny by Nutri-Score grade}
+  };
+  \node[agg, fill=gold!15, draw=gold] at (4,0) {
+    \faStar\\[3pt]\textbf{popular\_}\\[1pt]\textbf{products}\\[4pt]
+    {\tiny Top products by}\\
+    {\tiny completeness score}
+  };
+  \node[agg, fill=gold!15, draw=gold] at (8,0) {
+    \faIndustry\\[3pt]\textbf{brand\_}\\[1pt]\textbf{rankings}\\[4pt]
+    {\tiny Brands ranked by}\\
+    {\tiny avg Nutri-Score}
+  };
+  \node[agg, fill=gold!15, draw=gold] at (12,0) {
+    \faTags\\[3pt]\textbf{category\_}\\[1pt]\textbf{stats}\\[4pt]
+    {\tiny Product counts,}\\
+    {\tiny avg nutrition/cat}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    Computed by \texttt{etl\_aggregate\_clean.py} using PySpark. Output as Parquet to MinIO gold bucket.
+    Fed into DW and used by Streamlit Product Analytics.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E5 SLIDE 5: ETL PIPELINE ============
+\begin{frame}{ETL Pipeline --- 7 DAGs, 25 Tasks \competency{C15}}
+\begin{center}
+\begin{tikzpicture}[
+  dag/.style={rounded corners=3pt, minimum width=2.3cm, minimum height=0.5cm,
+              draw, thick, font=\tiny\bfseries, align=center},
+  time/.style={font=\tiny, gray},
+]
+  \node[dag, fill=ntgreen!15, draw=ntgreen] (e1) at (0,0) {extract\_off\_api};
+  \node[dag, fill=ntgreen!15, draw=ntgreen] (e2) at (0,-0.7) {extract\_parquet};
+  \node[dag, fill=ntgreen!15, draw=ntgreen] (e3) at (0,-1.4) {extract\_scraping};
+  \node[time] at (-1.8,-0.7) {02:00};
+
+  \node[dag, fill=ntaccent!15, draw=ntaccent] (c) at (4,-0.7) {aggregate\_clean};
+  \node[time] at (4,-1.4) {04:00};
+
+  \node[dag, fill=ntblue!15, draw=ntblue] (dw) at (8,-0.2) {load\_warehouse};
+  \node[dag, fill=ntpurple!15, draw=ntpurple] (dl) at (8,-1.2) {datalake\_ingest};
+  \node[time] at (9.8,-0.7) {05:00};
+
+  \node[dag, fill=ntred!15, draw=ntred] (bk) at (0,-2.8) {backup\_maint.};
+  \node[time] at (-1.8,-2.8) {06:00};
+
+  \draw[-{Stealth}, gray, thick] (e1)--(c);
+  \draw[-{Stealth}, gray, thick] (e2)--(c);
+  \draw[-{Stealth}, gray, thick] (e3)--(c);
+  \draw[-{Stealth}, gray, thick] (c)--(dw);
+  \draw[-{Stealth}, gray, thick] (c)--(dl);
+
+  \node[font=\tiny\bfseries, ntpurple, fill=white, inner sep=1pt] at (6,-0.3) {parallel};
+
+  \node[rounded corners=4pt, fill=whybox, draw=ntblue!40, inner sep=5pt,
+        font=\scriptsize, text width=5cm] at (8,-3) {
+    \faLink\ \texttt{ExternalTaskSensor} ensures\\
+    DW and Lake wait for cleaning to finish
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+{\scriptsize\textbf{Formats:} JSON, Parquet, CSV, HTML $\to$ cleaned Parquet $\to$ PostgreSQL DW + MinIO gold.
+\textbf{Volumes:} 798k raw $\to$ 777k clean.}
+\end{center}
+\democallout{Show Airflow UI at localhost:8080 --- DAG graph, task logs, run history}
+\end{frame}
+
+% ======================= E5 SLIDE 6: ETL LOGIC ================
+\begin{frame}{ETL Logic --- Schema-Compliant Treatments \competency{C15}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  phase/.style={rounded corners=6pt, minimum width=3.5cm, minimum height=2.5cm,
+                draw, very thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[phase, fill=ntgreen!8, draw=ntgreen] (ext) at (0,0) {
+    \faDownload\ \textbf{Extract}\\[4pt]
+    {\tiny 5 scripts (API, file,}\\
+    {\tiny scraping, DB, DuckDB)}\\[2pt]
+    {\tiny Input: mixed formats}\\
+    {\tiny Output: /data/raw/}
+  };
+  \node[phase, fill=ntaccent!8, draw=ntaccent] (tr) at (5,0) {
+    \faFilter\ \textbf{Transform}\\[4pt]
+    {\tiny PySpark 7-rule pipeline}\\
+    {\tiny Column standardization}\\[2pt]
+    {\tiny Cleaning: nulls, ranges,}\\
+    {\tiny duplicates, formats}
+  };
+  \node[phase, fill=ntblue!8, draw=ntblue] (ld) at (10,0) {
+    \faDatabase\ \textbf{Load}\\[4pt]
+    {\tiny DW: UPSERT into dims,}\\
+    {\tiny INSERT into facts}\\[2pt]
+    {\tiny Lake: Parquet to MinIO}\\
+    {\tiny (bronze/silver/gold)}
+  };
+  \draw[-{Stealth}, very thick, ntgreen!50] (ext)--(tr);
+  \draw[-{Stealth}, very thick, ntaccent!50] (tr)--(ld);
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\whycallout{ETL logic is clearly separated. Each phase has known input/output formats. Schema validation ensures data matches the physical model before insertion.}
+\end{frame}
+
+% ======================= E5 SLIDE 7: TEST PROCEDURE ===========
+\begin{frame}{Test Procedure \competency{C14}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  test/.style={rounded corners=5pt, minimum width=5cm, minimum height=0.6cm,
+               draw, thick, font=\scriptsize, align=left, inner xsep=8pt},
+]
+  \node[font=\normalsize\bfseries] at (0,3.5) {Full Technical/Functional Test Spectrum};
+
+  \node[test, fill=ntblue!8, draw=ntblue]     at (-3,2.5) {\faDatabase\ \textbf{Schema validation} --- all tables, constraints, indexes};
+  \node[test, fill=ntblue!8, draw=ntblue]     at (-3,1.7) {\faLink\ \textbf{Referential integrity} --- FK relationships verified};
+  \node[test, fill=ntgreen!8, draw=ntgreen]   at (-3,0.9) {\faCogs\ \textbf{ETL execution} --- all 7 DAGs run without errors};
+  \node[test, fill=ntgreen!8, draw=ntgreen]   at (-3,0.1) {\faCheckDouble\ \textbf{Data quality} --- 6 checks pass (staging table)};
+
+  \node[test, fill=ntaccent!8, draw=ntaccent] at (3.5,2.5) {\faPlug\ \textbf{API endpoints} --- all 8 return correct status};
+  \node[test, fill=ntaccent!8, draw=ntaccent] at (3.5,1.7) {\faLock\ \textbf{Auth/authz} --- role-based access enforced};
+  \node[test, fill=ntpurple!8, draw=ntpurple] at (3.5,0.9) {\faDesktop\ \textbf{Streamlit pages} --- 4 roles, correct visibility};
+  \node[test, fill=ntred!8, draw=ntred]       at (3.5,0.1) {\faChartLine\ \textbf{Monitoring} --- Grafana dashboards populated};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    Tests run after \texttt{docker compose up} on clean environment.
+    DW is functional: source data access configured, analyst access via \texttt{GRANT SELECT} on \texttt{dw} schema.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E5 SLIDE 8: TECH STACK FEEDBACK ======
+\begin{frame}{Tech Stack Feedback \competency{C14}}
+\begin{center}
+\small
+\begin{tabular}{p{2.2cm}p{3.5cm}p{3.5cm}p{2.5cm}}
+  \toprule
+  \textbf{Tool} & \textbf{Coherence} & \textbf{Advantages} & \textbf{Difficulties} \\
+  \midrule
+  PostgreSQL 16 & ACID for RGPD, DW in same DB & Row-level delete, GIN indexes, mature & No column store for OLAP \\
+  Airflow 2.8 & DAG-based ETL fits pipeline & UI, sensors, Celery scaling & Complex local setup \\
+  PySpark 3.5 & Distributed cleaning at scale & 798k rows cleaned fast & JVM overhead in Docker \\
+  MinIO & S3-compatible, self-hosted & Free, Docker-native & No auto-tiering \\
+  FastAPI & Async + Pydantic + JWT & Auto OpenAPI docs, fast & No built-in admin UI \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.1cm}
+\whycallout{Tech stack was chosen for coherence with project objectives (RGPD, scale, open-source) AND the means available (single Docker host, no cloud budget).}
+\end{frame}
+
+% ======================= E5 SLIDE 9: DW CONFIGURATIONS ========
+\begin{frame}{DW Configuration \competency{C14}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faDatabase\ Main DW Configurations}\\[4pt]
+    \faCogs\ Schema: \texttt{dw} (separate from \texttt{app})\\
+    \faTable\ 7 dimension tables\\
+    \faStar\ 2 fact tables\\
+    \faEye\ 6 datamart views\\
+    \faKey\ SCD types 1, 2, 3\\
+    \faSearch\ Indexes on all FKs and\\
+    \quad frequently-queried columns\\[4pt]
+    {\tiny Created by \texttt{sql/migrations/002\_*.sql}}
+  };
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faUsers\ Access Configuration}\\[4pt]
+    \faUserShield\ admin: full DW access\\
+    \faChartPie\ analyst: SELECT on \texttt{dw.*}\\
+    \faUserMd\ nutritionist: SELECT on\\
+    \quad \texttt{dm\_user\_daily\_nutrition}\\
+    \faUser\ user: no DW access\\[4pt]
+    \textbf{\faLock\ Source Data Access}\\[4pt]
+    \faCogs\ ETL service account with\\
+    \quad READ on \texttt{app}, WRITE on \texttt{dw}
+  };
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E5 SLIDE 10: SCD =====================
+\begin{frame}{SCD --- Slowly Changing Dimensions \competency{C13} \competency{C15}}
+\begin{center}
+\begin{tikzpicture}[
+  scd/.style={rounded corners=6pt, minimum width=10cm, minimum height=1.2cm,
+              draw, thick, align=left, font=\scriptsize, inner sep=8pt},
+]
+  \node[scd, fill=ntgreen!8, draw=ntgreen] at (0,1.8) {
+    \textbf{Type 1 --- Overwrite} (dim\_brand)\\
+    Brand name misspelled? Just overwrite it. No history needed for corrections.
+  };
+  \node[scd, fill=ntblue!8, draw=ntblue] at (0,0) {
+    \textbf{Type 2 --- Historical} (dim\_product)\\
+    Product reformulated? Close old row (\texttt{end\_date}, \texttt{is\_current=false}), insert new row. Full history.
+  };
+  \node[scd, fill=ntpurple!8, draw=ntpurple] at (0,-1.8) {
+    \textbf{Type 3 --- Previous Value} (dim\_country)\\
+    Country list changes? Keep \texttt{previous\_country\_list} column. One level of history.
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\whycallout{Change detection uses \texttt{IS DISTINCT FROM} in the ETL. All 3 types integrated into \texttt{load\_warehouse} DAG. Sophie sees current product data; analysts can query historical reformulations.}
+\end{frame}
+
+% =============================================================
+\section{E6 --- DW Maintenance (C16, C17)}
+% =============================================================
+
+% ======================= E6 SLIDE 1: ALERT SYSTEM ============
+\begin{frame}{Activity Logging \& Alert System \competency{C16}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  stepnode/.style={rounded corners=5pt, minimum width=1.8cm, minimum height=1.1cm,
+               draw, very thick, align=center, font=\scriptsize},
+]
+  \node[stepnode, fill=ntred!10, draw=ntred] (fail) at (0,0) {\faExclamationTriangle\\DAG Fails};
+  \node[stepnode, fill=ntaccent!10, draw=ntaccent] (plugin) at (3.5,0) {\faCogs\\alerting.py\\callback};
+  \node[stepnode, fill=ntblue!10, draw=ntblue] (log) at (7,0.8) {\faDatabase\\activity\_log\\{\tiny categorized}};
+  \node[stepnode, fill=ntpurple!10, draw=ntpurple] (email) at (7,-0.8) {\faEnvelope\\MailHog\\{\tiny email/notif}};
+  \node[stepnode, fill=ntgreen!10, draw=ntgreen] (stats) at (10.5,0.8) {\faChartBar\\StatsD\\{\tiny metrics}};
+  \node[stepnode, fill=ntgreen!10, draw=ntgreen] (graf) at (13.5,0) {\faChartLine\\Grafana\\{\tiny dashboards}};
+  \draw[-{Stealth}, very thick, ntred!50] (fail)--(plugin);
+  \draw[-{Stealth}, very thick, ntblue!50] (plugin)--(log);
+  \draw[-{Stealth}, very thick, ntpurple!50] (plugin)--(email);
+  \draw[-{Stealth}, very thick, ntgreen!50] (log)--(stats);
+  \draw[-{Stealth}, very thick, ntgreen!50] (stats)--(graf);
+  \draw[-{Stealth}, very thick, ntpurple!50] (email.east)--++(0.5,0)|-(graf);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntred!5, draw=ntred!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    \textbf{Log categories:} INFO (normal ops) $\bullet$ WARNING (data quality) $\bullet$ ERROR (DAG failure) $\bullet$ CRITICAL (service down)\\
+    Alert channels: email (MailHog SMTP), Grafana alert rules, Airflow on\_failure\_callback
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E6 SLIDE 2: SLA DASHBOARD ============
+\begin{frame}{SLA Dashboard \& ITIL Prioritization \competency{C16}}
+\begin{center}
+\begin{tikzpicture}[scale=0.85, transform shape,
+  sla/.style={rounded corners=5pt, minimum width=3cm, minimum height=1.5cm,
+              draw=ntgreen, thick, fill=ntgreen!8, align=center, font=\scriptsize},
+]
+  \node[sla] at (0,0) {\faCheckCircle\\[3pt]\textbf{ETL Success}\\$>$ 95\%};
+  \node[sla] at (4,0) {\faClock\\[3pt]\textbf{Freshness}\\$<$ 24h};
+  \node[sla] at (8,0) {\faHdd\\[3pt]\textbf{Backups}\\100\%};
+  \node[sla] at (12,0) {\faChartLine\\[3pt]\textbf{Query Time}\\$<$ 5s};
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=4pt, fill=ntaccent!8, draw=ntaccent!40, inner sep=6pt,
+        font=\scriptsize, text width=10cm, align=center] {
+    \textbf{ITIL Priority Matrix:}\quad
+    P1 Critical $<$1h \quad P2 High $<$4h \quad P3 Medium $<$24h \quad P4 Low: next sprint\\[3pt]
+    \textbf{Escalation:} L1 (auto-restart via Airflow retry) $\to$ L2 (engineer on-call) $\to$ L3 (architecture review)\\[3pt]
+    \textbf{Maintenance tasks:} prioritized and assigned per ITIL service desk methodology
+  };
+\end{tikzpicture}
+\end{center}
+\democallout{Show Grafana SLA dashboard at localhost:3000 + MailHog alert inbox at localhost:8025}
+\end{frame}
+
+% ======================= E6 SLIDE 3: BACKUPS ==================
+\begin{frame}{Backup Procedures \competency{C16}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}
+    \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue, thick, inner sep=8pt,
+          text width=4.5cm, font=\scriptsize, align=left] {
+      \textbf{\faHdd\ backup\_database.py}\\[4pt]
+      \faDatabase\ \textbf{Full backup:} pg\_dump entire DB\\
+      {\tiny Scheduled: daily at 06:00 via Airflow}\\[3pt]
+      \faTable\ \textbf{Partial backup:} DW schema only\\
+      {\tiny Scheduled: after each ETL run}\\[3pt]
+      \faCloud\ Upload to MinIO /backups/\\
+      \faTrash\ Auto-cleanup: retain 7 days\\
+      \faClipboardCheck\ Verification: restore test\\[4pt]
+      {\tiny 154 lines, Git-versioned, Airflow DAG}
+    };
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    procstep/.style={rounded corners=4pt, minimum width=4.2cm, minimum height=0.5cm,
+                 fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize, align=left, inner xsep=6pt},
+  ]
+    \node[font=\small\bfseries, ntgreen] at (0,2.5) {Backup Flow};
+    \node[procstep] at (0,1.8) {\faClock\ 1. Airflow triggers at 06:00};
+    \node[procstep] at (0,1.1) {\faDatabase\ 2. pg\_dump to /tmp/};
+    \node[procstep] at (0,0.4) {\faFileArchive\ 3. Compress (gzip)};
+    \node[procstep] at (0,-0.3) {\faCloud\ 4. Upload to MinIO /backups/};
+    \node[procstep] at (0,-1.0) {\faTrash\ 5. Cleanup files $>$ 7 days};
+    \node[procstep] at (0,-1.7) {\faClipboardCheck\ 6. Log success to activity\_log};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= E6 SLIDE 4: NEW SOURCE INTEGRATION ===
+\begin{frame}{New Source Integration Procedure \competency{C16}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  procstep/.style={rounded corners=5pt, minimum width=1.8cm, minimum height=1.3cm,
+               draw, very thick, align=center, font=\scriptsize},
+]
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faFile\\[2pt]\textbf{1. Spec}\\{\tiny Document source}\\{\tiny format, freq}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (s2) at (3,0) {\faCode\\[2pt]\textbf{2. Script}\\{\tiny Write extractor}\\{\tiny (7-step pattern)}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (s3) at (6,0) {\faCogs\\[2pt]\textbf{3. DAG}\\{\tiny Add Airflow task}\\{\tiny or new DAG}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (s4) at (9,0) {\faFilter\\[2pt]\textbf{4. Clean}\\{\tiny Update cleaning}\\{\tiny rules if needed}};
+  \node[procstep, fill=ntred!10, draw=ntred] (s5) at (12,0) {\faCheckDouble\\[2pt]\textbf{5. Test}\\{\tiny Run pipeline,}\\{\tiny verify quality}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s6) at (6,-2.5) {\faFile\\[2pt]\textbf{6. Document}\\{\tiny Update flux matrix,}\\{\tiny catalog, docs}};
+
+  \draw[-{Stealth}, very thick, gray!50] (s1)--(s2);
+  \draw[-{Stealth}, very thick, gray!50] (s2)--(s3);
+  \draw[-{Stealth}, very thick, gray!50] (s3)--(s4);
+  \draw[-{Stealth}, very thick, gray!50] (s4)--(s5);
+  \draw[-{Stealth}, very thick, gray!50] (s5.south)--++(0,-0.5)-|(s6.east);
+\end{tikzpicture}
+\end{center}
+\whycallout{Documented 6-step procedure ensures any new data source (e.g., a new nutrition API) integrates cleanly into the existing pipeline, ETLs, and catalog.}
+\end{frame}
+
+% ======================= E6 SLIDE 5: NEW ACCESS + SCALABILITY =
+\begin{frame}{New Access \& Scalability Procedures \competency{C16}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faUserPlus\ New Access (3 steps):}\\[4pt]
+    \textbf{1.} Assign user to role group\\
+    {\tiny (user/nutritionist/analyst/admin)}\\[3pt]
+    \textbf{2.} PostgreSQL \texttt{GRANT} on schemas\\
+    {\tiny Role $\to$ schema permissions}\\[3pt]
+    \textbf{3.} API + Streamlit auto-inherit\\
+    {\tiny JWT role claim controls access}\\[4pt]
+    {\tiny No individual grants --- group-based only}
+  };
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faExpand\ Scalability Procedures:}\\[4pt]
+    \faHdd\ \textbf{Storage:} Add MinIO disks\\
+    {\tiny or increase Docker volume}\\[3pt]
+    \faLayerGroup\ \textbf{Datamarts:} CREATE VIEW\\
+    {\tiny on \texttt{dw} schema + GRANT}\\[3pt]
+    \faMicrochip\ \textbf{Compute:} Scale Airflow\\
+    {\tiny workers (Celery executor)}\\[3pt]
+    \faPlus\ \textbf{New DW source:} follow\\
+    {\tiny 6-step integration procedure}
+  };
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\vspace{0.2cm}
+\begin{center}
+{\scriptsize All procedures documented in \texttt{rapport\_final} Ch.12 --- RGPD personal data registry and sorting procedures included.}
+\end{center}
+\end{frame}
+
+% ======================= E6 SLIDE 6: SCD DETAIL ==============
+\begin{frame}{SCD Variation Modeling \competency{C17}}
+\small
+\begin{center}
+\begin{tabular}{p{1.5cm}p{2.5cm}p{3cm}p{2.5cm}p{2.5cm}}
+  \toprule
+  \textbf{Type} & \textbf{Dimension} & \textbf{When} & \textbf{ETL Action} & \textbf{SQL Technique} \\
+  \midrule
+  Type 1 & dim\_brand & Brand name typo fix & UPDATE row & Simple UPDATE \\
+  Type 2 & dim\_product & Product reformulated & Close old + INSERT new & \texttt{end\_date}, \texttt{is\_current} \\
+  Type 3 & dim\_country & Country list change & UPDATE + keep previous & \texttt{previous\_*} column \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntpurple!5, draw=ntpurple!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    \textbf{Change detection:} \texttt{IS DISTINCT FROM} compares source vs. DW rows.
+    All 3 types implemented in \texttt{etl\_load\_warehouse} DAG.
+    ETLs updated to handle variations. Physical/logical models documented with SCD annotations.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E6 SLIDE 7: MONITORING STACK =========
+\begin{frame}{Monitoring Stack \competency{C16}}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={rounded corners=5pt, minimum width=2.2cm, minimum height=1.5cm,
+              draw, thick, align=center, font=\scriptsize},
+]
+  \node[box, fill=ntred!8, draw=ntred] (sd) at (0,0) {\faPaperPlane\\StatsD\\{\tiny Airflow metrics}};
+  \node[box, fill=ntred!8, draw=ntred] (ca) at (3,0) {\faDocker\\cAdvisor\\{\tiny Container stats}};
+  \node[box, fill=ntred!8, draw=ntred] (ne) at (6,0) {\faServer\\Node Exp.\\{\tiny Host metrics}};
+  \node[box, fill=ntred!8, draw=ntred] (pe) at (9,0) {\faDatabase\\PG Exp.\\{\tiny DB metrics}};
+
+  \node[box, fill=ntaccent!10, draw=ntaccent, minimum width=6cm] (pr) at (4.5,-2) {
+    \faChartLine\ \textbf{Prometheus} \quad {\tiny scrapes all 4 exporters}};
+  \node[box, fill=ntgreen!10, draw=ntgreen, minimum width=4cm] (gf) at (4.5,-4) {
+    \faChartLine\ \textbf{Grafana} \quad {\tiny 6 dashboards}};
+
+  \draw[-{Stealth}, thick, gray] (sd)--(pr);
+  \draw[-{Stealth}, thick, gray] (ca)--(pr);
+  \draw[-{Stealth}, thick, gray] (ne)--(pr);
+  \draw[-{Stealth}, thick, gray] (pe)--(pr);
+  \draw[-{Stealth}, thick, gray] (pr)--(gf);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E6 SLIDE 8: GRAFANA DASHBOARDS =======
+\begin{frame}{6 Grafana Dashboards \competency{C16}}
+\small
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Dashboard} & \textbf{Monitors} & \textbf{Key Panels} \\
+  \midrule
+  Airflow Overview & DAG runs, task durations & Success rate, active tasks \\
+  Airflow DAGs & Per-DAG performance & Run outcomes, SLA misses \\
+  PostgreSQL & DB health, connections & Query time, rows, cache \\
+  Docker System & Container resources & CPU, memory, network \\
+  MinIO & Object storage & Bucket sizes, requests \\
+  SLA Compliance & Service indicators & ETL \%, freshness, backups \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+\democallout{Show Grafana at localhost:3000 --- SLA compliance + MinIO alerts}
+\end{frame}
+
+% =============================================================
+\section{E7 --- Data Lake (C18--C21)}
+% =============================================================
+
+% ======================= E7 SLIDE 1: ARCHITECTURE =============
+\begin{frame}{Data Lake Architecture \competency{C18}}
+\begin{center}
+\begin{tikzpicture}[
+  layer/.style={rounded corners=8pt, minimum width=3.5cm, minimum height=2.2cm,
+                draw, very thick, font=\small\bfseries, align=center, drop shadow={opacity=0.15}},
+]
+  \node[layer, fill=bronze!15, draw=bronze, text=bronze!70!black] (b) at (0,0) {
+    \faDatabase\ \textbf{Bronze}\\[4pt]
+    {\scriptsize Raw as-is}\\{\scriptsize JSON, Parquet, CSV}\\{\scriptsize 90-day retention}
+  };
+  \node[layer, fill=silver!15, draw=silver!70, text=gray!70!black] (s) at (5.3,0) {
+    \faFilter\ \textbf{Silver}\\[4pt]
+    {\scriptsize Cleaned \& validated}\\{\scriptsize Parquet only}\\{\scriptsize Deduplicated}
+  };
+  \node[layer, fill=gold!15, draw=gold, text=gold!50!black] (g) at (10.6,0) {
+    \faStar\ \textbf{Gold}\\[4pt]
+    {\scriptsize Analytics-ready}\\{\scriptsize 4 aggregate datasets}\\{\scriptsize Daily snapshots}
+  };
+  \draw[-{Stealth}, very thick, bronze!50] (b) -- node[above, font=\scriptsize\bfseries] {clean} (s);
+  \draw[-{Stealth}, very thick, silver!50] (s) -- node[above, font=\scriptsize\bfseries] {aggregate} (g);
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=0.92\linewidth, font=\small, align=center] {
+    \textbf{Volume:} 3M+ products (4.2 GB Parquet) \;$\bullet$\;
+    \textbf{Variety:} JSON, Parquet, CSV, HTML \;$\bullet$\;
+    \textbf{Velocity:} daily/weekly DAG schedules
+  };
+\end{tikzpicture}
+\end{center}
+\whycallout{Medallion (bronze/silver/gold) ensures data quality improves at each layer. Architecture uses appropriate formalism (layered diagram with V/V/V annotations).}
+\end{frame}
+
+% ======================= E7 SLIDE 2: V/V/V ===================
+\begin{frame}{Volume, Variety, Velocity \competency{C18}}
+\begin{center}
+\begin{tikzpicture}[scale=0.9, transform shape,
+  v/.style={rounded corners=8pt, minimum width=3.5cm, minimum height=2.5cm,
+            draw, very thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[v, fill=ntblue!8, draw=ntblue] at (0,0) {
+    \faDatabase\ \textbf{\large Volume}\\[6pt]
+    3M+ products worldwide\\
+    798{,}177 French imported\\
+    4.2 GB raw Parquet\\
+    Columnar for fast scans
+  };
+  \node[v, fill=ntpurple!8, draw=ntpurple] at (5.5,0) {
+    \faRandom\ \textbf{\large Variety}\\[6pt]
+    JSON (API responses)\\
+    Parquet (bulk export)\\
+    HTML (scraping)\\
+    CSV (database export)
+  };
+  \node[v, fill=ntaccent!8, draw=ntaccent] at (11,0) {
+    \faChartLine\ \textbf{\large Velocity}\\[6pt]
+    Daily: API pulls\\
+    Weekly: Parquet bulk\\
+    Monthly: scraping\\
+    Scheduled Airflow DAGs
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E7 SLIDE 3: CATALOG COMPARISON =======
+\begin{frame}{Catalog Tool Comparison \competency{C18}}
+\small
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  \textbf{Criteria} & \textbf{Apache Atlas} & \textbf{DataHub} & \textbf{\color{ntgreen}Custom JSON} \\
+  \midrule
+  Setup complexity & High & Medium & \color{ntgreen}\textbf{Low} \\
+  Resource overhead & Heavy (Java) & Moderate & \color{ntgreen}\textbf{Minimal} \\
+  MinIO integration & Manual & Plugin & \color{ntgreen}\textbf{Native} \\
+  Search capability & Full & Full & Basic (Streamlit) \\
+  Lineage tracking & Auto & Auto & Manual (JSON) \\
+  Access rights & RBAC & RBAC & \color{ntgreen}\textbf{JWT-based} \\
+  Fits project scale & Overkill & Overkill & \color{ntgreen}\textbf{Right-sized} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+\whycallout{Custom JSON catalog chosen: Atlas/DataHub add 3--5 extra services for a single-host project. The Streamlit browser meets exploitability and access rights constraints. Upgrade path to DataHub documented.}
+\end{frame}
+
+% ======================= E7 SLIDE 4: INSTALLATION PROCEDURE ===
+\begin{frame}{Installation Procedure \competency{C19}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  procstep/.style={rounded corners=5pt, minimum width=2cm, minimum height=1.3cm,
+               draw, very thick, align=center, font=\scriptsize},
+]
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s1) at (0,0) {\faDocker\\[2pt]\textbf{1. Docker Up}\\{\tiny 16 services}};
+  \node[procstep, fill=ntblue!10, draw=ntblue] (s2) at (3.2,0) {\faDatabase\\[2pt]\textbf{2. MinIO Init}\\{\tiny 4 buckets created}};
+  \node[procstep, fill=ntpurple!10, draw=ntpurple] (s3) at (6.4,0) {\faCogs\\[2pt]\textbf{3. Airflow Init}\\{\tiny DAGs registered}};
+  \node[procstep, fill=ntaccent!10, draw=ntaccent] (s4) at (9.6,0) {\faPlay\\[2pt]\textbf{4. Run ETLs}\\{\tiny Batch processing}};
+  \node[procstep, fill=ntgreen!10, draw=ntgreen] (s5) at (12.8,0) {\faCheckCircle\\[2pt]\textbf{5. Verify}\\{\tiny Catalog connected}};
+  \draw[-{Stealth}, very thick, gray!50] (s1)--(s2);
+  \draw[-{Stealth}, very thick, gray!50] (s2)--(s3);
+  \draw[-{Stealth}, very thick, gray!50] (s3)--(s4);
+  \draw[-{Stealth}, very thick, gray!50] (s4)--(s5);
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    \textbf{Storage:} MinIO (S3-compatible) --- 4 buckets (bronze, silver, gold, backups) --- functional\\
+    \textbf{Batch tools:} Airflow + PySpark --- functional and connected to MinIO via S3 protocol\\
+    \textbf{Catalog:} JSON-based, connected to MinIO --- browsable in Streamlit\\
+    \textbf{Documentation:} Full install/config procedure in \texttt{docs/} and \texttt{README.md}
+  };
+\end{tikzpicture}
+\end{center}
+\whycallout{Installation runs without errors in Docker environment. Tested on macOS (dev) and Linux (CI). One command: \texttt{docker compose up -d}.}
+\end{frame}
+
+% ======================= E7 SLIDE 5: FEED METHODS PER SOURCE ==
+\begin{frame}{Feed Methods Per Source \competency{C20}}
+\begin{center}
+\small
+\begin{tabular}{p{2.5cm}p{2cm}p{2.5cm}p{2.5cm}p{2cm}}
+  \toprule
+  \textbf{Source} & \textbf{Format} & \textbf{Feed Method} & \textbf{Justification} & \textbf{Frequency} \\
+  \midrule
+  OFF API & JSON & REST pull & Rate-limited, incremental & Daily \\
+  OFF Parquet & Parquet & Bulk download & Full snapshot, 4.2 GB & Weekly \\
+  ANSES/EFSA & HTML & Web scraping & No API available & Monthly \\
+  PostgreSQL & SQL/CSV & DB export & Internal data & On-demand \\
+  DuckDB & Parquet & SQL on files & Big data analytics & On-demand \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+\whycallout{Feed method per source is chosen based on data availability, format, and update frequency. Each feed script runs without errors and correctly imports data into the appropriate MinIO bucket.}
+\end{frame}
+
+% ======================= E7 SLIDE 6: CATALOG BROWSER ==========
+\begin{frame}{Data Catalog Browser \competency{C20}}
+\begin{center}
+\begin{tikzpicture}[
+  feat/.style={rounded corners=4pt, minimum width=5cm, minimum height=0.5cm,
+               fill=ntpurple!8, draw=ntpurple!40, font=\scriptsize, align=left, inner xsep=6pt},
+]
+  \node[font=\normalsize\bfseries, ntpurple] at (0,2.3) {Streamlit Data Catalog Page};
+  \node[feat] at (0,1.7) {\faSearch\ Search datasets by name, format, or source};
+  \node[feat] at (0,1.05) {\faLayerGroup\ Browse by layer (bronze / silver / gold tabs)};
+  \node[feat] at (0,0.4) {\faTable\ View schema (column names + types)};
+  \node[feat] at (0,-0.25) {\faProjectDiagram\ View lineage (where data came from)};
+  \node[feat] at (0,-0.9) {\faChartBar\ Quality metrics per dataset};
+  \node[feat] at (0,-1.55) {\faLock\ Governance info + RGPD compliance status};
+  \node[feat] at (0,-2.2) {\faHdd\ Storage stats (object count, total size per bucket)};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+{\scriptsize Metadata integrated into catalog JSON. Catalog connected to MinIO storage system.}
+\democallout{Show Streamlit catalog at localhost:8501 --- browse bronze/silver/gold, view schema and lineage}
+\end{frame}
+
+% ======================= E7 SLIDE 7: LIFECYCLE + DELETION =====
+\begin{frame}{Data Lifecycle \& Deletion Procedures \competency{C20}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  phase/.style={rounded corners=6pt, minimum width=2.5cm, minimum height=2cm,
+                draw, very thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[phase, fill=ntgreen!8, draw=ntgreen] (ingest) at (0,0) {\faDownload\\[2pt]\textbf{Ingest}\\{\tiny Raw to bronze}\\{\tiny Immediate}};
+  \node[phase, fill=ntblue!8, draw=ntblue] (active) at (3.5,0) {\faDatabase\\[2pt]\textbf{Active}\\{\tiny Silver/gold}\\{\tiny Used by analytics}};
+  \node[phase, fill=ntaccent!8, draw=ntaccent] (archive) at (7,0) {\faArchive\\[2pt]\textbf{Archive}\\{\tiny Bronze: 90-day}\\{\tiny retention}};
+  \node[phase, fill=ntred!8, draw=ntred] (delete) at (10.5,0) {\faTrash\\[2pt]\textbf{Delete}\\{\tiny Expired files}\\{\tiny RGPD cleanup}};
+
+  \draw[-{Stealth}, very thick, gray!50] (ingest)--(active);
+  \draw[-{Stealth}, very thick, gray!50] (active)--(archive);
+  \draw[-{Stealth}, very thick, gray!50] (archive)--(delete);
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntred!5, draw=ntred!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    \textbf{Deletion procedures:} Bronze files $>$ 90 days auto-deleted by Airflow maintenance DAG.
+    User data never enters lake (RGPD). Product data lifecycle: ingest $\to$ active $\to$ archive $\to$ delete.
+    Procedures comply with access, regulatory, and operational constraints.
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E7 SLIDE 8: MONITORING ALERTS ========
+\begin{frame}{Storage Monitoring \& Alerts \competency{C20}}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  mon/.style={rounded corners=5pt, minimum width=3.2cm, minimum height=2cm,
+              draw, thick, align=center, font=\scriptsize, inner sep=6pt},
+]
+  \node[mon, fill=ntblue!8, draw=ntblue] at (0,0) {
+    \faHdd\ \textbf{Disk Space}\\[4pt]
+    {\tiny MinIO bucket sizes}\\
+    {\tiny Alert: $>$ 80\% capacity}
+  };
+  \node[mon, fill=ntpurple!8, draw=ntpurple] at (4.2,0) {
+    \faMemory\ \textbf{Memory}\\[4pt]
+    {\tiny Container memory usage}\\
+    {\tiny Alert: $>$ 90\% allocated}
+  };
+  \node[mon, fill=ntaccent!8, draw=ntaccent] at (8.4,0) {
+    \faServer\ \textbf{Server Status}\\[4pt]
+    {\tiny Service health checks}\\
+    {\tiny Alert: container down}
+  };
+  \node[mon, fill=ntred!8, draw=ntred] at (12.6,0) {
+    \faExclamationTriangle\ \textbf{Feed Errors}\\[4pt]
+    {\tiny DAG failure alerts}\\
+    {\tiny MailHog notifications}
+  };
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    Monitoring tracks material (disk, memory, server status) and application (DAG runs, data quality) conditions.
+    Alerts via Grafana rules + MailHog SMTP. MinIO-specific alert rules configured in Prometheus.
+  };
+\end{tikzpicture}
+\end{center}
+\democallout{Show MinIO Console (localhost:9001) --- bucket sizes, then Grafana MinIO dashboard with alert rules}
+\end{frame}
+
+% ======================= E7 SLIDE 9: GOVERNANCE ===============
+\begin{frame}{Access Governance --- Group-Based \competency{C21}}
+\begin{center}
+\begin{tikzpicture}[
+  role/.style={rounded corners=6pt, minimum width=12cm, minimum height=0.65cm,
+               draw, thick, align=left, font=\scriptsize, inner xsep=8pt},
+]
+  \node[font=\normalsize\bfseries] at (0,3) {Group-Based Access --- 4 Roles (not individual)};
+
+  \node[role, fill=ntred!8, draw=ntred] at (0,2) {
+    \faUserShield\ \textbf{admin} \hfill
+    PostgreSQL: full \;$\bullet$\; MinIO: all buckets \;$\bullet$\; API: all endpoints \;$\bullet$\; Streamlit: all pages};
+  \node[role, fill=ntpurple!8, draw=ntpurple] at (0,1) {
+    \faChartPie\ \textbf{analyst} \hfill
+    PostgreSQL: read products \;$\bullet$\; MinIO: gold only \;$\bullet$\; API: /analytics \;$\bullet$\; Streamlit: Analytics + Catalog};
+  \node[role, fill=ntblue!8, draw=ntblue] at (0,0) {
+    \faUserMd\ \textbf{nutritionist} \hfill
+    PostgreSQL: read products+meals \;$\bullet$\; MinIO: none \;$\bullet$\; API: /nutritionist \;$\bullet$\; Streamlit: User Dashboard};
+  \node[role, fill=ntaccent!8, draw=ntaccent] at (0,-1) {
+    \faUser\ \textbf{user} \hfill
+    PostgreSQL: own meals only \;$\bullet$\; MinIO: none \;$\bullet$\; API: /meals,/products \;$\bullet$\; Streamlit: 6 pages};
+\end{tikzpicture}
+\end{center}
+\vspace{0.1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=whybox, draw=ntblue!40, inner sep=6pt,
+        text width=0.88\linewidth, font=\scriptsize, align=center] {
+    \textbf{Principles:} Least privilege \;$\bullet$\; Group-based (not individual) \;$\bullet$\; RGPD-compliant \;$\bullet$\; Consistent across all 4 systems\\
+    \textbf{Documentation:} Groups, associated rights, and update procedures in \texttt{rapport\_final} Ch.14
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= E7 SLIDE 10: RIGHTS UPDATE PROCEDURE =
+\begin{frame}{Rights Update Procedure \competency{C21}}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntblue!5, draw=ntblue, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faCogs\ Feed Rights:}\\[4pt]
+    \faDownload\ Bronze: write by ETL service\\
+    {\tiny Only Airflow tasks can write raw data}\\[3pt]
+    \faFilter\ Silver: write by cleaning DAG\\
+    {\tiny Only aggregate\_clean writes here}\\[3pt]
+    \faStar\ Gold: write by aggregate DAG\\
+    {\tiny Read by analysts via catalog}\\[3pt]
+    \faUser\ No user can write to any bucket\\
+    {\tiny MinIO policies enforce this}
+  };
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{tikzpicture}
+  \node[rounded corners=6pt, fill=ntgreen!5, draw=ntgreen, thick, inner sep=8pt,
+        text width=4.5cm, font=\scriptsize, align=left] {
+    \textbf{\faSearch\ Search/Retrieval Rights:}\\[4pt]
+    \faUserShield\ Admin: browse all buckets\\
+    {\tiny Full MinIO console access}\\[3pt]
+    \faChartPie\ Analyst: read gold bucket\\
+    {\tiny Catalog search + Parquet download}\\[3pt]
+    \faUserMd\ Nutritionist: no lake access\\
+    {\tiny Data served via API only}\\[3pt]
+    \faUser\ User: no lake access\\
+    {\tiny Data served via API only}
+  };
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\vspace{0.2cm}
+\whycallout{Access limited to necessary resources per role. Update procedure: modify role in JWT claim + update MinIO policy + document change.}
+\end{frame}
+
+
+% =============================================================
+\section{Conclusion}
+% =============================================================
+
+% ======================= SLIDE 43: COMPETENCY GRID ============
+\begin{frame}{21/21 Competencies Covered}
+\begin{center}
+\begin{tikzpicture}[scale=0.82, transform shape,
+  blk/.style={font=\scriptsize\bfseries, text=white, rounded corners=3pt,
+              inner sep=4pt, minimum width=2.5cm},
+  compg/.style={rounded corners=2pt, minimum width=0.55cm, minimum height=0.55cm,
+               fill=ntgreen!15, draw=ntgreen, font=\tiny\bfseries},
+  compb/.style={rounded corners=2pt, minimum width=0.55cm, minimum height=0.55cm,
+               fill=ntblue!15, draw=ntblue, font=\tiny\bfseries},
+  compp/.style={rounded corners=2pt, minimum width=0.55cm, minimum height=0.55cm,
+               fill=ntpurple!15, draw=ntpurple, font=\tiny\bfseries},
+  compa/.style={rounded corners=2pt, minimum width=0.55cm, minimum height=0.55cm,
+               fill=ntaccent!15, draw=ntaccent, font=\tiny\bfseries},
+]
+  \node[blk, fill=ntgreen] at (-5,2.5) {Block 1: Steer};
+  \foreach \i/\c in {0/C1,1/C2,2/C3,3/C4,4/C5,5/C6,6/C7}
+    {\node[compg] at ({-6.5+\i*0.8},1.5) {\c};}
+
+  \node[blk, fill=ntblue] at (-5,0.5) {Block 2: Collect};
+  \foreach \i/\c in {0/C8,1/C9,2/C10,3/C11,4/C12}
+    {\node[compb] at ({-6.5+\i*0.8},-0.5) {\c};}
+
+  \node[blk, fill=ntpurple] at (3,2.5) {Block 3: Warehouse};
+  \foreach \i/\c in {0/C13,1/C14,2/C15,3/C16,4/C17}
+    {\node[compp] at ({1.5+\i*0.8},1.5) {\c};}
+
+  \node[blk, fill=ntaccent] at (3,0.5) {Block 4: Lake};
+  \foreach \i/\c in {0/C18,1/C19,2/C20,3/C21}
+    {\node[compa] at ({1.5+\i*0.8},-0.5) {\c};}
+
+  \node[font=\Huge, ntgreen] at (8,1) {\faCheckCircle};
+  \node[font=\large\bfseries, ntgreen] at (8,-0.2) {21/21};
+\end{tikzpicture}
+\end{center}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[rounded corners=8pt, fill=ntgreen!5, draw=ntgreen!40, inner sep=8pt,
+        text width=0.88\linewidth, font=\small, align=center] {
+    One integrated project $\bullet$
+    14 Docker services $\bullet$
+    Full RGPD compliance $\bullet$
+    All evaluations E1--E7
+  };
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= SLIDE 44: LESSONS ====================
+\begin{frame}{Lessons Learned}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.2cm, minimum height=0.5cm,
+                 fill=ntgreen!8, draw=ntgreen!40, font=\scriptsize, align=left, inner xsep=5pt},
+  ]
+    \node[font=\normalsize\bfseries, ntgreen] at (0,2.2) {\faCheckCircle\ What worked};
+    \node[item] at (0,1.5) {\faDocker\ Docker: 1-command deploy};
+    \node[item] at (0,0.8) {\faLayerGroup\ DW + Lake in parallel};
+    \node[item] at (0,0.1) {\faCogs\ Airflow orchestration};
+    \node[item] at (0,-0.6) {\faLock\ RGPD as architecture driver};
+    \node[item] at (0,-1.3) {\faFile\ Docs as first-class output};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    item/.style={rounded corners=4pt, minimum width=4.2cm, minimum height=0.5cm,
+                 fill=ntaccent!8, draw=ntaccent!40, font=\scriptsize, align=left, inner xsep=5pt},
+  ]
+    \node[font=\normalsize\bfseries, ntaccent] at (0,2.2) {\faLightbulb\ Next steps};
+    \node[item] at (0,1.5) {\faStream\ Real-time (Kafka)};
+    \node[item] at (0,0.8) {\faCogs\ Kubernetes};
+    \node[item] at (0,0.1) {\faBrain\ ML pipeline};
+    \node[item] at (0,-0.6) {\faBook\ DataHub catalog};
+    \node[item] at (0,-1.3) {\faVial\ More tests};
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ======================= SLIDE 45: DEMO PLAN ==================
+\begin{frame}{Live Demo Plan}
+\begin{center}
+\begin{tikzpicture}[
+  dm/.style={rounded corners=4pt, minimum width=11.2cm, minimum height=0.48cm,
+               font=\scriptsize, align=left, inner xsep=8pt},
+]
+  \node[font=\small\bfseries] at (0,3.0) {Demo Sequence (during the 60-minute presentation)};
+  \node[dm, fill=ntgreen!8, draw=ntgreen!40]   at (0,2.35) {\faTerminal\ \textbf{1.} \texttt{docker compose up -d} --- show all 15 services starting};
+  \node[dm, fill=ntaccent!8, draw=ntaccent!40]  at (0,1.65) {\faPlug\ \textbf{2.} Swagger UI (localhost:8000/docs) --- register, login, search};
+  \node[dm, fill=ntblue!8, draw=ntblue!40]      at (0,0.95) {\faDesktop\ \textbf{3.} Streamlit as \textbf{user} --- search product, log meal, dashboard};
+  \node[dm, fill=ntblue!8, draw=ntblue!40]      at (0,0.25) {\faUserMd\ \textbf{4.} Streamlit as \textbf{nutritionist} --- user analytics, caloric analysis};
+  \node[dm, fill=ntpurple!8, draw=ntpurple!40]  at (0,-0.45) {\faChartPie\ \textbf{5.} Streamlit as \textbf{analyst} --- product analytics + data catalog};
+  \node[dm, fill=ntred!8, draw=ntred!40]        at (0,-1.15) {\faUserShield\ \textbf{6.} Streamlit as \textbf{admin} --- show all pages visible};
+  \node[dm, fill=ntpurple!8, draw=ntpurple!40]  at (0,-1.85) {\faCogs\ \textbf{7.} Airflow UI (localhost:8080) --- show DAG graph, trigger a run};
+  \node[dm, fill=ntred!8, draw=ntred!40]        at (0,-2.55) {\faChartLine\ \textbf{8.} Grafana (localhost:3000) --- SLA dashboard + MailHog alerts};
+  \node[dm, fill=ntaccent!8, draw=ntaccent!40]  at (0,-3.25) {\faCloud\ \textbf{9.} MinIO Console (localhost:9001) --- browse bronze/silver/gold};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ======================= SLIDE 46: THANK YOU ==================
+\begin{frame}[standout]
+  \vspace*{-0.8cm}
+  \nutritracklogo[1.2]\\[0.4cm]
+
+  {\Huge Thank you}\\[0.4cm]
+  {\large Questions?}\\[0.6cm]
+
+  {\normalsize\faGithub\quad github.com/Reetika12795/NutriTrack}\\[0.2cm]
+  {\normalsize\faGlobe\quad reetika12795.github.io/NutriTrack}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,101 @@
+/* Global faded wallpaper background on all pages */
+.md-content {
+  background: url('../assets/wallpaper.png') center center / cover no-repeat fixed;
+  position: relative;
+}
+
+.md-content::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.80);
+  z-index: 0;
+}
+
+[data-md-color-scheme="slate"] .md-content::before {
+  background: rgba(30, 30, 30, 0.75);
+}
+
+.md-content__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tab styling — clear separation between navigation tabs */
+.md-tabs__link {
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  padding: 0 1.2em;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.md-tabs__link:last-child {
+  border-right: none;
+}
+
+.md-tabs__link--active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px 4px 0 0;
+}
+
+/* Hero banner with wallpaper on home page */
+.md-hero {
+  background: url('assets/wallpaper.png') center center / cover no-repeat;
+  padding: 3em 2em;
+  border-radius: 12px;
+  margin-bottom: 2em;
+  position: relative;
+  overflow: hidden;
+}
+
+.md-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(103, 58, 183, 0.85), rgba(33, 33, 33, 0.7));
+  border-radius: 12px;
+}
+
+.md-hero-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-align: center;
+}
+
+.md-hero-content h1 {
+  font-size: 2.4em;
+  margin-bottom: 0.3em;
+  color: white !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.md-hero-content p {
+  font-size: 1.15em;
+  opacity: 0.95;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.md-hero-content .hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+  margin-top: 1.5em;
+  flex-wrap: wrap;
+}
+
+.md-hero-content .hero-stat {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.md-hero-content .hero-stat strong {
+  font-size: 1.5em;
+  display: block;
+  color: #ce93d8;
+}

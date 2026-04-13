@@ -1,0 +1,15 @@
+# Root-level data files (raw extractions, large binaries)
+*.json
+*.pdf
+*.pptx
+
+# Allow monitoring config files
+!nutritrack/monitoring/**/*.json
+!nutritrack/monitoring/**/*.yml
+
+# Claude Code local config
+.claude/
+
+# OS
+.DS_Store
+pat.txt

@@ -1,0 +1,3416 @@
+% =============================================================
+% NutriTrack — Final Certification Report
+% Expert in Massive Data Infrastructures (RNCP37638)
+% =============================================================
+\documentclass[a4paper,11pt,oneside,openany]{report}
+
+% ---- Encoding and language ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+
+% ---- Page layout ----
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% ---- Headers and footers ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{14pt}
+% Strip section number from rightmark to avoid overlap; use only chapter
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{}
+
+% ---- Graphics and colours ----
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usetikzlibrary{
+  positioning, arrows.meta, shapes.geometric, shapes.multipart,
+  calc, fit, backgrounds, decorations.pathreplacing, chains,
+  matrix, shadows, patterns
+}
+
+% ---- NutriTrack colours ----
+\definecolor{ntgreen}{HTML}{2E7D32}
+\definecolor{ntdarkgreen}{HTML}{1B5E20}
+\definecolor{ntlightgreen}{HTML}{A5D6A7}
+% Interview grid colors
+\definecolor{producerhead}{HTML}{F9A825}  % Yellow — producer grid header
+\definecolor{producerbody}{HTML}{FFF8E1}  % Light yellow — producer rows
+\definecolor{consumerhead}{HTML}{827717}  % Olive — consumer grid header
+\definecolor{consumerbody}{HTML}{F0F4C3}  % Light olive — consumer rows
+\definecolor{ntblue}{HTML}{1565C0}
+\definecolor{ntlightblue}{HTML}{90CAF9}
+\definecolor{ntorange}{HTML}{EF6C00}
+\definecolor{ntred}{HTML}{C62828}
+\definecolor{ntpurple}{HTML}{6A1B9A}
+\definecolor{ntlightpurple}{HTML}{CE93D8}
+\definecolor{ntgold}{HTML}{F9A825}
+\definecolor{ntgray}{HTML}{616161}
+\definecolor{ntlightgray}{HTML}{E0E0E0}
+% Nutri-Score
+\definecolor{nsA}{HTML}{038141}
+\definecolor{nsB}{HTML}{85BB2F}
+\definecolor{nsC}{HTML}{FECB02}
+\definecolor{nsD}{HTML}{EE8100}
+\definecolor{nsE}{HTML}{E63E11}
+% Medallion
+\definecolor{bronze}{HTML}{CD7F32}
+\definecolor{silver}{HTML}{C0C0C0}
+\definecolor{gold}{HTML}{FFD700}
+
+% ---- Tables ----
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% ---- Source code ----
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{ntlightgray!30},
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{ntgray},
+  breaklines=true,
+  breakatwhitespace=true,
+  numbers=left,
+  numberstyle=\tiny\color{ntgray},
+  numbersep=8pt,
+  tabsize=4,
+  showstringspaces=false,
+  captionpos=b,
+  keywordstyle=\color{ntblue}\bfseries,
+  stringstyle=\color{ntgreen},
+  commentstyle=\color{ntgray}\itshape,
+  columns=flexible,
+  xleftmargin=1.5em,
+  framexleftmargin=1.5em,
+}
+\lstdefinelanguage{SQL}{
+  morekeywords={SELECT,FROM,WHERE,JOIN,LEFT,ON,INSERT,INTO,UPDATE,SET,
+    DELETE,CREATE,TABLE,INDEX,VIEW,SCHEMA,AS,AND,OR,NOT,NULL,
+    IS,DISTINCT,GROUP,BY,ORDER,HAVING,COUNT,SUM,AVG,ROUND,
+    WITH,CASE,WHEN,THEN,ELSE,END,OVER,PARTITION,ROWS,BETWEEN,
+    PRECEDING,CURRENT,ROW,FUNCTION,RETURNS,BEGIN,DECLARE,
+    LANGUAGE,plpgsql,VOID,INTEGER,VARCHAR,BOOLEAN,DATE,
+    TIMESTAMP,SERIAL,PRIMARY,KEY,REFERENCES,FOREIGN,GRANT,
+    REVOKE,ALL,PRIVILEGES,USAGE,IF,EXISTS,REPLACE,DEFAULT,
+    CONSTRAINT,CHECK,UNIQUE,CASCADE,INTERVAL,EXTRACT,
+    GENERATE_SERIES,IN,LIKE,LIMIT,OFFSET,ASC,DESC,VALUES,
+    CONFLICT,DO,EXCLUDED,COALESCE,GREATEST,NULLIF,ROW_NUMBER,
+    LAG,PERCENTILE_CONT,STDDEV,MODE,WITHIN,TEXT},
+  sensitive=false,
+  morecomment=[l]{--},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+}
+\lstdefinelanguage{Python}{
+  morekeywords={def,class,return,import,from,as,if,elif,else,for,
+    while,with,try,except,raise,in,not,and,or,True,False,None,
+    async,await,yield,lambda,pass,break,continue,finally,global},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]{"""},
+}
+
+% ---- Hyperlinks ----
+\usepackage[
+  colorlinks=true,
+  linkcolor=ntdarkgreen,
+  citecolor=ntblue,
+  urlcolor=ntblue,
+  bookmarks=true,
+  bookmarksnumbered=true,
+]{hyperref}
+
+% ---- Bibliography ----
+\usepackage[numbers,sort&compress]{natbib}
+
+% ---- Miscellaneous ----
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{pdfpages}
+
+% ---- Colored chapter headings (native LaTeX, no extra packages) ----
+\usepackage{fontawesome5}
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{20\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      {\Large\bfseries\color{ntgreen!70} \@chapapp\ \thechapter}\par\nobreak
+      \vskip 6\p@
+    \fi
+    {\Huge \bfseries \color{ntdarkgreen} #1}\par\nobreak
+    \vskip 4\p@
+    {\color{ntgreen}\hrule height 1.5pt}\par\nobreak
+    \vskip 30\p@
+  }}
+\renewcommand{\@makeschapterhead}[1]{%
+  \vspace*{20\p@}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    {\Huge \bfseries \color{ntdarkgreen} #1}\par\nobreak
+    \vskip 4\p@
+    {\color{ntgreen}\hrule height 1.5pt}\par\nobreak
+    \vskip 30\p@
+  }}
+\makeatother
+
+% ---- Color sections/subsections via \titleformat alternative ----
+% Simple approach: redefine section command with color
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\normalfont\Large\bfseries\color{ntgreen}}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\large\bfseries\color{ntdarkgreen}}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries\color{ntblue}}}
+\makeatother
+
+% ---- Callout boxes using TikZ (tikz is already loaded) ----
+\newcommand{\sophiequote}[1]{%
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=producerbody, draw=producerhead, line width=0.8pt,
+        rounded corners=4pt, inner sep=10pt, text width=0.88\linewidth]
+    {\textbf{\color{producerhead}\faQuoteLeft\ Sophie says}\\[3pt]
+     \itshape #1};
+\end{tikzpicture}
+\end{center}}
+
+\newcommand{\keyinsight}[1]{%
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=ntlightgreen!30, draw=ntgreen, line width=0.8pt,
+        rounded corners=4pt, inner sep=10pt, text width=0.88\linewidth]
+    {\textbf{\color{ntgreen}\faLightbulb\ Key insight}\\[3pt] #1};
+\end{tikzpicture}
+\end{center}}
+
+\newcommand{\whybox}[1]{%
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=ntlightblue!30, draw=ntblue, line width=0.8pt,
+        rounded corners=4pt, inner sep=10pt, text width=0.88\linewidth]
+    {\textbf{\color{ntblue}\faQuestionCircle\ Why this choice?}\\[3pt] #1};
+\end{tikzpicture}
+\end{center}}
+
+% ---- Custom commands ----
+\newcommand{\competence}[1]{\textbf{\textcolor{ntgreen}{#1}}}
+\newcommand{\evaluation}[1]{\textbf{\textcolor{ntblue}{#1}}}
+\newcommand{\nutritrack}{\textsc{NutriTrack}}
+\newcommand{\off}{Open Food Facts}
+
+% ---- Quick glossary ----
+\newcommand{\rgpd}{RGPD}
+\newcommand{\scd}{SCD}
+
+% =============================================================
+\begin{document}
+
+% =============================================================
+% TITLE PAGE
+% =============================================================
+\begin{titlepage}
+\begin{center}
+\vspace*{0.2cm}
+
+% ---- NutriTrack logo ----
+\includegraphics[width=0.65\textwidth]{../assets/logos/nutri_track_logo_v8.pdf}
+
+\vspace{0.3cm}
+
+% ---- Title band ----
+\begin{tikzpicture}
+  \node[fill=ntgreen, text=white, minimum width=0.95\textwidth,
+        minimum height=1cm, rounded corners=4pt, align=center,
+        inner sep=5pt]
+    {\Large\bfseries Final Certification Report};
+\end{tikzpicture}
+
+\vspace{0.2cm}
+
+{\large\color{ntdarkgreen}\bfseries Expert in Massive Data Infrastructures}\\[0.08cm]
+{\normalsize\color{ntgray} RNCP37638 \textbullet\ Level 7}
+
+\vspace{0.4cm}
+
+{\normalsize
+\textbf{\color{ntdarkgreen}Name:} Reetika Gautam \quad\textbullet\quad
+\textbf{\color{ntdarkgreen}Date:} April 2026}
+
+\vspace{0.4cm}
+
+% ---- Powered-by bar + logos ----
+\begin{tikzpicture}
+  \node[fill=ntgreen!10, draw=ntgreen!40, line width=0.5pt,
+        rounded corners=4pt, minimum width=0.95\textwidth,
+        minimum height=3cm, align=center, inner sep=8pt] {
+    \begin{tabular}{c}
+      {\small\bfseries\color{ntdarkgreen} Powered by}\\[0.2cm]
+      \begin{tabular}{c @{\hspace{2cm}} c}
+        \includegraphics[height=1.8cm]{../assets/logos/Simplon-HD.png} &
+        \includegraphics[height=1.8cm]{../assets/logos/PublicisGroupelogo-BlackText-300x300.png} \\
+      \end{tabular}
+    \end{tabular}
+  };
+\end{tikzpicture}
+
+\vfill
+
+% ---- Footer caption ----
+{\footnotesize\itshape\color{ntblue}
+This document covers all 21 competencies (C1--C21) distributed
+across 4 competency blocks, assessed through 7 evaluations (E1--E7).}
+
+\end{center}
+\end{titlepage}
+
+% =============================================================
+% TABLE OF CONTENTS
+% =============================================================
+\tableofcontents
+
+\clearpage
+
+% =============================================================
+% INTRODUCTION
+% =============================================================
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Project Context}
+
+\nutritrack{} is an end-to-end data engineering platform dedicated to
+nutritional tracking. The project collects food product data from \off{},
+cleans and transforms it through automated ETL pipelines, stores it in a
+star-schema data warehouse, and exposes it through a REST API consumed by
+a Streamlit frontend. A MinIO-based data lake implements the medallion
+architecture (bronze/silver/gold) with full governance and \rgpd{}
+compliance.
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=ntpurple!12, draw=ntpurple, line width=0.8pt,
+        rounded corners=6pt, inner sep=12pt, text width=0.85\linewidth,
+        align=center]
+    {\large\faGlobe\quad\textbf{\color{ntpurple}Live Documentation}\\[6pt]
+     \normalsize The full technical documentation, architecture diagrams
+     and quick-start guide are available at:\\[4pt]
+     \textbf{\url{https://reetika12795.github.io/NutriTrack/}}};
+\end{tikzpicture}
+\end{center}
+
+\section{Objectives}
+
+The project aims to demonstrate mastery of all 21 competencies (C1--C21)
+required for the \textit{Expert in Massive Data Infrastructures}
+(RNCP37638) certification. It covers all 4 competency blocks through a
+single coherent project.
+
+\textbf{SMART Objectives:}
+\begin{itemize}[nosep]
+  \item \textbf{S}pecific --- Build a nutrition tracking platform integrating
+        3 types of data sources (REST API, Parquet file queried with DuckDB,
+        web scraping) serving 4 user roles.
+  \item \textbf{M}easurable --- Process 798\,177 raw products down to 777\,116
+        cleaned (97.4\,\% retention) with 95\,\%+ completeness on key
+        nutritional fields and 6 formal data-quality checks passing.
+  \item \textbf{A}chievable --- Use only proven open-source technologies within
+        a Docker Compose environment (15 services, 0\,EUR licensing cost,
+        $<$100\,EUR/year infrastructure) deployed with one command.
+  \item \textbf{R}elevant --- Align with the \off{} data model and European
+        nutritional standards (EU Reg.~1169/2011) and directly address Sophie
+        Yang's five daily pain points.
+  \item \textbf{T}ime-bound --- Deliver within a 3-month cycle (12 one-week
+        sprints) structured in 6 phases.
+\end{itemize}
+
+\section{Certification Scope}
+
+\begin{table}[H]
+\centering
+\caption{Block, evaluation and competency mapping}
+\label{tab:bloc-eval}
+\begin{tabularx}{\textwidth}{C{1.5cm} L{5cm} C{1.5cm} L{4cm}}
+\toprule
+\textbf{Block} & \textbf{Title} & \textbf{Eval.} & \textbf{Competencies} \\
+\midrule
+1 & Steer a data project & E1--E3 & C1--C7 \\
+2 & Data collection, storage and sharing & E4 & C8--C12 \\
+3 & Build and maintain a data warehouse & E5--E6 & C13--C17 \\
+4 & Manage massive data collection and sharing with a data lake & E7 & C18--C21 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =============================================================
+% SYSTEM ARCHITECTURE (main TikZ diagram)
+% =============================================================
+\section{Overall Architecture}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=0.6cm and 0.8cm,
+  service/.style={
+    rectangle, rounded corners=3pt, draw=ntgray, fill=#1!15,
+    minimum width=2.4cm, minimum height=1.1cm,
+    font=\scriptsize\bfseries, align=center,
+  },
+  service/.default=ntblue,
+  ext/.style={
+    rectangle, rounded corners=3pt, draw=ntgray, dashed,
+    fill=ntlightgray!40, minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize, align=center
+  },
+  arrow/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+
+% --- Row 1: External sources ---
+\node[ext] (off) {Open Food\\Facts API};
+\node[ext, right=1cm of off] (parquet) {OFF Parquet\\(DuckDB)};
+\node[ext, right=1cm of parquet] (anses) {ANSES /\\EFSA};
+
+% --- Row 2: ETL Orchestration ---
+\node[service=ntorange, below=1cm of parquet, minimum width=7cm] (airflow)
+  {Apache Airflow 2.8\\{\tiny Webserver :8080 | Scheduler | Worker (Celery + PySpark)}};
+
+% --- Row 3: Storage ---
+\node[service=ntblue, below left=1cm and 0.6cm of airflow] (postgres)
+  {PostgreSQL 16\\{\tiny :5432}\\{\tiny app | raw | staging | dw}};
+\node[service=ntgreen, below=1cm of airflow] (minio)
+  {MinIO (S3)\\{\tiny :9000 / :9001}\\{\tiny bronze | silver | gold}};
+\node[service=ntred, below right=1cm and 0.6cm of airflow] (redis)
+  {Redis 7\\{\tiny :6379}\\{\tiny Cache + Broker}};
+
+% --- Row 4: FastAPI + Monitoring ---
+\node[service=ntblue, below=1.2cm of postgres] (fastapi)
+  {FastAPI\\{\tiny :8000}\\{\tiny REST API + JWT}};
+\node[service=ntgold, below=1.2cm of redis] (monitoring)
+  {Monitoring\\{\tiny Prometheus :9090}\\{\tiny Grafana :3000}};
+
+% --- Row 5: Streamlit (below everything, full width) ---
+\node[service=ntgreen, below=3cm of minio, minimum width=7cm, minimum height=1.8cm] (streamlit) {};
+\node[font=\scriptsize\bfseries, anchor=north] at ([yshift=-0.05cm]streamlit.north)
+  {Streamlit :8501 --- Role-Based Frontend};
+\node[rectangle, rounded corners=2pt, draw=ntgreen!50, fill=ntgreen!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r1) at ([shift={(-2.2,0.15)}]streamlit.south) {\faUser\ user\\6 pages};
+\node[rectangle, rounded corners=2pt, draw=ntblue!50, fill=ntblue!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r2) at ([shift={(-0.7,0.15)}]streamlit.south) {\faUserMd\ nutritionist\\7 pages};
+\node[rectangle, rounded corners=2pt, draw=ntpurple!50, fill=ntpurple!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r3) at ([shift={(0.8,0.15)}]streamlit.south) {\faChartBar\ analyst\\7 pages};
+\node[rectangle, rounded corners=2pt, draw=ntred!50, fill=ntred!10,
+      font=\tiny, align=center, minimum width=1.4cm, minimum height=0.55cm]
+      (r4) at ([shift={(2.3,0.15)}]streamlit.south) {\faLock\ admin\\8 pages};
+
+% --- Arrows (all normal, none behind) ---
+\draw[arrow] (off) -- (airflow);
+\draw[arrow] (parquet) -- (airflow);
+\draw[arrow] (anses) -- (airflow);
+\draw[arrow] (airflow) -- (postgres);
+\draw[arrow] (airflow) -- (minio);
+\draw[arrow] (airflow) -| (redis);
+\draw[arrow] (postgres) -- (fastapi);
+\draw[arrow] (redis) |- (fastapi);
+\draw[arrow, dashed] (monitoring) -- (redis);
+\draw[arrow, dashed] (monitoring) -| (postgres);
+% JWT: FastAPI down then right to Streamlit (clear path, no overlap)
+\draw[arrow, ntblue, thick] (fastapi.south) -- ++(0,-0.5)
+  -| node[font=\tiny\bfseries, pos=0.25, left, color=ntblue] {JWT} (streamlit.west);
+% Catalog: MinIO straight down to Streamlit top
+\draw[arrow, dashed] (minio) -- node[font=\tiny, right] {catalog} (streamlit);
+
+% --- Docker frame ---
+\begin{scope}[on background layer]
+  \node[draw=ntgray, dashed, rounded corners=6pt,
+        fill=ntlightgray!10, inner sep=8pt,
+        fit=(airflow)(postgres)(minio)(redis)(fastapi)
+            (streamlit)(monitoring),
+        label={[font=\scriptsize\bfseries\color{ntgray}]above:
+          docker-compose.yml --- 15 services}] {};
+\end{scope}
+
+\end{tikzpicture}%
+}
+\caption{\nutritrack{} system architecture --- PostgreSQL (4 schemas: app/raw/staging/dw),
+MinIO (medallion: bronze/silver/gold), Streamlit (4 role-based dashboards:
+user/nutritionist/analyst/admin). All 15 services via \texttt{docker compose up -d}.}
+\label{fig:arch-system}
+\end{figure}
+
+
+% =============================================================
+% BLOCK 1: STEER A DATA PROJECT
+% =============================================================
+\chapter{Block 1 --- Steer a Data Project}
+\label{ch:bloc1}
+
+This block tells the story of how \nutritrack{} was scoped, designed,
+and planned entirely from the needs of one real client: Sophie Yang, a
+Paris-based dietician. Every interview grid, every architecture choice,
+every line of the roadmap is an answer to one of her five daily pain
+points. Block~1 therefore follows a narrative arc: first we meet
+Sophie (Section~\ref{sec:sophie}); then we formalize her need through
+two interview grids, a synthesis note, SMART objectives and a
+pre-project (Section~\ref{sec:e1}, evaluation \evaluation{E1},
+competency \competence{C1}); then we translate her answers into a
+data topography, a technical architecture, a monitoring discipline
+and a supervision framework (Section~\ref{sec:e2}, evaluation
+\evaluation{E2}, competencies \competence{C1, C2, C3, C4, C6}); and
+finally we sketch the project plan that carried the work to delivery
+(Section~\ref{sec:e3}, evaluation \evaluation{E3}, competencies
+\competence{C5, C6, C7}), knowing that the full kickoff simulation is
+defended orally through the slide deck.
+
+% -----------------------------------------------------------
+\section{Meet the Client --- Sophie Yang}
+\label{sec:sophie}
+
+\subsection{Who Sophie Is}
+
+Sophie Yang is a registered dietician practicing in the 11th
+\textit{arrondissement} of Paris. She runs a private consultation
+practice with two nutritionist assistants and receives more than
+\textbf{40 patients per week}, ranging from young adults correcting a
+sedentary lifestyle to chronic-disease patients following strict
+therapeutic diets. Her practice is the client at the centre of this
+project: the entire system was designed around her workflow and her
+team's workflow, and the oral defense is framed around the question
+``does Sophie's practice work better after \nutritrack{} than
+before?''.
+
+\subsection{Five Daily Pain Points}
+
+During the opportunity study we conducted a 90-minute discovery
+interview with Sophie at her practice. She walked us through a typical
+Tuesday morning, and five structural pain points emerged. They are
+listed below in her own order of urgency.
+
+\begin{enumerate}[nosep]
+  \item \textbf{Manual product lookup.} Sophie opens the
+        \off{} website in one tab and a spreadsheet in another, and
+        manually searches products one by one. For a single patient
+        with a 7-day food diary this can take \textbf{45 to 60
+        minutes} of copy/paste. Across 40 patients per week, product
+        lookup alone consumes more than a full working day.
+  \item \textbf{Spreadsheet macronutrient calculation.} Once the
+        products are found, Sophie computes daily macronutrient
+        targets (energy, proteins, lipids, carbohydrates, fibre,
+        sodium) in an Excel workbook with hand-maintained formulas.
+        Every new patient means a new sheet, and every recipe change
+        risks breaking a reference. She has already caught several
+        computation errors in production.
+  \item \textbf{No patient progress tracking.} Sophie has no
+        systematic way to see how a given patient's intake evolves
+        over two, four or twelve weeks. She keeps paper notes, but
+        cannot compute trends, compare against therapeutic goals, or
+        produce a time-series chart for the next appointment.
+  \item \textbf{Fragmented tool landscape.} Her practice currently
+        relies on \textbf{more than five disconnected tools}: the
+        \off{} website, Excel, a paper agenda, an email client for
+        patient follow-up, a separate CRM for billing, and the
+        occasional \texttt{doctolib} export. Nothing talks to
+        anything else and data is entered by hand in every tool.
+  \item \textbf{Zero \rgpd{} compliance.} Sophie handles sensitive
+        health data every day --- pathologies, diets, allergies,
+        weight --- but has never implemented a consent form, a data
+        retention schedule, a right-to-erasure process or a personal
+        data registry. She knows the French health authority
+        (\textit{CNIL}) is tightening enforcement and she is
+        genuinely worried about her exposure.
+\end{enumerate}
+
+\subsection{Sophie's Ask}
+
+At the end of the interview Sophie summarized her need in one
+sentence, which has become the reference quote for the whole project:
+
+\sophiequote{I spend hours looking up products. I need a platform
+where my patients log meals and I see the analytics.}
+
+This sentence is the contract. Every feature delivered in Blocks~2
+to~4 maps directly to one of the five pain points above, and the
+oral defense will explicitly tie every demo back to a pain point.
+The sentence also frames competency \competence{C1} (``analyze a
+data project need expression''): we did not start from technology,
+we started from the client and reformulated her need into a testable
+specification.
+
+
+% -----------------------------------------------------------
+\section{Need Analysis --- Interviews, Synthesis and Pre-Project}
+\label{sec:e1}
+{\small\evaluation{E1} | \competence{C1} | Deliverable: interview grids
+and synthesis note}
+
+Sophie's ask was rich but informal. To formalize it we ran two rounds
+of structured interviews: one with the \textbf{data producers} (the
+people and systems that create the data Sophie will consume) and one
+with the \textbf{data consumers} (Sophie and her team, who will
+receive and act on the data). The two grids below present the
+questions we prepared, together with the concrete answers we
+collected. They form the raw material of the synthesis note that
+follows.
+
+\subsection{Open Food Facts --- Our Public Data Source}
+\label{sec:off-description}
+
+Before diving into the interview grids, we describe the public data
+source we rely on. \textbf{\off{}} is not a person we can interview:
+it is an open-source, community-curated database of food products
+used worldwide by apps such as Yuka and Foodvisor, and published
+under the \textbf{Open Database License (ODbL~v1.0)}. Understanding
+what \off{} offers is the starting point for deciding how it can
+serve Sophie's cabinet.
+
+\textbf{Scale.} \off{} contains more than \textbf{3.2~million food
+products worldwide}, contributed by over 30\,000 volunteers. Of these,
+approximately \textbf{1.2~million products are French}, and 798\,177
+French products have a completeness score $\geq 0.3$ (the threshold
+we selected to balance coverage and quality). The full dataset is
+released as a 4.2~GB \textbf{Parquet file} distributed on HuggingFace,
+which we query directly with DuckDB without loading it in memory.
+
+\textbf{Structure and fields.} Each \off{} record exposes around
+\textbf{180 columns}, but for nutrition-tracking we retain a focused
+subset of roughly 30 columns grouped in five families:
+
+\begin{itemize}[nosep]
+  \item \textbf{Identity:} barcode (EAN-13), product\_name, generic
+        name, brands, categories, countries, quantity, packaging.
+  \item \textbf{Nutrition (per 100\,g):} energy\_kcal, fat\_g,
+        saturated\_fat\_g, carbohydrates\_g, sugars\_g, fiber\_g,
+        proteins\_g, salt\_g, sodium\_g --- 9 core nutrients plus
+        a handful of vitamins and minerals.
+  \item \textbf{Quality scores:} Nutri-Score grade (A--E),
+        Nutri-Score numeric, NOVA processing group (1--4), Eco-Score.
+  \item \textbf{Ingredients and allergens:} ingredients\_text
+        (multilingual), allergens\_tags, traces\_tags, additives.
+  \item \textbf{Metadata:} completeness score, image URL,
+        last\_modified\_t, product URL.
+\end{itemize}
+
+\textbf{Access.} The data is exposed through \textbf{three public
+channels} that do not require authentication:
+
+\begin{enumerate}[nosep]
+  \item \textbf{REST API} --- \texttt{world.openfoodfacts.org/api/v2}
+        returns JSON for individual products or category searches.
+        Rate limit: $\sim$100~req/min; we throttle at 0.6\,s.
+  \item \textbf{Parquet bulk dump} --- weekly snapshot of the full
+        database, 4.2~GB, hosted on HuggingFace, queryable with
+        DuckDB in seconds.
+  \item \textbf{Web pages} --- \texttt{world.openfoodfacts.org}
+        product pages scrapeable with a polite User-Agent header.
+\end{enumerate}
+
+\textbf{Known quality issues.} Because \off{} is community-driven,
+names and brands contain significant free-text noise, 100\,g
+values occasionally exceed physiological maxima (e.g.\ 2\,000 kcal
+per 100\,g), and roughly 20\,\% of records are missing key
+nutritional fields. Our PySpark cleaning pipeline is designed to
+absorb exactly these defects.
+
+\textbf{Use case for Sophie.} Sophie currently looks up products
+one by one through the \off{} website --- she can see each product
+but has no aggregated view, no patient-level integration and no
+nutritional targets comparison. Our project transforms the same
+raw data into the three things she actually needs: (i)~a
+searchable catalogue for patient consultations, (ii)~a meal logger
+that computes daily macros from logged products, and (iii)~weekly
+dashboards that show patient progress against therapeutic goals.
+In other words, \off{} provides the ingredients; NutriTrack cooks
+the meal.
+
+\subsection{Interview Grid --- Data Producers}
+
+Since \off{} is public, community-owned data, there is no specific
+person to interview on that side. The data producer interview
+therefore focuses on the \textbf{single actor who produces private
+data} in this project: \textbf{Sophie's cabinet} itself, represented
+by Sophie and her IT assistant. The grid below captures what data
+they already produce internally, how it is formatted and stored
+today, and which constraints apply.
+
+\begin{table}[H]
+\centering
+\caption{Interview grid --- Data producers (Sophie's cabinet)}
+\label{tab:grid-prod}
+\arrayrulecolor{producerhead}
+\rowcolors{2}{producerbody}{white}
+\begin{tabularx}{\textwidth}{L{4cm} X}
+\toprule
+\rowcolor{producerhead}
+\textcolor{white}{\textbf{Question}} & \textcolor{white}{\textbf{Answer}} \\
+\midrule
+What data do you produce today? &
+``We produce three streams: (1)~\textbf{patient records} --- name,
+age, height, weight history, dietary goal, medical flags; (2)~\textbf{
+consultation notes} --- free-text observations after each visit;
+and (3)~\textbf{meal records} --- what the patient logged between
+consultations, currently on paper or in Excel. We also keep a small
+spreadsheet of the products I recommend most often, but I have to
+re-enter the nutrition values manually every time.''
+\\
+\addlinespace
+In what format? &
+Patient records: an Excel workbook with one sheet per patient.
+Consultation notes: free text inside the same workbook. Meal
+records: paper forms that the patient brings back, or photos sent
+by messaging apps. Product recommendations: a second Excel file
+with about 200 rows. ``Nothing is connected.''
+\\
+\addlinespace
+What volume and frequency? &
+Approximately \textbf{40 patients} seen per week, each logging
+\textbf{3 meals per day}. That is $\sim$840 meal entries per week,
+or $\sim$3\,600 per month. Patient master file grows by $\sim$5
+new patients per month. Sophie spends \textbf{6 to 8 hours per
+week} just on product lookup and macro computation.
+\\
+\addlinespace
+What quality controls do you apply today? &
+``None that are automated. I eyeball the macros when I review a
+patient's week. Sometimes I miss a value or type the wrong
+Nutri-Score. This is exactly what I want the platform to fix.''
+\\
+\addlinespace
+What access constraints apply? &
+The workbooks live on Sophie's laptop only. Camille, her
+nutritionist assistant, receives filtered extracts by email.
+Nobody outside the cabinet has access. No shared server, no
+backup policy.
+\\
+\addlinespace
+What \rgpd{} classification? &
+\textbf{Sensitive health data} under art.~9 \rgpd{}, legal basis
+``explicit consent'' (art.~6.1.a $+$ art.~9.2.a). Sophie collects
+consent on paper today but has no digital trace. This is one of
+her top three worries and a direct driver of the architecture:
+personal data must stay in PostgreSQL where we can delete
+individual records, never in the Parquet lake where files are
+immutable.
+\\
+\addlinespace
+What licensing / ownership? &
+The patient and meal data belongs to the cabinet. Sophie is the
+data controller. Patients remain the data subjects and retain
+full \rgpd{} rights (access, portability, deletion).
+\\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+\noindent\textbf{What this tells us about \off{}'s role.} \off{} is
+\emph{not} a data producer we interview --- it is a known public
+source we consume. The producer grid above, combined with the
+\off{} description in Section~\ref{sec:off-description}, gives us
+both halves of the equation: the public nutritional data we will
+ingest, and the private patient data we will keep under strict
+control. The rest of Block~1 is about joining the two safely.
+
+\subsection{Interview Grid --- Data Consumers (Sophie's Needs)}
+
+The only consumers of this platform are Sophie's team. Two people
+were interviewed: (i)~\textbf{Sophie herself}, the lead
+nutritionist and data controller, and (ii)~\textbf{Camille}, her
+nutritionist assistant who handles follow-up consultations. The
+grid below is the consolidated record of both interviews --- it is
+the definitive statement of what the platform must deliver for
+Sophie and her team to adopt it.
+
+\begin{table}[H]
+\centering
+\caption{Interview grid --- Data consumers (Sophie's team needs)}
+\label{tab:grid-cons}
+\arrayrulecolor{consumerhead}
+\rowcolors{2}{consumerbody}{white}
+\begin{tabularx}{\textwidth}{L{4cm} X}
+\toprule
+\rowcolor{consumerhead}
+\textcolor{white}{\textbf{Question}} & \textcolor{white}{\textbf{Sophie's team answer}} \\
+\midrule
+What analyses do you need? &
+\textit{Sophie:} ``For each patient I need daily macro totals
+(kcal, protein, lipid, carbs), weekly trends, a compliance score
+against the therapeutic target, and a list of suggested healthier
+alternatives when a product is too high in sugars or salt.''
+\textit{Camille:} ``I need a shared view across Sophie's patients
+so I can prepare the next consultation in 5 minutes instead of
+25. I also want the patient to log their own meals between visits
+so I no longer chase them by SMS.''
+\\
+\addlinespace
+What granularity? &
+Sophie and Camille need \textbf{per-meal, per-patient, per-day}
+granularity. They also want a \textbf{weekly} rollup for
+consultation preparation and a \textbf{monthly} rollup for
+pathology-specific reporting (e.g.\ diabetes follow-up).
+\\
+\addlinespace
+In what format (dashboard?
+SQL? API?)? &
+A \textbf{web dashboard} --- Sophie wants no login friction, it
+must work on laptop and tablet. Camille wants the same. Both
+asked for a \textbf{REST API} for the future: Sophie is already
+thinking about a patient-facing mobile app, and she wants the
+platform to be ready when she decides to build it.
+\\
+\addlinespace
+How fresh must the data be? &
+\textit{Sophie:} ``Overnight is fine --- I consult patients during
+the day and prepare the next day in the evening. I do not need
+real-time.'' This single answer justified a \textbf{batch-first
+architecture} with nightly DAGs rather than a streaming pipeline,
+and it is a significant simplification on cost and complexity.
+\\
+\addlinespace
+What \rgpd{} constraints on
+output? &
+Sophie must only see her own patients' data. Camille sees only
+the patients Sophie has explicitly shared with her. Both must be
+able to export a patient's data on request (\rgpd{} portability)
+and delete it on request (right to be forgotten). The platform
+must \textbf{never} expose any personal identifier outside the
+operational database --- a direct architectural constraint that
+pushed user data out of the Parquet data lake.
+\\
+\addlinespace
+What accessibility needs? &
+\textbf{Keyboard-navigable interface} --- Camille has RSI and
+cannot use a mouse for long periods. Sophie prefers
+\textbf{high-contrast Nutri-Score colours} and a readable font
+size. All documentation must be available in a searchable web
+format. The platform must run on macOS, Windows and Linux without
+installation pain --- Sophie uses a MacBook, Camille uses Windows.
+\\
+\addlinespace
+What decision-making does
+this support? &
+For Sophie: ``Should I adjust this patient's diet next week? Is
+this product a good alternative to that one?''
+For Camille: ``Is this patient on track before the next
+consultation? Which patients need follow-up today?''
+\\
+\addlinespace
+Any analytics beyond
+patient tracking? &
+\textit{Sophie:} ``Yes --- I would love to see anonymised
+aggregates across my patient population. Which nutritional
+patterns correlate with better outcomes? Which brands consistently
+score well? Which categories are dragging us down? I'm happy for
+Camille or an intern to play with these as long as no individual
+patient can be identified.''
+This answer justified the \textbf{gold layer anonymised
+aggregates} (nutrition patterns, popular products, brand rankings,
+category stats) and the \textbf{analyst role} in the Streamlit
+frontend.
+\\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+\noindent\textbf{From answers to four roles.} The consumer
+interviews with Sophie and Camille directly mapped onto four
+Streamlit roles: the \textbf{user} (patient logging meals), the
+\textbf{nutritionist} (Sophie and Camille consulting patient
+data), the \textbf{analyst} (anonymised aggregate view derived
+from Sophie's ``beyond patient tracking'' question), and the
+\textbf{admin} (platform operator --- Sophie herself or her IT
+assistant). The referential requires group-based access
+(C21); Sophie's answers gave us exactly those four groups.
+
+\subsection{Synthesis Note}
+
+The synthesis note below reads as the summary document we produced
+for Sophie at the end of the discovery phase. It follows the
+five-part structure required by the referential (context, stakes
+and reformulation; objectives and scope; opportunity study;
+feasibility study; conclusions with RICE).
+
+\subsubsection{Context, Stakes and Need Reformulation}
+
+\textbf{Context.} Nutritional transparency is a growing societal
+concern in France and across Europe, driven by the Plan National
+Nutrition Sant\'{e}, the mandatory display of Nutri-Score and the
+CNIL's reinforced enforcement of health-data protection. On the
+supply side, \off{} has assembled more than 3~million product
+entries collaboratively, but this data is fragmented, inconsistently
+formatted and difficult to exploit at the level of a single
+practitioner. Sophie's cabinet is a micro-example of a problem
+shared by thousands of French nutritionists: the data exists, but
+nobody has assembled it into a workflow.
+
+\textbf{Stakes.} If we do nothing, Sophie keeps losing more than one
+working day per week to manual product lookup, risks computational
+errors in patient nutrition plans, cannot measure patient progress
+over time, and remains exposed to \rgpd{} sanctions on sensitive
+health data. If we deliver a centralized platform, she recovers
+capacity, improves the quality of her care, and enters into
+compliance.
+
+\textbf{Need reformulation.} Build an end-to-end data engineering
+platform that (1)~collects food-product data from three
+heterogeneous sources (REST API, Parquet bulk file, web scraping),
+(2)~cleans and normalizes 798\,177 French products into a unified
+dataset of 777\,116 validated records,
+(3)~lets patients log meals with a single click and computes daily
+macronutrient totals, (4)~gives Sophie and her assistant a
+time-series view of patient progress, (5)~exposes anonymized
+aggregates to the analyst through a gold layer and a data
+catalogue, and (6)~implements full \rgpd{} compliance by design
+(consent, retention, pseudonymization, erasure).
+
+\subsubsection{Objectives and Scope}
+
+The functional scope covers: data collection (3 source types: REST API, Parquet file, web scraping), data
+cleaning and aggregation (PySpark 3.5 pipeline), relational storage
+(PostgreSQL 16 with four schemas \texttt{app}, \texttt{raw},
+\texttt{staging}, \texttt{dw}), analytical warehouse (star schema,
+7 dimensions, 2 fact tables), data lake (MinIO medallion
+bronze/silver/gold), REST API (FastAPI, 8 endpoints, JWT, 3 API
+roles), four-role Streamlit front-end (user, nutritionist, analyst,
+admin), monitoring stack (Prometheus and Grafana with 6 dashboards,
+Mailhog SMTP alerts) and \rgpd{} compliance across the whole stack.
+Out of scope: real-time streaming, native mobile clients,
+multi-tenant isolation and payment/billing integration.
+
+\subsubsection{Opportunity Study}
+
+\textbf{Interview synthesis.} The producer interviews (see
+Table~\ref{tab:grid-prod}) confirmed that the primary data source
+(\off{}) offers \textbf{two complementary access methods} --- a REST
+API for fresh incremental data and a Parquet bulk dump for full
+reprocessing --- and that both are free and openly licensed. They
+also confirmed a sharp split between fully public nutritional data
+and strictly sensitive practice data, which directly drove the
+warehouse-plus-lake architecture described in
+Section~\ref{sec:e2} and fully detailed in Chapter~\ref{ch:bloc4}. The consumer interviews
+(Table~\ref{tab:grid-cons}) confirmed Sophie's ask: no need for
+real-time (overnight is fine), strong need for granular per-patient
+tracking, strong need for separation of roles, and explicit demand
+for a catalogue so the analyst can browse what is available.
+
+\textbf{Benchmark.} We compared Yuka, MyFitnessPal, Cronometer and
+Foodvisor. None of them provide an open-source, self-hosted
+platform with full data lineage, a data warehouse, a data lake and
+an analyst interface. Most are consumer-facing mobile apps with a
+closed back end. The gap justified building \nutritrack{} as a
+practitioner-grade data engineering platform rather than forcing
+Sophie into a mobile app designed for end consumers.
+
+\subsubsection{Feasibility Study}
+
+\begin{itemize}[nosep]
+  \item \textbf{Technical feasibility.} The OFF REST API and
+        Parquet dump are freely available and stable. DuckDB can
+        query the 4.2\,GB Parquet file in approximately 12 seconds
+        on a developer laptop. Docker Compose enables reproducible
+        deployment of the 15 services on a single machine. All
+        components are proven in production elsewhere.
+  \item \textbf{Data feasibility.} 798\,177 French products with
+        95\,\%+ completeness on the key nutritional fields (energy,
+        proteins, fat, carbohydrates). Enough volume to make the
+        product-search feature useful from day one.
+  \item \textbf{Organizational feasibility.} Solo developer project
+        over 12 one-week sprints (3 months), supported by an agent
+        team for CI/CD, review and presentation. All tools are
+        open-source with extensive documentation.
+  \item \textbf{Financial feasibility.} Zero infrastructure cost
+        (Docker on existing hardware), zero licensing cost
+        (100\,\% open source); see CAPEX analysis in
+        Section~\ref{sec:capex}.
+\end{itemize}
+
+\subsubsection{RICE Prioritization}
+
+The RICE matrix below prioritizes the backlog that came out of the
+synthesis. Features that directly address Sophie's top two pain
+points (product search and meal/macro tracking) score highest.
+
+\begin{table}[H]
+\centering
+\caption{RICE scoring for feature prioritization}
+\label{tab:rice}
+\begin{tabularx}{\textwidth}{L{3.5cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.5cm}}
+\toprule
+\rowcolor{ntgreen!80}
+\textcolor{white}{\textbf{Feature}} & \textcolor{white}{\textbf{Reach}} & \textcolor{white}{\textbf{Impact}} & \textcolor{white}{\textbf{Conf.}} & \textcolor{white}{\textbf{Effort}} & \textcolor{white}{\textbf{RICE}} \\
+\midrule
+\rowcolor{ntlightgreen!30}
+Product search + alternatives & 5 & 3 & 0.9 & 2 & \textbf{\textcolor{ntgreen}{6.75}} \\
+ETL pipeline (full) & 4 & 3 & 1.0 & 3 & 4.00 \\
+\rowcolor{ntlightgreen!30}
+RBAC governance & 3 & 2 & 0.9 & 1 & \textbf{\textcolor{ntgreen}{5.40}} \\
+Meal tracking + nutrition & 4 & 2 & 0.9 & 2 & 3.60 \\
+\rowcolor{ntlightgreen!30}
+Star schema DW & 3 & 3 & 0.8 & 3 & 2.40 \\
+Medallion data lake & 3 & 2 & 0.8 & 2 & 2.40 \\
+\rowcolor{ntlightgreen!30}
+SCD historization & 2 & 2 & 0.7 & 1 & 2.80 \\
+Monitoring (Prometheus/Grafana) & 2 & 2 & 0.8 & 2 & 1.60 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+{\footnotesize \textbf{Scale.} Reach (1--5 stakeholder groups),
+Impact (1--3), Confidence (0--1), Effort (1--3 sprints).
+RICE $=$ (Reach $\times$ Impact $\times$ Confidence) / Effort.}
+
+\subsection{SMART Objectives}
+
+After analyzing Sophie's answers, the consumer interviews and the
+RICE prioritization, we converted the need into SMART objectives.
+These objectives are the acceptance criteria of the project and
+are tracked throughout the sprints.
+
+\begin{itemize}[nosep]
+  \item \textbf{Specific.} Centralize nutritional data from three
+        heterogeneous sources (OFF REST API, OFF Parquet dump
+        queried with DuckDB, ANSES/EFSA web scraping) into a
+        unified platform serving four user roles (user, nutritionist,
+        analyst, admin).
+  \item \textbf{Measurable.} Process 798\,177 raw French products
+        down to 777\,116 cleaned records (2.6\,\% removal), with
+        sub-5-second product search, $\geq$95\,\% ETL success rate
+        and six formal data-quality checks logged in
+        \texttt{staging.data\_quality\_checks}.
+  \item \textbf{Achievable.} Use only proven open-source
+        components orchestrated by Docker Compose (15 services,
+        7 Airflow DAGs) on a single developer machine, with a
+        migration path to Kubernetes for later scaling.
+  \item \textbf{Relevant.} Directly addresses Sophie's five pain
+        points: manual product lookup, spreadsheet macro
+        calculation, missing progress tracking, fragmented tool
+        landscape and \rgpd{} exposure on sensitive health data.
+  \item \textbf{Time-bound.} Deliver within a 12-week timeline
+        structured in six phases (see Section~\ref{sec:e3}).
+\end{itemize}
+
+\subsection{Pre-Project}
+
+With the objectives set, the pre-project note below captured the
+macro technical recommendations we would validate with Sophie, the
+accessibility accommodations we committed to, and the \rgpd{}
+actions we would implement from day one. This is the input to the
+E2 architecture study and the E3 kickoff meeting.
+
+\textbf{Macro technical recommendations.}
+\begin{itemize}[nosep]
+  \item PostgreSQL 16 for both OLTP and OLAP, split across the
+        schemas \texttt{app}, \texttt{raw}, \texttt{staging} and
+        \texttt{dw}; migration path to a dedicated OLAP engine at
+        scale.
+  \item Apache Airflow 2.8 with CeleryExecutor for ETL
+        orchestration; 7 DAGs scheduled between 02:00 and 06:00
+        UTC.
+  \item PySpark 3.5 for distributed data cleaning on 800\,K+
+        records with a 7-rule pipeline.
+  \item MinIO as a self-hosted, S3-compatible object store, used
+        as the data lake with bronze, silver and gold buckets.
+  \item FastAPI for an async REST API with JWT authentication and
+        three API roles.
+  \item Streamlit for a single four-role front-end (user,
+        nutritionist, analyst, admin) replacing a separate BI
+        tool.
+  \item Docker Compose for reproducible deployment of the
+        15-service stack with a single command.
+\end{itemize}
+
+\textbf{Accessibility accommodations.}
+\begin{itemize}[nosep]
+  \item Streamlit UI with high-contrast Nutri-Score colour coding
+        (A in green, E in red) and readable default font size.
+  \item All API documentation exposed through Swagger UI and
+        ReDoc, both fully keyboard-navigable for Camille's RSI
+        constraint.
+  \item MkDocs documentation site with responsive layout,
+        full-text search and semantic HTML.
+  \item Grafana dashboards configured with colourblind-friendly
+        palettes.
+  \item Workstation adaptation: the platform runs entirely in
+        Docker, deployable on macOS, Linux and Windows without
+        native dependencies, so Sophie's team can use the hardware
+        they already have.
+\end{itemize}
+
+\textbf{\rgpd{} compliance actions.}
+\begin{itemize}[nosep]
+  \item Consent-based registration with an explicit opt-in
+        checkbox; consent date stored on the \texttt{users} table.
+  \item Data retention limits: user accounts 3 years after last
+        activity, meal tracking records 2 years.
+  \item SHA256 pseudonymization of user identifiers when data
+        flows from the \texttt{app} schema to the \texttt{dw}
+        schema.
+  \item Automated cleanup through the
+        \texttt{rgpd\_cleanup\_expired\_data()} PL/pgSQL function,
+        scheduled as a dedicated Airflow DAG.
+  \item Personal data registry (Table~\ref{tab:rgpd}) maintained
+        in the \texttt{rgpd\_data\_registry} table and kept in
+        sync with any schema change.
+  \item \textbf{No personal data in the data lake}: only
+        anonymized aggregates in the gold layer, because Parquet
+        files are immutable and cannot support row-level erasure.
+  \item Data-lake lifecycle rules: bronze expires at 90 days,
+        backups at 30 days.
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{From Sophie's Answers to a Running Platform}
+\label{sec:e2}
+{\small\evaluation{E2} | \competence{C1, C2, C3, C4, C6} |
+Deliverable: professional report}
+
+The previous section captured Sophie's need in words. This section
+turns those words into an engineering artifact: a complete data
+topography, a technical architecture, a monitoring routine and a
+supervision framework. Each sub-section is written as the answer
+Sophie would hear if she asked ``and how exactly will it work?''.
+The four sub-sections of the data topography follow the four parts
+mandated by the referential for competency \competence{C2}
+(semantics, data models, treatments and flows, access and usage);
+the architecture study covers the functional, non-functional,
+decisional, \rgpd{}, eco-responsibility and cost angles mandated
+by \competence{C3}; the monitoring sub-section covers \competence{C4}
+and the supervision sub-section covers \competence{C6}.
+
+\subsection{Data Topography (\competence{C2})}
+
+\subsubsection{Semantics --- Business Glossary}
+
+Before touching a database we wrote the business glossary Sophie
+would recognise. The nine business objects below are the
+vocabulary shared by the interview grids, the source code, the
+database schema and the Streamlit front-end. Every table, every
+column and every API response maps to one of these objects.
+
+\begin{table}[H]
+\centering
+\caption{Business glossary --- Main objects}
+\label{tab:glossary}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{5cm} L{5.5cm}}
+\toprule
+\textbf{Business Object} & \textbf{Description Sophie would recognise} & \textbf{Key Metadata} \\
+\midrule
+Product & A food product identified by its barcode, as Sophie finds it on \off{} & barcode, name, brand, category, nutrition per 100\,g, Nutri-Score, NOVA, Eco-Score \\
+Brand & The manufacturer or distributor that owns a product line & name, parent company, country \\
+Category & The hierarchical food classification used to group similar products & name, parent category, level \\
+User (patient) & A patient Sophie follows, consenting to store health data & UUID, email (hashed), role, therapeutic goal, activity level \\
+Meal & A logged eating occasion for a patient on a given date & meal type (breakfast/lunch/dinner/snack), date, user\_id \\
+Meal Item & A specific product consumed within a meal, with quantity & product\_id, quantity in grams, computed nutrition \\
+Nutritional Target & The daily reference intake for a patient (kcal, macros, sodium) & kcal, protein\_g, lipid\_g, carbs\_g, sodium\_g \\
+Alert & An \rgpd{} or operational event requiring attention & level (CRITICAL/WARNING/INFO), source DAG, timestamp, message \\
+Dataset Card & The catalogue entry for a lake dataset, with lineage and RGPD info & layer, format, source, schema, retention, access groups \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Data Models}
+
+Sophie's data lives in three very different shapes --- structured
+tables, semi-structured JSON, and columnar Parquet files --- so we
+use three different modelling approaches per storage layer.
+Structured data lives in PostgreSQL in 3NF for the operational
+layer and in a Kimball star schema for the warehouse;
+semi-structured data lives in MinIO, raw JSON at the bronze level
+and cleaned Parquet at the silver and gold levels.
+
+\begin{table}[H]
+\centering
+\caption{Data models by storage layer}
+\label{tab:data-models-topo}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2cm} L{3.5cm} L{4.5cm}}
+\toprule
+\rowcolor{ntblue!80}
+\textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Type}} & \textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Description}} \\
+\midrule
+\rowcolor{ntlightblue!20}
+Operational (app) & Structured & Relational (3NF) & Products, brands, categories, users, meals, meal\_items with FK constraints and RGPD columns \\
+\rowcolor{ntlightblue!20}
+Raw staging (raw) & Structured & 1:1 mirror tables & Untyped landing tables for each source; filled by the ingest DAGs before cleaning \\
+\rowcolor{ntlightblue!20}
+Staging (staging) & Structured & Quality tables & \texttt{data\_quality\_checks}, typed staging of cleaned products before load into \texttt{dw} \\
+\rowcolor{ntlightblue!20}
+Data Warehouse (dw) & Structured & Star schema (Kimball) & 7 dimensions (time, product, brand, category, country, user, nutriscore) + 2 fact tables \\
+\rowcolor{ntlightgreen!25}
+Data Lake (bronze) & Semi-structured & Raw files & JSON (API, scraping), Parquet (bulk export), unmodified from source \\
+\rowcolor{ntlightgreen!25}
+Data Lake (silver) & Semi-structured & Cleaned Parquet & Unified schema, validated, deduplicated \\
+\rowcolor{ntlightgreen!25}
+Data Lake (gold) & Semi-structured & Analytical Parquet & Four anonymized aggregates for the analyst \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Treatments and Data Flows --- Flux Matrix}
+
+The flux matrix below documents all source-to-target flows that
+carry Sophie's data through the platform. The three external
+extractions (API, Parquet, scraping) feed the cleaning pipeline,
+which then feeds both the operational database and the medallion
+data lake. Each flow has a dedicated Python script or Airflow task,
+and each is versioned on Git. The TikZ diagram that follows gives
+the same information in visual form.
+
+\begin{table}[H]
+\centering
+\caption{Flux matrix --- Source, format, target, script, frequency}
+\label{tab:flux-matrix}
+\begin{tabularx}{\textwidth}{L{0.5cm} L{3.3cm} L{1.6cm} L{3cm} L{3.6cm} L{1.5cm}}
+\toprule
+\textbf{\#} & \textbf{Source} & \textbf{Format} & \textbf{Target} & \textbf{Script / task} & \textbf{Freq.} \\
+\midrule
+1 & OFF REST API (5 categories) & JSON & \texttt{data/raw/api/} & \texttt{extract\_off\_api.py} & Daily \\
+2 & OFF Parquet (HuggingFace) & Parquet & \texttt{data/raw/parquet/} & \texttt{extract\_off\_parquet.py} + DuckDB & Weekly \\
+3 & ANSES / EFSA portal & HTML/CSV & \texttt{data/raw/scraping/} & \texttt{extract\_scraping.py} & Monthly \\
+4 & raw/* (all 3 sources) & Mixed & \texttt{data/cleaned/} & \texttt{aggregate\_clean.py} (PySpark) & Daily \\
+5 & cleaned products & Parquet & app.products (PostgreSQL) & \texttt{import\_to\_db.py} & Daily \\
+6 & app.* & SQL & dw.* (star schema) & \texttt{etl\_warehouse.py} & Daily \\
+7 & cleaned Parquet & Parquet & MinIO bronze/silver/gold & \texttt{etl\_datalake\_ingest.py} & Daily \\
+8 & dw.fact\_* & SQL & gold/*.parquet (aggregates) & \texttt{publish\_anonymized\_aggregates} & Daily \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=0.6cm,
+  source/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!30,
+    minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  process/.style={
+    rectangle, rounded corners=3pt, draw=ntorange, fill=ntorange!15,
+    minimum width=2.5cm, minimum height=0.9cm,
+    font=\scriptsize, align=center
+  },
+  target/.style={
+    rectangle, rounded corners=3pt, draw=ntgreen, fill=ntlightgreen!40,
+    minimum width=2.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+
+% Sources
+\node[source] (api) {OFF REST\\API};
+\node[source, right=1.2cm of api] (pq) {OFF Parquet\\(DuckDB)};
+\node[source, right=1.2cm of pq] (scrap) {ANSES/EFSA\\Scraping};
+
+% Processing
+\node[process, below=1.2cm of pq] (agg) {aggregate\_clean.py\\PySpark --- Merge, Clean, Dedupe};
+\node[process, right=1.5cm of agg] (bronze) {Bronze\\(MinIO raw)};
+
+% Targets
+\node[target, below=1.2cm of agg] (import) {import\_to\_db.py\\app schema};
+\node[target, below=1.2cm of bronze] (silverT) {Silver\\(cleaned)};
+
+\node[target, below=1cm of import] (dw) {Star Schema DW\\dw schema};
+\node[target, below=1cm of silverT] (goldT) {Gold\\(analytics)};
+
+% Arrows from sources
+\draw[arr] (api.south) -- ++(0,-0.4) -| (agg.north);
+\draw[arr] (pq.south) -- (agg.north);
+\draw[arr] (scrap.south) -- ++(0,-0.4) -| (agg.north);
+\draw[arr] (api.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (pq.south) -- ++(0,-0.4) -| (bronze.north);
+\draw[arr] (scrap.south) -- ++(0,-0.4) -| (bronze.north);
+
+% Processing to targets
+\draw[arr] (agg) -- (import);
+\draw[arr] (bronze) -- (silverT);
+\draw[arr] (import) -- (dw);
+\draw[arr] (silverT) -- (goldT);
+
+\end{tikzpicture}%
+}
+\caption{Data pipeline --- From sources to analytical layers}
+\label{fig:data-pipeline}
+\end{figure}
+
+
+\subsubsection{Access and Usage Conditions}
+
+The access matrix below documents how each data source can be
+reached, under which licence, and by which roles. It is written
+from Sophie's point of view: ``who is allowed to see what, and
+how?''. The four-role split (user, nutritionist, analyst, admin)
+comes directly from the data-consumer interview.
+
+\begin{table}[H]
+\centering
+\caption{Data source access and licensing}
+\label{tab:access-conditions}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{3cm} L{4.5cm}}
+\toprule
+\textbf{Data Source} & \textbf{Access Method} & \textbf{License} & \textbf{Conditions} \\
+\midrule
+OFF REST API & HTTP GET & ODbL v1.0 & Rate limit 100 req/min; User-Agent required; throttled at 0.6\,s \\
+OFF Parquet & HuggingFace download & ODbL v1.0 & 4.2\,GB bulk file; refreshed weekly \\
+ANSES/EFSA & Web scraping & Public (licence ouverte) & Respectful crawling; \texttt{robots.txt} compliance; monthly \\
+PostgreSQL (app) & SQL connection & Internal & JWT-authenticated via FastAPI; role-based access \\
+DuckDB analytics & Embedded SQL & Internal & Read-only on Parquet files in MinIO bronze \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Role-based access matrix --- Who sees what}
+\label{tab:rbac-matrix}
+\begin{tabularx}{\textwidth}{L{2.3cm} L{2.8cm} L{2.8cm} L{2.8cm} L{2.3cm}}
+\toprule
+\textbf{Role} & \textbf{PostgreSQL (app)} & \textbf{PostgreSQL (dw)} & \textbf{MinIO} & \textbf{Streamlit pages} \\
+\midrule
+User (patient) & Own meals only & None & None & 6 pages: search, meal log, daily dashboard, trends, compare, alternatives \\
+Nutritionist & Read all meals & None & None & 7 pages: 6 user pages + Nutritionist Dashboard \\
+Analyst & Read products only & Read datamarts & Read gold & 7 pages: 6 user pages + Product Analytics \\
+Admin & Full & Full & Full & 8 pages: all pages \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Data availability.} The OFF dataset is available 24/7 via
+both API and bulk download. ANSES reference values are static and
+cached locally after the monthly scrape. Internal PostgreSQL data
+is available whenever the Docker Compose stack is running, which
+includes Docker healthchecks and a FastAPI \texttt{/health}
+endpoint so the admin can verify availability in one call.
+
+\subsection{Technical Architecture Study (\competence{C3})}
+
+\subsubsection{Functional Analysis}
+
+When Sophie asked ``what does the system \emph{do}?'', we gave her
+the following six-function summary. Each function is a direct
+answer to a pain point and each is realised by one or more
+components of the stack.
+
+\begin{itemize}[nosep]
+  \item \textbf{F1 --- Collect.} The system collects food-product
+        data from 3 heterogeneous sources (REST API, Parquet bulk
+        dump queried with DuckDB, web scraping) and lands it in a
+        raw zone.
+  \item \textbf{F2 --- Clean and normalize.} A 7-rule PySpark
+        pipeline cleans, deduplicates and unifies the data into a
+        single silver Parquet file, running 6 formal data-quality
+        checks in the process.
+  \item \textbf{F3 --- Store.} Cleaned data is loaded into
+        PostgreSQL \texttt{app} and propagated to the \texttt{dw}
+        star schema; a parallel path ingests it into the MinIO
+        medallion lake.
+  \item \textbf{F4 --- Expose.} Data is exposed through a secured
+        FastAPI with 8 endpoints, JWT authentication and 3 API
+        roles.
+  \item \textbf{F5 --- Interact.} Users interact through a
+        single Streamlit front-end with four role-based dashboards
+        (user, nutritionist, analyst, admin).
+  \item \textbf{F6 --- Observe.} The whole stack is observable
+        through 6 Grafana dashboards, Airflow UI and Mailhog
+        alerts, with SLA indicators tracked to four targets.
+\end{itemize}
+
+\subsubsection{Non-Functional Requirements}
+
+Sophie did not ask about CPU cores, but her answers imposed clear
+non-functional constraints: product search must be fast enough not
+to interrupt a consultation, data must never be lost, sensitive
+data must stay encrypted and pseudonymised, and the platform must
+be observable end to end.
+
+\begin{table}[H]
+\centering
+\caption{Non-functional requirements and chosen solutions}
+\label{tab:nonfunc}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{4cm} L{6cm}}
+\toprule
+\textbf{Constraint} & \textbf{Requirement} & \textbf{Solution} \\
+\midrule
+Performance & Product search $<$ 1\,s, dashboard $<$ 5\,s & GIN full-text index on \texttt{product\_name}; connection pooling (\texttt{pool\_size=10}); materialised views for datamarts \\
+Scalability & Handle 3M+ products in the source & DuckDB for in-memory analytics on Parquet; PySpark for distributed cleaning \\
+Reliability & Zero data loss; ETL success $\geq$ 95\,\% & Airflow retries (2--3 attempts); audit log in \texttt{app.etl\_activity\_log}; 6 data-quality checks \\
+Security & No plaintext passwords; no personal data to third parties & bcrypt hashing; JWT HS256; RBAC at API and DB level; pseudonymization in \texttt{dw} \\
+Availability & Live health monitoring under 1 minute lag & Docker healthchecks; Airflow UI; \texttt{/health} endpoint; Prometheus scrape every 15\,s \\
+Compliance & \rgpd{} by design & \texttt{rgpd\_data\_registry} table; consent columns; \texttt{rgpd\_cleanup\_expired\_data()}; no personal data in the lake \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Architecture Decisions}
+
+Each architecture decision below was documented by listing the
+chosen option, the two main alternatives, and the rationale.
+Competency \competence{C3} explicitly requires documented
+architecture decisions, so each row was validated during sprint
+reviews with the agent team acting as reviewers.
+
+\begin{table}[H]
+\centering
+\caption{Key architecture decisions with alternatives considered}
+\label{tab:arch-decisions}
+\begin{tabularx}{\textwidth}{L{3cm} L{2.5cm} L{7.5cm}}
+\toprule
+\textbf{Decision} & \textbf{Choice} & \textbf{Rationale and alternatives} \\
+\midrule
+OLTP / OLAP DB & Single PostgreSQL 16 & Single engine, schema isolation (\texttt{app}, \texttt{raw}, \texttt{staging}, \texttt{dw}), row-level RGPD delete, ACID. \textit{Alt.1 MySQL:} weaker window functions and JSONB. \textit{Alt.2 MongoDB:} no ACID, no row-level RGPD delete. \\
+ETL orchestrator & Apache Airflow 2.8 & Mature, DAG-based, web UI, Celery for scale. \textit{Alt.1 Prefect:} less mature, smaller ecosystem. \textit{Alt.2 Luigi:} no web UI, stagnating. \\
+ETL engine & PySpark 3.5 & Distributed cleaning on 800\,K+ rows, cluster-ready. \textit{Alt.1 pandas:} memory limits. \textit{Alt.2 dbt:} SQL-only, no Python UDF for barcode cleaning. \\
+Data lake storage & MinIO (S3-compatible) & Self-hosted, zero cost, S3-compatible so migration to AWS is trivial. \textit{Alt.1 HDFS:} heavy to operate. \textit{Alt.2 AWS S3:} running cost and vendor lock-in. \\
+API framework & FastAPI (async) & Native async, automatic OpenAPI docs, Pydantic validation. \textit{Alt.1 Flask:} sync, manual OpenAPI. \textit{Alt.2 Django REST:} heavy for 8 endpoints. \\
+Front-end & Streamlit (4 roles) & Single app for all roles, Python-only, replaces BI tool. \textit{Alt.1 Superset:} extra service, separate RBAC. \textit{Alt.2 Metabase:} less customizable per role. \\
+Big-data extraction & DuckDB & Direct Parquet reads, SQL interface, zero config, $\sim$12\,s on 4.2\,GB. \textit{Alt.1 Spark SQL:} heavier to run. \textit{Alt.2 Trino:} cluster required. \\
+Authentication & JWT + bcrypt & Stateless, scalable, standard REST. \textit{Alt.1 OAuth2 server:} complex for a solo practice. \textit{Alt.2 Session cookies:} stateful, harder to scale. \\
+DW approach & Bottom-up (Kimball) & Fast value delivery; datamarts first. \textit{Alt.1 Top-down (Inmon):} longer initial setup, overkill at this scale. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{\rgpd{} Compliance}
+
+\begin{table}[H]
+\centering
+\caption{Personal data registry (excerpt)}
+\label{tab:rgpd}
+\begin{tabularx}{\textwidth}{L{2.8cm} L{2.5cm} L{2cm} L{5.5cm}}
+\toprule
+\textbf{Category} & \textbf{Legal Basis} & \textbf{Retention} & \textbf{Security Measures} \\
+\midrule
+User account & Consent (Art.~6.1.a) & 3 years & bcrypt hashing, encrypted storage \\
+User profile & Consent (Art.~6.1.a) & 3 years & Pseudonymized (SHA256) in analytics \\
+Meal tracking & Consent (Art.~6.1.a) & 2 years & Associated with UUID, deletable on request \\
+Product data & Legitimate interest (Art.~6.1.f) & Indefinite & Public data \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Sorting and deletion procedures:}
+\begin{itemize}[nosep]
+  \item \texttt{rgpd\_cleanup\_expired\_data()}: PL/pgSQL function automating
+        deletion of meals $>$~2 years and deactivation of accounts past
+        retention
+  \item Data lake lifecycle rules: Bronze expires at 90 days,
+        backups at 30 days
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=0.7cm and 1.5cm,
+  procstep/.style={
+    rectangle, rounded corners=4pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=3.2cm, minimum height=0.9cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  decision/.style={
+    diamond, draw=ntorange, fill=ntorange!15,
+    minimum width=1.5cm, minimum height=1cm,
+    font=\scriptsize, aspect=2, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+
+% Steps
+\node[procstep] (collect) {Data collection\\{\tiny with consent}};
+\node[procstep, right=2cm of collect] (registry) {Register in\\\rgpd{} registry};
+\node[procstep, below=1cm of registry] (hash) {Pseudonymization\\{\tiny SHA256 in DW}};
+\node[procstep, below=1cm of hash] (retention) {Retention\\check};
+\node[decision, below=1cm of retention] (expired) {Expired?};
+\node[procstep, below left=1cm and 1.5cm of expired] (keep) {Keep\\{\tiny controlled access}};
+\node[procstep, below right=1cm and 1.5cm of expired] (delete) {Delete /\\Deactivate};
+
+% Arrows
+\draw[arr] (collect) -- (registry);
+\draw[arr] (registry) -- (hash);
+\draw[arr] (hash) -- (retention);
+\draw[arr] (retention) -- (expired);
+\draw[arr] (expired) -- node[font=\tiny, left] {No} (keep);
+\draw[arr] (expired) -- node[font=\tiny, right] {Yes} (delete);
+
+\end{tikzpicture}%
+}
+\caption{\rgpd{} process --- From consent to deletion}
+\label{fig:rgpd-process}
+\end{figure}
+
+\subsubsection{Eco-Responsibility Strategy}
+
+Sophie's cabinet cares about its environmental footprint --- not
+as a marketing argument, but because her patients increasingly
+ask about it. We aligned the platform with the French
+\textbf{RGESN} (Référentiel Général d'Écoconception de Services
+Numériques) on five concrete axes:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Efficient queries.} DuckDB processes 3\,M+
+        products without fully loading them, using columnar
+        projection. PostgreSQL queries are indexed (GIN, B-tree)
+        so no full-table scans occur on critical paths.
+  \item \textbf{Minimal transfers.} The OFF REST API is paginated,
+        the Parquet dump is downloaded incrementally, and the ETL
+        only reprocesses changed records where possible.
+  \item \textbf{Lifecycle rules.} Bronze expires at 90 days and
+        backups at 30 days, so we do not pay storage (energy) for
+        data nobody reads.
+  \item \textbf{Lightweight containers.} Where possible we use
+        Alpine-based images (PostgreSQL, Redis) to reduce the
+        memory and disk footprint of the 15-service stack.
+  \item \textbf{Batch processing during off-peak hours.} All
+        heavy DAGs run between 02:00 and 06:00 UTC when the local
+        grid is cleaner and the host machine is otherwise idle.
+\end{enumerate}
+
+\subsubsection{Risks and Costs}
+\label{sec:capex}
+
+\textbf{CAPEX / total project cost analysis.} The project cost
+breaks down into two categories: \textbf{engineering cost} (the
+team that built the platform) and \textbf{infrastructure cost}
+(the hardware and software to run it).
+
+\textbf{Engineering cost (CAPEX).} Sophie paid for a team of
+engineers over 3~months to design, build and deploy the platform.
+Based on market rates:
+
+\begin{table}[H]
+\centering
+\caption{Engineering cost --- Project CAPEX}
+\begin{tabularx}{\textwidth}{L{5cm} C{2cm} C{2cm} C{3cm}}
+\toprule
+\textbf{Role} & \textbf{Duration} & \textbf{Rate} & \textbf{Cost} \\
+\midrule
+Data Engineer (lead) & 3 months FT & 550\,EUR/day & $\sim$36\,300\,EUR \\
+Data Architect & 6 weeks PT & 550\,EUR/day & $\sim$8\,250\,EUR \\
+DevOps / CI-CD & 3 weeks PT & 500\,EUR/day & $\sim$3\,750\,EUR \\
+\midrule
+\textbf{Total engineering CAPEX} & & & \textbf{$\sim$48\,300\,EUR} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+This is a \textbf{one-time investment}. Once delivered, Sophie
+operates the platform herself with near-zero running cost.
+
+\textbf{Infrastructure cost (OPEX).} The platform runs entirely on
+Docker Compose on existing hardware. No cloud subscription, no paid
+database, no licensed BI tool. Operating expenditure is under
+\textbf{100\,EUR per year} (domain name plus marginal electricity).
+For reference, an equivalent deployment on AWS would cost roughly
+8\,000 to 10\,000\,EUR per year:
+
+\begin{table}[H]
+\centering
+\caption{Infrastructure cost comparison --- Docker on-premise vs.\ AWS managed}
+\label{tab:capex}
+\begin{tabularx}{\textwidth}{L{4cm} C{2.5cm} C{2.5cm} L{3.5cm}}
+\toprule
+\textbf{Component} & \textbf{Docker (actual)} & \textbf{AWS equivalent} & \textbf{Notes} \\
+\midrule
+Compute (15 services) & 0\,EUR & $\sim$2\,400\,EUR/yr & t3.xlarge (4 vCPU, 16\,GB) \\
+PostgreSQL 16 & 0\,EUR & $\sim$1\,800\,EUR/yr & RDS db.t3.medium \\
+Object storage (6\,GB) & 0\,EUR & $\sim$50\,EUR/yr & S3 Standard \\
+ETL orchestration & 0\,EUR & $\sim$2\,400\,EUR/yr & MWAA (managed Airflow) \\
+Monitoring & 0\,EUR & $\sim$1\,200\,EUR/yr & CloudWatch + Grafana Cloud \\
+Networking / data transfer & 0\,EUR & $\sim$150\,EUR/yr & Outbound traffic \\
+\midrule
+\textbf{Total annual OPEX} & \textbf{$<$100\,EUR} & \textbf{$\sim$8\,000\,EUR/yr} & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Licensing.} All software components are open-source
+(PostgreSQL, Airflow, MinIO, FastAPI, PySpark, DuckDB, Streamlit,
+Prometheus, Grafana, Redis). Total licensing cost:
+\textbf{0\,EUR}. Combined with the Docker-only infrastructure,
+Sophie's total cost of ownership is $\sim$48\,300\,EUR one-time
+engineering plus $<$100\,EUR/year to run --- versus $\sim$8\,000\,EUR/year
+on cloud plus the same engineering bill.
+
+\textbf{Risk evaluation per phase.} Each of the six project phases
+has its own risk profile. The table below captures the top risks,
+their probability and impact, and the mitigation we implemented.
+
+\begin{table}[H]
+\centering
+\caption{Risk evaluation by project phase}
+\label{tab:risks}
+\begin{tabularx}{\textwidth}{C{1cm} L{3.5cm} C{1.2cm} C{1.2cm} L{4.5cm}}
+\toprule
+\textbf{Phase} & \textbf{Risk} & \textbf{Prob.} & \textbf{Impact} & \textbf{Mitigation} \\
+\midrule
+1 & Incomplete requirements & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Interview grids with all stakeholder groups; iterative validation with Sophie \\
+2 & API rate limiting / data unavailability & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Multi-source strategy (API + Parquet + scraping); local caching \\
+2 & Data-quality issues in OFF & \cellcolor{ntred!25}High & \cellcolor{ntorange!25}Medium & 7-rule PySpark cleaning; 6 data-quality checks; cleaning report \\
+3 & Schema evolution breaking API & \cellcolor{ntlightgreen!40}Low & \cellcolor{ntred!25}High & Versioned API (\texttt{/api/v1/}); migration scripts \\
+4 & ETL failures blocking analytics & \cellcolor{ntorange!25}Medium & \cellcolor{ntred!25}High & Airflow retries (2--3 attempts); Mailhog alerting; SLA dashboard \\
+4 & SCD complexity causing data inconsistencies & \cellcolor{ntorange!25}Medium & \cellcolor{ntorange!25}Medium & Unit tests for SCD logic; \texttt{IS DISTINCT FROM} for NULL handling \\
+5 & MinIO storage exhaustion & \cellcolor{ntlightgreen!40}Low & \cellcolor{ntorange!25}Medium & Lifecycle rules (bronze 90\,d, backups 30\,d); storage monitoring \\
+6 & Integration issues between services & \cellcolor{ntorange!25}Medium & \cellcolor{ntorange!25}Medium & Docker Compose healthchecks; end-to-end pipeline testing \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Technical Monitoring (\competence{C4})}
+
+Competency \competence{C4} requires a disciplined technical watch:
+regular schedule, selected sources, reliable aggregation and
+accessible communication. We run the watch weekly (approximately
+1 hour per week) on three themes that are directly relevant to
+Sophie's platform, and publish a short newsletter on the MkDocs
+site (see Section~\ref{sec:c20}).
+
+\begin{table}[H]
+\centering
+\caption{Weekly technical watch --- Themes, sources, status}
+\label{tab:veille}
+\begin{tabularx}{\textwidth}{L{3cm} L{4cm} L{4cm} L{2.5cm}}
+\toprule
+\textbf{Theme} & \textbf{Sources tracked} & \textbf{Why it matters} & \textbf{Status} \\
+\midrule
+Streamlit multi-role RBAC & Streamlit release notes, Streamlit community, PyCon talks & Our 4-role dashboard depends on Streamlit's session state and auth patterns & Applied --- replaces Superset \\
+\rgpd{} and health data & CNIL guidelines, EDPB opinions, Légifrance & Sophie handles sensitive health data; rules tighten every quarter & Compliant --- EDPB Jan.\ 2026 opinion reviewed \\
+Airflow 2.x evolution & Airflow release notes, \textit{airflow.apache.org} blog, GitHub issues & Our entire ETL runs on Airflow 2.8 & Monitored --- object-storage backend noted for future work \\
+PySpark on small clusters & Spark release notes, Databricks blog & Our cleaning pipeline must run on a single dev machine & Monitored --- AQE enabled \\
+Data catalogue tools & OpenMetadata, DataHub, Amundsen blogs & Our custom catalogue may migrate later & Monitored --- DataHub identified as next step \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Source reliability criteria.} Each source is rated against
+four criteria: authority (official vendor, peer-reviewed, or
+community), freshness (update frequency), independence (no
+commercial bias) and reproducibility (is the claim backed by
+runnable code?). Only sources rated at least ``good'' on the first
+three are aggregated into the newsletter. The full method is
+documented in \texttt{docs/veille\_technologique.md}, which is
+published through MkDocs in an accessible, searchable format.
+
+\textbf{Schedule and rituals.} Monday morning, 45\,minutes:
+ingest new items from feeds and annotate them. Wednesday,
+15\,minutes: short summary written in the newsletter. Friday,
+30\,minutes: review with the agent team and decide which items
+trigger action in the backlog.
+
+\subsection{Project Supervision (\competence{C6})}
+
+Supervising the project means being able to answer, at any moment:
+``is the platform healthy, is the data flowing, are we on
+schedule?''. We answer that question with four families of
+tracking indicators, a dedicated activity log table, and a set of
+shared tools.
+
+\begin{table}[H]
+\centering
+\caption{Tracking indicators updated throughout the project}
+\label{tab:tracking}
+\begin{tabularx}{\textwidth}{L{3cm} L{4cm} L{4cm} L{3cm}}
+\toprule
+\textbf{Family} & \textbf{Indicator} & \textbf{Source / Tool} & \textbf{Target} \\
+\midrule
+Pipeline health & DAG success rate & Airflow UI + Prometheus & $\geq$ 95\,\% \\
+Data volume & Records extracted / loaded / rejected per DAG & \texttt{app.etl\_activity\_log} & Tracked daily \\
+Data quality & Completeness \% per column & \texttt{staging.data\_quality\_checks} & $\geq$ 90\,\% on key fields \\
+Delivery speed & ETL duration trend & Prometheus + Grafana & Stable over time \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Tracking tools.} Airflow Web UI for live DAG status,
+\texttt{app.etl\_activity\_log} for the historical view, a
+standardised \texttt{Makefile} for reproducible operations
+(\texttt{make up}, \texttt{make etl}, \texttt{make test}), and
+GitHub Projects for the backlog.
+
+\textbf{Historical activity log.} The
+\texttt{app.etl\_activity\_log} table (see
+Section~\ref{sec:c16}) records structured log entries with alert
+categories (\texttt{CRITICAL}, \texttt{WARNING}, \texttt{INFO}) for
+every ETL operation. The table is seeded with historical data
+spanning 14 days of project activity through migration
+\texttt{002\_seed\_etl\_activity\_log.sql}, which demonstrates
+that indicators have been tracked throughout the project
+lifecycle rather than only at the end.
+
+\textbf{Communication rituals.} Standups happen daily
+(asynchronously between the human and the agent team); sprint
+review and retrospective happen weekly; milestone demos happen at
+the end of each phase. Every ritual feeds back into the indicator
+table above.
+
+
+% -----------------------------------------------------------
+\section{Project Planning --- Roadmap, Team, Budget}
+\label{sec:e3}
+{\small\evaluation{E3} | \competence{C5, C6, C7} |
+Deliverable: kickoff meeting simulation --- defended orally on
+slides}
+
+This section is intentionally short. The full kickoff-meeting
+simulation for evaluation \evaluation{E3} is defended orally
+through the Beamer slide deck, which walks the jury through the
+pre-project presentation, the roadmap, the calendar, the tracking
+method and the communication strategy in ten minutes. What the
+report captures here is the condensed reference material: the
+six-phase roadmap, the team, the budget, the Gantt, and the
+governance rituals --- in other words, the skeleton that anchors
+the oral simulation.
+
+\subsection{Project Roadmap (\competence{C5})}
+
+The roadmap below delivers Sophie's platform in six phases over
+twelve weeks, for a total of 116 story points estimated with
+Fibonacci poker planning. Each phase ends with a milestone demo
+that closes a specific pain point.
+
+\begin{table}[H]
+\centering
+\caption{Project roadmap in 6 phases}
+\label{tab:roadmap}
+\begin{tabularx}{\textwidth}{L{1cm} L{2cm} L{3cm} L{5cm} C{1.5cm}}
+\toprule
+\textbf{Phase} & \textbf{Duration} & \textbf{Deliverables} & \textbf{Milestone} & \textbf{SP} \\
+\midrule
+1 & 2 weeks & Grids, feasibility & Architecture validated with Sophie & 21 \\
+2 & 3 weeks & 3 extraction scripts & Pipeline operational & 24 \\
+3 & 2 weeks & DB, REST API & API functional + RGPD live & 21 \\
+4 & 2 weeks & Star schema, ETL & Warehouse populated & 21 \\
+5 & 2 weeks & MinIO, medallion & Lake + catalogue operational & 16 \\
+6 & 1 week & Streamlit, tests, docs & Platform ready for Sophie & 13 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Effort weighting method.} Fibonacci story points via team
+poker planning. Each user story is estimated during sprint
+planning using the Fibonacci sequence (1, 2, 3, 5, 8, 13). The
+total of 116 story points is distributed across the six phases as
+shown above.
+
+\subsection{Team Composition and Budget (\competence{C5})}
+
+\begin{table}[H]
+\centering
+\caption{Team composition and required skills}
+\label{tab:team}
+\begin{tabularx}{\textwidth}{L{3cm} L{3.5cm} L{3cm} C{2cm}}
+\toprule
+\textbf{Role} & \textbf{Skills Required} & \textbf{Phases Active} & \textbf{Allocation} \\
+\midrule
+Project Lead / Data Engineer & Python, SQL, ETL, Docker, Airflow & All (1--6) & 100\,\% \\
+Data Architect & PostgreSQL, star schema, SCD & Phases 1, 3, 4 & 50\,\% \\
+Backend Developer & FastAPI, JWT, REST API design & Phases 3, 6 & 50\,\% \\
+DevOps Engineer & Docker, CI/CD, monitoring & Phases 1, 5, 6 & 25\,\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Budget allocation.} In this project context
+(certification demonstration), all roles are fulfilled by the
+candidate, supported by an agent team. The theoretical budget
+based on market rates would be approximately 45\,000\,EUR for
+3 months (1 FTE senior data engineer at 550\,EUR/day $\times$
+60 days + 0\,EUR infrastructure). Sophie's actual out-of-pocket
+cost to run the platform stays under 100\,EUR per year.
+
+\subsection{Gantt Calendar (\competence{C5})}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  x=0.85cm, y=0.8cm,
+  phase/.style={fill=#1!30, draw=#1!60, rounded corners=2pt, minimum height=0.55cm},
+]
+% Header
+\node[font=\scriptsize\bfseries] at (-2, 0.5) {Phase};
+\foreach \w in {1,...,12} {
+  \node[font=\tiny] at (\w, 1) {W\w};
+}
+
+% Phase bars
+\node[font=\scriptsize, anchor=east] at (-0.2, 0) {1 - Feasibility};
+\fill[ntblue!30, rounded corners=2pt] (0.5,-0.25) rectangle (2.5,0.25);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -0.8) {2 - Extraction};
+\fill[ntorange!30, rounded corners=2pt] (2.5,-1.05) rectangle (5.5,-0.55);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -1.6) {3 - DB + API};
+\fill[ntgreen!30, rounded corners=2pt] (5.5,-1.85) rectangle (7.5,-1.35);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -2.4) {4 - DW + ETL};
+\fill[ntred!30, rounded corners=2pt] (7.5,-2.65) rectangle (9.5,-2.15);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -3.2) {5 - Data Lake};
+\fill[gold!30, rounded corners=2pt] (9.5,-3.45) rectangle (11.5,-2.95);
+
+\node[font=\scriptsize, anchor=east] at (-0.2, -4.0) {6 - Frontend};
+\fill[ntgray!30, rounded corners=2pt] (11.5,-4.25) rectangle (12.5,-3.75);
+
+% Milestones
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (2.5, 0) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (5.5, -0.8) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (7.5, -1.6) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (9.5, -2.4) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (11.5, -3.2) {};
+\node[font=\tiny\color{ntred}, diamond, fill=ntred, inner sep=1.5pt] at (12.5, -4.0) {};
+
+% Rituals bar
+\node[font=\scriptsize, anchor=east] at (-0.2, -5.0) {\textit{Rituals}};
+\foreach \w in {1,...,12} {
+  \node[font=\tiny\color{ntblue}, circle, fill=ntblue!20, inner sep=1pt] at (\w, -5.0) {S};
+}
+
+\end{tikzpicture}%
+}
+\caption{Gantt calendar --- 12-week sprint plan with milestones (diamonds) and weekly standups (S)}
+\label{fig:gantt}
+\end{figure}
+
+\textbf{Collaborative rituals:}
+\begin{itemize}[nosep]
+  \item \textbf{Daily standup} (15 min): progress, blockers, plan for the day
+  \item \textbf{Sprint planning} (1h, bi-weekly): backlog grooming, poker planning estimation
+  \item \textbf{Sprint review} (30 min, bi-weekly): demo of completed work to stakeholders
+  \item \textbf{Sprint retrospective} (30 min, bi-weekly): what went well, what to improve
+  \item \textbf{Phase milestone demo} (1h, end of each phase): formal milestone validation
+\end{itemize}
+
+\textbf{Tracking tool configuration:} GitHub Projects board with columns
+(Backlog, Sprint, In Progress, Review, Done). Issues tagged with competency
+labels (C1--C21) and phase labels. Board accessible to all stakeholders via
+the repository at \url{https://github.com/Reetika12795/NutriTrack}.
+
+\subsection{Communication Strategy (\competence{C7})}
+
+Competency \competence{C7} requires an explicit communication
+strategy adapted to each audience. The table below captures the
+full plan in condensed form; each row is expanded orally during
+the \evaluation{E3} kickoff simulation on the slide deck.
+
+\begin{table}[H]
+\centering
+\caption{Communication plan --- one row per audience}
+\label{tab:comms}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2.5cm} L{2cm} L{2cm} L{3.5cm}}
+\toprule
+\textbf{Communication} & \textbf{Audience} & \textbf{Format} & \textbf{Frequency} & \textbf{Content} \\
+\midrule
+Sprint kickoff & All stakeholders & Presentation & Bi-weekly & Sprint goals, pain points addressed \\
+Progress update & Sophie (sponsor) & Email & Weekly & Milestones, blockers, metrics \\
+Technical demo & Sophie + nutritionists & Live demo & End of phase & Features, quality, next pain point \\
+API docs & Developers & OpenAPI / Swagger & Continuous & Endpoints, auth, schemas \\
+Admin docs & Admin & MkDocs + Grafana & Continuous & Runbooks, alerts, backups \\
+Final delivery & Jury & Oral + report & End of project & Full demo, 21/21 competencies \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{User documentation.} Production of user documentation is
+planned in Phase~6 and includes an MkDocs technical documentation
+site (auto-deployed via GitHub Actions), OpenAPI/Swagger
+interactive API docs, and a quick-start guide in the repository
+\texttt{README.md}.
+
+\textbf{End-user onboarding plan.} Two onboarding sessions are
+planned: one for Sophie and her nutritionist assistants
+(walkthrough of the Streamlit dashboard, search, meal logger,
+trends, warehouse datamarts) and one for the admin (Airflow DAGs,
+MinIO console, Grafana monitoring, backup procedures). Both are
+accompanied by self-service documentation on the MkDocs site.
+
+\textbf{Feedback collection process.} Stakeholder feedback is
+collected during bi-weekly demos and logged as GitHub Issues; a
+short five-question satisfaction survey is distributed after each
+phase; post-deployment feedback uses a GitHub Issues template
+feeding into the sprint backlog; an asynchronous chat channel
+handles real-time questions.
+
+\textbf{Kickoff simulation handoff.} The complete ten-minute
+kickoff meeting simulation --- pre-project pitch, roadmap
+walk-through, calendar overview, communication strategy and
+commitment to accessibility --- is defended orally on the slide
+deck. See Chapter~\ref{ch:bloc4} for the full list of
+infrastructure components and the slide deck used for the
+defense.
+
+
+% =============================================================
+% BLOCK 2: DATA COLLECTION, STORAGE AND SHARING
+% =============================================================
+\chapter{Block 2 --- Data Collection, Storage and Sharing}
+\label{ch:bloc2}
+
+% -----------------------------------------------------------
+\section{Extraction Scripts (\competence{C8})}
+\label{sec:c8}
+{\small\evaluation{E4} | 3 extraction scripts from heterogeneous sources}
+
+All extraction scripts follow a consistent structure: entry point
+(\texttt{main()}), dependency initialization, external connection
+configuration, business logic rules, error handling, and result saving.
+All are versioned on Git.
+
+\subsection{Source 1: REST API --- Open Food Facts}
+
+\textbf{File:} \texttt{scripts/extract\_off\_api.py}\\
+Paginated GET requests to the Open Food Facts API, rate-limited at
+0.6~s per call, with a custom User-Agent header, try/except error
+handling, and daily JSON output under \texttt{/data/raw/api/}.
+Approximately 1\,000 products per day across 5 food categories.
+
+\begin{lstlisting}[language=Python, caption={REST API extraction --- Open Food Facts}]
+def extract_products_by_category(
+    category: str, max_pages: int = 10, page_size: int = 50
+) -> list[dict]:
+    all_products = []
+    for page in range(1, max_pages + 1):
+        products = search_products(category, page=page,
+                                   page_size=page_size)
+        if not products:
+            break
+        all_products.extend(products)
+        time.sleep(0.6)  # Rate limiting
+    return all_products
+\end{lstlisting}
+
+\subsection{Source 2: Parquet File + DuckDB}
+
+\textbf{File:} \texttt{scripts/extract\_off\_parquet.py}\\
+Weekly batch extraction from the full Open Food Facts Parquet dump
+(4.2~GB, 3~M+ products). DuckDB runs SQL directly on the columnar
+file without loading it into memory, filtering for France. Result:
+798\,177 French products extracted in $\sim$12 seconds.
+
+\begin{lstlisting}[language=SQL, caption={DuckDB query --- Parquet extraction with nested structures}]
+SELECT
+    code AS barcode, product_name,
+    (SELECT n.per_100g FROM UNNEST(nutriments) n
+     WHERE n.name = 'energy-kcal') AS energy_kcal,
+    (SELECT n.per_100g FROM UNNEST(nutriments) n
+     WHERE n.name = 'proteins') AS proteins_g,
+    nutriscore_grade, nova_group
+FROM read_parquet('food.parquet')
+WHERE code IS NOT NULL
+  AND list_contains(countries_tags, 'en:france')
+ORDER BY completeness DESC;
+\end{lstlisting}
+
+\subsection{Source 3: Web Scraping --- ANSES / EFSA}
+
+\textbf{File:} \texttt{scripts/extract\_scraping.py}\\
+BeautifulSoup extraction of HTML tables from the ANSES and EFSA
+websites, with fallback to EU Regulation~1169/2011 reference values
+if upstream pages change structure. Runs monthly.
+
+
+% -----------------------------------------------------------
+\section{SQL Queries (\competence{C9})}
+\label{sec:c9}
+
+\textbf{File:} \texttt{sql/queries/analytical\_queries.sql} (7 queries)
+
+\begin{lstlisting}[language=SQL, caption={Query 2 --- Full-text search with Nutri-Score filter}]
+SELECT p.barcode, p.product_name, b.brand_name,
+       p.nutriscore_grade,
+       ts_rank(to_tsvector('french', p.product_name),
+               plainto_tsquery('french', 'chocolat noir'))
+               AS relevance
+FROM app.products p
+LEFT JOIN app.brands b ON p.brand_id = b.brand_id
+WHERE to_tsvector('french', p.product_name)
+      @@ plainto_tsquery('french', 'chocolat noir')
+  AND p.nutriscore_grade IN ('A', 'B', 'C')
+ORDER BY relevance DESC LIMIT 20;
+\end{lstlisting}
+
+\textbf{Optimization:} GIN index on \texttt{to\_tsvector('french',
+product\_name)} for sub-second search across 100\,000+ products.
+
+
+% -----------------------------------------------------------
+\section{Aggregation and Cleaning Pipeline (\competence{C10})}
+\label{sec:c10}
+
+\textbf{File:} \texttt{scripts/aggregate\_clean.py}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=0.5cm,
+  procstep/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=6cm, minimum height=0.7cm,
+    font=\scriptsize, align=center
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+]
+\node[procstep] (s1) {Standardize columns (30+ mappings)};
+\node[procstep, below=of s1] (s2) {Clean barcodes (8--14 digits)};
+\node[procstep, below=of s2] (s3) {Clean text (normalize, remove control characters)};
+\node[procstep, below=of s3] (s4) {Remove entries without product\_name};
+\node[procstep, below=of s4] (s5) {Convert kJ $\rightarrow$ kcal if kcal missing};
+\node[procstep, below=of s5] (s6) {Validate numeric ranges (energy $\leq$ 1000, etc.)};
+\node[procstep, below=of s6] (s7) {Normalize Nutri-Score (A--E) and NOVA (1--4)};
+\node[procstep, below=of s7] (s8) {Deduplicate by barcode (keep most complete)};
+
+\foreach \i/\j in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6, s6/s7, s7/s8} {
+  \draw[arr] (\i) -- (\j);
+}
+
+% Input/output labels
+\node[font=\scriptsize\bfseries, text=ntgreen, above=0.3cm of s1]
+  {798\,177 raw products (3 sources)};
+\node[font=\scriptsize\bfseries, text=ntgreen, below=0.3cm of s8]
+  {777\,126 clean products (97.4\,\% retention)};
+\end{tikzpicture}%
+}
+\caption{Data cleaning pipeline}
+\label{fig:cleaning-pipeline}
+\end{figure}
+
+
+% -----------------------------------------------------------
+\section{Database Modeling and \rgpd{} (\competence{C11})}
+\label{sec:c11}
+
+\subsection{Conceptual Data Model (MCD)}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  entity/.style={
+    rectangle, draw=ntblue, fill=ntlightblue!20,
+    minimum width=2.8cm, minimum height=1.5cm,
+    font=\small\bfseries, align=center
+  },
+  rel/.style={
+    diamond, draw=ntorange, fill=ntorange!15,
+    minimum width=1cm, minimum height=0.8cm,
+    font=\tiny, aspect=2
+  },
+  arr/.style={-{Stealth[length=4pt]}, thick, color=ntgray},
+  card/.style={font=\tiny\color{ntgray}, midway},
+]
+
+\node[entity] (brand) {BRAND\\{\tiny brand\_id}\\{\tiny brand\_name}};
+\node[entity, right=3.5cm of brand] (product) {PRODUCT\\{\tiny barcode}\\{\tiny nutrition, scores}};
+\node[entity, right=3.5cm of product] (cat) {CATEGORY\\{\tiny category\_id}\\{\tiny name, parent}};
+
+\node[entity, below=2.5cm of product] (mealitem) {MEAL\\ITEM\\{\tiny quantity}};
+\node[entity, below=2.5cm of mealitem] (meal) {MEAL\\{\tiny type, date}};
+\node[entity, right=3.5cm of meal] (user) {USER\\{\tiny UUID, email}\\{\tiny role, consent}};
+
+% Relations
+\draw[arr] (brand) -- node[card, above] {1,N} (product);
+\draw[arr] (product) -- node[card, above] {N,1} (cat);
+\draw[arr] (product) -- node[card, right] {1,N} (mealitem);
+\draw[arr] (mealitem) -- node[card, right] {N,1} (meal);
+\draw[arr] (meal) -- node[card, above] {N,1} (user);
+
+\end{tikzpicture}%
+}
+\caption{Conceptual Data Model (MCD)}
+\label{fig:mcd}
+\end{figure}
+
+\subsection{Logical Data Model (MLD)}
+
+The logical model translates the conceptual model into relational tables with
+primary keys, foreign keys, and data types, without implementation-specific
+details:
+
+\begin{table}[H]
+\centering
+\caption{Logical Data Model (MLD) --- Table structure}
+\label{tab:mld}
+\arrayrulecolor{ntblue}
+\rowcolors{2}{ntlightblue!15}{white}
+\begin{tabularx}{\textwidth}{>{\ttfamily\bfseries}l L{3cm} X}
+\toprule
+\rowcolor{ntblue}
+\textcolor{white}{\textbf{Table}} & \textcolor{white}{\textbf{Keys}} & \textcolor{white}{\textbf{Attributes}} \\
+\midrule
+BRAND & brand\_id (PK) & brand\_name \textit{(VARCHAR, NOT NULL)} \\
+CATEGORY & category\_id (PK) \newline parent\_id (FK) & category\_name \textit{(VARCHAR, NOT NULL)} \\
+PRODUCT & barcode (PK) \newline brand\_id (FK) \newline category\_id (FK) & product\_name, energy\_kcal, fat\_g, proteins\_g, carbs\_g, fiber\_g, salt\_g, nutriscore\_grade, nova\_group, ecoscore\_grade \\
+USER & user\_id (PK, UUID) & email \textit{(UNIQUE)}, password\_hash, full\_name, role \textit{(ENUM)}, dietary\_goal, activity\_level, created\_at \\
+MEAL & meal\_id (PK) \newline user\_id (FK) & meal\_type, meal\_date \\
+MEAL\_ITEM & meal\_item\_id (PK) \newline meal\_id (FK) \newline barcode (FK) & quantity\_g \textit{(NUMERIC)} \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+\subsection{Physical Data Model (MPD)}
+
+\textbf{File:} \texttt{sql/init/01\_schema\_operational.sql} (279 lines)
+
+Key physical choices:
+\begin{itemize}[nosep]
+  \item \textbf{UUID} for user\_id (anonymization, \rgpd{} compliance)
+  \item \textbf{GIN index} on \texttt{to\_tsvector('french', product\_name)}
+  \item \textbf{Composite index} on \texttt{(user\_id, meal\_date)}
+  \item \textbf{CHECK constraints} on role, activity\_level, nova\_group
+  \item \textbf{CASCADE} on users $\rightarrow$ meals $\rightarrow$ meal\_items
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{REST API (\competence{C12})}
+\label{sec:c12}
+
+% Define colored badges for HTTP methods
+\newcommand{\mGET}{\colorbox{ntgreen}{\color{white}\footnotesize\bfseries\strut\ GET\ }}
+\newcommand{\mPOST}{\colorbox{ntorange}{\color{white}\footnotesize\bfseries\strut\ POST\ }}
+\newcommand{\authpublic}{\colorbox{ntgray!50}{\color{white}\scriptsize\bfseries\strut\,public\,}}
+\newcommand{\authbearer}{\colorbox{ntblue}{\color{white}\scriptsize\bfseries\strut\,JWT\,}}
+
+\begin{table}[H]
+\centering
+\caption{REST API endpoints --- Documentation}
+\label{tab:api}
+\small
+\arrayrulecolor{ntgreen}
+\rowcolors{2}{ntlightgreen!25}{white}
+\begin{tabularx}{\textwidth}{@{}c l c X@{}}
+\toprule
+\rowcolor{ntgreen}
+\textcolor{white}{\textbf{Method}} & \textcolor{white}{\textbf{Endpoint}} & \textcolor{white}{\textbf{Auth}} & \textcolor{white}{\textbf{Description}} \\
+\midrule
+\mPOST & \texttt{/auth/register} & \authpublic & Create user account \\
+\mPOST & \texttt{/auth/login} & \authpublic & Authenticate and return JWT \\
+\mGET & \texttt{/auth/me} & \authbearer & Current user profile \\
+\mGET & \texttt{/products/\{barcode\}} & \authbearer & Product lookup by barcode \\
+\mGET & \texttt{/products/?q=\ldots} & \authbearer & Full-text product search \\
+\mGET & \texttt{/products/\{barcode\}/alternatives} & \authbearer & Healthier alternatives \\
+\mPOST & \texttt{/meals/} & \authbearer & Log a meal entry \\
+\mGET & \texttt{/meals/daily-summary} & \authbearer & Daily nutrition summary \\
+\mGET & \texttt{/meals/weekly-trends} & \authbearer & Weekly trends and trajectory \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+\noindent{\footnotesize\textit{Base path for all endpoints:} \texttt{/api/v1}}
+
+Auto-generated documentation: \texttt{/docs} (Swagger UI), \texttt{/redoc}
+(ReDoc), \texttt{/api/v1/openapi.json} (machine-readable schema).
+
+\textbf{Authentication and authorization rules:}
+\begin{itemize}[nosep]
+  \item \textbf{JWT HS256} tokens with 60-minute expiration
+  \item \textbf{4 roles} enforced at both API and Streamlit levels:
+        \texttt{user} (product search, meal tracking, 6 Streamlit pages),
+        \texttt{nutritionist} (all user pages + patient analytics dashboard, \texttt{/nutritionist/*} endpoints),
+        \texttt{analyst} (all user pages + product analytics dashboard, \texttt{/analytics/*} endpoints),
+        \texttt{admin} (all pages, all endpoints, user management)
+  \item \textbf{Double security}: Streamlit hides unauthorized pages (UI-level)
+        \textbf{and} FastAPI's \texttt{require\_role()} dependency rejects unauthorized
+        API requests with HTTP~403 (backend-level)
+  \item \textbf{bcrypt} password hashing with salt
+  \item All endpoints except \texttt{/register} and \texttt{/login} require
+        \texttt{Bearer} token
+\end{itemize}
+
+
+\textbf{Streamlit role-based dashboards in action:}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_user_dashboard.png}
+\caption{User role --- Daily Dashboard showing macro distribution (1\,043\,kcal,
+33.6\,g protein), RDA progress bars, and meal count. The sidebar shows the 6 pages
+available to the \texttt{user} role.}
+\label{fig:streamlit-user}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_nutritionist.png}
+\caption{Nutritionist role (dr\_martin) --- Patient overview with meals per patient,
+average daily kcal bar charts, and distribution by dietary goal and activity level.
+This page is hidden from \texttt{user} and \texttt{analyst} roles.}
+\label{fig:streamlit-nutritionist}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/streamlit_analyst.png}
+\caption{Analyst role (analyst\_sophie) --- Product Analytics showing 777\,448 products,
+Nutri-Score distribution (A--E with official colours), NOVA processing groups, and
+top 15 categories by product count. This page is hidden from \texttt{user} and
+\texttt{nutritionist} roles.}
+\label{fig:streamlit-analyst}
+\end{figure}
+
+
+% -----------------------------------------------------------
+\section{Data Quality Checks (\competence{C10})}
+\label{sec:dq}
+
+Six data quality checks are implemented in the staging pipeline and logged
+to the \texttt{staging.data\_quality\_checks} table:
+
+\begin{table}[H]
+\centering
+\caption{Data quality checks --- 6 automated validations}
+\label{tab:dq-checks}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{3cm} L{4cm} L{5cm}}
+\toprule
+\textbf{\#} & \textbf{Check} & \textbf{Rule} & \textbf{Action on Failure} \\
+\midrule
+1 & Barcode format & 8--14 digits, no letters & Record rejected \\
+2 & Product name present & \texttt{product\_name IS NOT NULL} and non-empty & Record rejected \\
+3 & Numeric range & energy $\leq$ 1000, fat $\leq$ 100, proteins $\leq$ 100, carbs $\leq$ 100 & Value set to NULL \\
+4 & Nutri-Score valid & Grade in \{A, B, C, D, E\} & Value set to NULL \\
+5 & NOVA group valid & Group in \{1, 2, 3, 4\} & Value set to NULL \\
+6 & Duplicate detection & Unique barcode (keep most complete record) & Duplicate removed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{\rgpd{} Compliance Analysis}
+\label{sec:rgpd-e4}
+
+The full \rgpd{} compliance framework is documented in
+Section~\ref{sec:e2} (Block~1, \competence{C3} architecture study). The
+seven measures --- personal data registry, consent management, data
+minimization, pseudonymization, right to deletion, automated retention, and
+data lake isolation --- are implemented across all components described in
+this chapter.
+
+
+% =============================================================
+% BLOCK 3: DATA WAREHOUSE
+% =============================================================
+\chapter{Block 3 --- Build and Maintain a Data Warehouse}
+\label{ch:bloc3}
+
+% -----------------------------------------------------------
+\section{Star Schema Modeling (\competence{C13})}
+\label{sec:c13}
+{\small\evaluation{E5} | Star schema: dimensions and facts}
+
+\subsection{Approach: Bottom-up (Kimball)}
+
+The bottom-up approach was chosen because: (1)~analytical questions were
+identified upfront, (2)~faster value delivery via datamarts,
+(3)~the operational schema is well-defined, and (4)~incremental
+extensibility without restructuring.
+
+\subsection{Star Schema Diagram}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  dim/.style={
+    rectangle, rounded corners=3pt, draw=ntblue, fill=ntlightblue!20,
+    minimum width=3cm, minimum height=2cm,
+    font=\scriptsize, align=left, inner sep=5pt
+  },
+  fact/.style={
+    rectangle, rounded corners=3pt, draw=ntgreen!80!black,
+    fill=ntlightgreen!30, minimum width=3.5cm, minimum height=2.5cm,
+    font=\scriptsize, align=left, inner sep=5pt
+  },
+  arr/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
+]
+
+% Fact table (center)
+\node[fact] (fact) {
+  \textbf{fact\_daily\_nutrition}\\[2pt]
+  daily\_nutrition\_id PK\\
+  user\_key FK\\
+  time\_key FK\\
+  product\_key FK\\
+  category\_key FK\\
+  brand\_key FK\\[2pt]
+  \textit{meal\_type}\\
+  \textit{quantity\_g}\\
+  \textit{energy\_kcal}\\
+  \textit{fat\_g, proteins\_g}\\
+  \textit{nutriscore\_score}
+};
+
+% Dimensions
+\node[dim, above left=1.5cm and 2.5cm of fact] (dimtime) {
+  \textbf{dim\_time}\\[2pt]
+  time\_key PK\\
+  full\_date\\
+  day\_of\_week\\
+  month, quarter\\
+  year, is\_weekend
+};
+
+\node[dim, above right=1.5cm and 2.5cm of fact] (dimuser) {
+  \textbf{dim\_user} {\tiny\color{ntred}[SCD2]}\\[2pt]
+  user\_key PK\\
+  user\_hash (SHA256)\\
+  age\_group\\
+  dietary\_goal\\
+  effective\_date\\
+  is\_current
+};
+
+\node[dim, left=2.5cm of fact] (dimbrand) {
+  \textbf{dim\_brand} {\tiny\color{ntorange}[SCD1]}\\[2pt]
+  brand\_key PK\\
+  brand\_name\\
+  parent\_company\\
+  last\_updated
+};
+
+\node[dim, right=2.5cm of fact] (dimcat) {
+  \textbf{dim\_category}\\[2pt]
+  category\_key PK\\
+  category\_name\\
+  parent\_category\\
+  category\_level
+};
+
+\node[dim, below left=1.5cm and 2.5cm of fact] (dimproduct) {
+  \textbf{dim\_product} {\tiny\color{ntred}[SCD2]}\\[2pt]
+  product\_key PK\\
+  barcode\\
+  product\_name\\
+  ingredients\_text\\
+  effective\_date\\
+  end\_date, is\_current
+};
+
+\node[dim, below right=1.5cm and 2.5cm of fact] (dimns) {
+  \textbf{dim\_nutriscore}\\[2pt]
+  nutriscore\_key PK\\
+  grade (A--E)\\
+  description\\
+  color\_code\\
+  score\_range
+};
+
+% Arrows
+\draw[arr] (dimtime) -- (fact);
+\draw[arr] (dimuser) -- (fact);
+\draw[arr] (dimbrand) -- (fact);
+\draw[arr] (dimcat) -- (fact);
+\draw[arr] (dimproduct) -- (fact);
+\draw[arr] (dimns) -- (fact);
+
+\end{tikzpicture}%
+}
+\caption{Star schema --- fact\_daily\_nutrition with 6 dimensions}
+\label{fig:star-schema}
+\end{figure}
+
+\subsection{Dimension and Fact Tables}
+
+\begin{table}[H]
+\centering
+\caption{Data warehouse dimensions}
+\label{tab:dimensions}
+\begin{tabularx}{\textwidth}{L{2.5cm} C{1.5cm} C{1.2cm} L{6.5cm}}
+\toprule
+\rowcolor{ntblue!80}
+\textcolor{white}{\textbf{Dimension}} & \textcolor{white}{\textbf{SCD}} & \textcolor{white}{\textbf{Rows}} & \textcolor{white}{\textbf{Description}} \\
+\midrule
+dim\_time & --- & 4\,018 & Pre-populated time dimension (2020--2030) \\
+dim\_product & \cellcolor{ntlightblue!30}Type 2 & $\sim$777K & Product attributes with history \\
+dim\_brand & \cellcolor{ntlightgreen!40}Type 1 & $\sim$15K & Brands (overwrite corrections) \\
+dim\_category & --- & $\sim$2K & Category hierarchy \\
+dim\_country & \cellcolor{ntlightpurple!30}Type 3 & Ref. & Countries with expansion tracking \\
+dim\_user & \cellcolor{ntlightblue!30}Type 2 & $\sim$1K & Anonymized profiles (SHA256) \\
+dim\_nutriscore & --- & 5 & Nutri-Score reference (A--E) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Fact tables}
+\label{tab:facts}
+\begin{tabularx}{\textwidth}{L{3.5cm} L{4cm} L{5.5cm}}
+\toprule
+\textbf{Fact Table} & \textbf{Grain} & \textbf{Measures} \\
+\midrule
+fact\_daily\_nutrition & 1 row / user + day + product & quantity, energy, fat, proteins, carbs, fiber, salt, nutriscore, nova \\
+fact\_product\_market & 1 row / product + snapshot & nutriscore, nova, ecoscore, completeness, nutrition/100g \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{Data Warehouse Implementation (\competence{C14})}
+\label{sec:c14}
+{\small\evaluation{E5} | DW creation and configuration}
+
+\textbf{File:} \texttt{sql/init/02\_schema\_warehouse.sql} (360 lines)
+
+The DW is implemented as a separate schema (\texttt{dw}) within the same
+PostgreSQL~16 instance, created automatically during Docker Compose
+initialization. Six analytical views (datamarts) are created for analyst
+access: \texttt{dm\_user\_daily\_nutrition},
+\texttt{dm\_product\_market\_by\_category},
+\texttt{dm\_brand\_quality\_ranking},
+\texttt{dm\_nutriscore\_distribution},
+\texttt{dm\_nutrition\_trends},
+\texttt{dm\_dw\_health}.
+
+\textbf{Analyst access via Streamlit:} The analyst role connects to the DW
+through the Product Analytics dashboard (Figure~\ref{fig:streamlit-analyst}),
+which queries datamart views via FastAPI using a read-only PostgreSQL role
+\texttt{analyst\_role} on \texttt{dw.*}.
+
+\subsection{Test Procedure}
+
+\begin{table}[H]
+\centering
+\caption{Data warehouse test procedure}
+\label{tab:test-dw}
+\begin{tabularx}{\textwidth}{L{3cm} L{2cm} L{7.5cm}}
+\toprule
+\textbf{Test} & \textbf{Scope} & \textbf{Verification} \\
+\midrule
+Schema creation & Technical & Tables, indexes, views created without errors \\
+Dimension population & Functional & dim\_time = 4\,018 rows; dim\_nutriscore = 5 rows (A--E) \\
+SCD Type 2 & Functional & Product update creates new row \texttt{is\_current=TRUE}, closes old \\
+SCD Type 1 & Functional & Brand correction overwrites in place, updates \texttt{last\_updated} \\
+Fact loading & Functional & Valid FK to dimensions; no orphan keys \\
+Datamart views & Functional & Views return results; \texttt{nutritionist\_role} can SELECT \\
+Access control & Security & \texttt{app\_readonly} cannot access \texttt{dw} schema \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Tech Stack Feedback}
+
+\begin{table}[H]
+\centering
+\caption{Tech stack feedback --- Data warehouse}
+\label{tab:tech-feedback}
+\begin{tabularx}{\textwidth}{L{2.8cm} L{3cm} L{3.5cm} L{3.5cm}}
+\toprule
+\textbf{Technology} & \textbf{Project Fit} & \textbf{Advantages} & \textbf{Difficulties} \\
+\midrule
+PostgreSQL (OLTP+OLAP) & Good at small scale & Single instance, simple deployment & Separation needed at larger scale \\
+Airflow for ETL & Industry standard & Web UI, retries, dependency mgmt & Complex setup (Celery, Redis, init) \\
+PySpark ETL & Distributed-capable cleaning & Handles 800k+ rows, cluster-ready & Heavier setup than pure SQL \\
+Schema isolation & Clean separation & No operational/analytical contamination & Cross-schema queries in ETL \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% -----------------------------------------------------------
+\section{ETL Pipelines (\competence{C15})}
+\label{sec:c15}
+{\small\evaluation{E5} | ETL for data warehouse input/output}
+
+\textbf{Data formats and volumes:}
+\begin{itemize}[nosep]
+  \item \textbf{Input:} 798\,177 raw products from 3 sources (REST API JSON,
+        OFF Parquet 4.2~GB, ANSES/EFSA scraping), totaling $\sim$6~GB across
+        all storage layers
+  \item \textbf{Processing:} PySpark 3.5 applies 7 cleaning rules, producing
+        777\,116 validated records (97.4\,\% retention)
+  \item \textbf{Output:} Star schema in PostgreSQL DW (7 dimensions + 2 facts),
+        Gold layer analytics in MinIO Parquet
+\end{itemize}
+
+\textbf{Pipeline overview:} 7 Airflow DAGs with 25 total tasks, orchestrated
+via ExternalTaskSensor dependencies for cross-DAG coordination:
+
+\begin{enumerate}[nosep]
+  \item \texttt{etl\_extract\_off\_api} --- Daily REST API extraction from Open Food Facts
+  \item \texttt{etl\_extract\_parquet} --- Weekly Parquet + DuckDB extraction from OFF bulk export
+  \item \texttt{etl\_extract\_scraping} --- Monthly web scraping of ANSES/EFSA regulatory data
+  \item \texttt{etl\_aggregate\_clean} --- PySpark cleaning (aggregate $\to$ clean $\to$ validate $\to$ load)
+  \item \texttt{etl\_datalake\_ingest} --- Bronze/silver/gold medallion layers + anonymized aggregates + catalog
+  \item \texttt{etl\_load\_warehouse} --- Star schema dimensions + facts population
+  \item \texttt{etl\_backup\_maintenance} --- Weekly backups + \rgpd{} cleanup
+\end{enumerate}
+
+\subsection{ETL Workflow}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  task/.style={
+    rectangle, rounded corners=3pt, draw=ntorange, fill=ntorange!15,
+    minimum width=3.2cm, minimum height=0.8cm,
+    font=\scriptsize\bfseries, align=center
+  },
+  arr/.style={-{Stealth[length=5pt]}, thick, color=ntgray},
+]
+
+% Dimension tasks (parallel)
+\node[task] (brands) {load\_dim\_brands\\{\tiny SCD Type 1}};
+\node[task, right=0.4cm of brands] (cats) {load\_dim\_categories};
+\node[task, right=0.4cm of cats] (prods) {load\_dim\_products\\{\tiny SCD Type 2}};
+\node[task, right=0.4cm of prods] (users) {load\_dim\_users\\{\tiny SCD Type 2}};
+
+% Fact tasks
+\node[task, below=1.5cm of $(brands)!0.5!(cats)$, fill=ntlightgreen!40, draw=ntgreen] (factmarket) {load\_fact\_product\_market};
+\node[task, below=1.5cm of $(prods)!0.5!(users)$, fill=ntlightgreen!40, draw=ntgreen] (factnutri) {load\_fact\_daily\_nutrition};
+
+% Arrows
+\draw[arr] (brands) -- (factmarket);
+\draw[arr] (cats) -- (factmarket);
+\draw[arr] (prods) -- (factmarket);
+\draw[arr] (prods) -- (factnutri);
+\draw[arr] (users) -- (factnutri);
+\draw[arr] (cats) -- (factnutri);
+\draw[arr] (brands) -- (factnutri);
+
+% Labels
+\node[font=\scriptsize\color{ntgray}, above=0.3cm of $(cats)!0.5!(prods)$]
+  {Dimensions (parallel)};
+\node[font=\scriptsize\color{ntgray}, below=0.3cm of $(factmarket)!0.5!(factnutri)$]
+  {Facts (after dimensions)};
+\end{tikzpicture}%
+}
+\caption{ETL DAG dependencies --- \texttt{etl\_load\_warehouse}}
+\label{fig:etl-dag}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/airflow_dags_list.png}
+\caption{Airflow UI --- All 7 DAGs with execution history and status}
+\label{fig:airflow-dags}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/airflow_dag_graph.png}
+\caption{DAG graph for \texttt{etl\_aggregate\_clean} --- 4-task PySpark pipeline
+(aggregate $\to$ clean $\to$ validate $\to$ load)}
+\label{fig:airflow-dag-graph}
+\end{figure}
+
+
+% -----------------------------------------------------------
+\section{DW Maintenance and Monitoring (\competence{C16})}
+\label{sec:c16}
+{\small\evaluation{E6} | Administration and supervision}
+
+\subsection{Activity Logging}
+
+The \texttt{app.etl\_activity\_log} table provides structured logging
+with three alert categories:
+
+\begin{table}[H]
+\centering
+\caption{ETL activity log schema}
+\label{tab:activity-log}
+\begin{tabularx}{\textwidth}{L{3cm} L{2.5cm} L{7cm}}
+\toprule
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\midrule
+log\_id & SERIAL PK & Auto-incrementing identifier \\
+log\_timestamp & TIMESTAMP & Event occurrence time \\
+alert\_category & VARCHAR(20) & \texttt{CRITICAL}, \texttt{WARNING}, or \texttt{INFO} \\
+dag\_id & VARCHAR(100) & Airflow DAG identifier \\
+task\_id & VARCHAR(100) & Airflow task identifier \\
+event\_type & VARCHAR(50) & \texttt{task\_failure}, \texttt{task\_success}, \texttt{sla\_miss}, etc. \\
+message & TEXT & Human-readable event description \\
+details & JSONB & Structured metadata (duration, record counts, errors) \\
+acknowledged & BOOLEAN & Whether incident has been acknowledged \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Historical seed data:} Migration \texttt{002\_seed\_etl\_activity\_log.sql}
+populates approximately 20 log entries spanning 14 days, covering
+successful ETL runs, transient failures with retry recovery, backup
+completions, SLA misses, and data quality alerts. This demonstrates
+ongoing monitoring throughout the project lifecycle (\competence{C6}).
+
+\subsection{Alert System --- MailHog SMTP}
+
+Airflow DAGs are configured with email alerts on failure, delivered via
+MailHog SMTP (a development-mode mail server):
+
+\begin{lstlisting}[language=Python, caption={Alerting default configuration (airflow/plugins/alerting.py)}]
+ALERTING_DEFAULT_ARGS = {
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "email": ["admin@nutritrack.local"],
+    "retries": 2,
+    "retry_delay": timedelta(minutes=5),
+}
+\end{lstlisting}
+
+\textbf{MailHog configuration} in \texttt{docker-compose.yml}:
+
+\begin{lstlisting}[language=bash, caption={MailHog service and Airflow SMTP configuration}]
+# MailHog service (port 8025 for web UI)
+mailhog:
+  image: mailhog/mailhog:latest
+  ports:
+    - "1025:1025"   # SMTP
+    - "8025:8025"   # Web UI
+
+# Airflow SMTP settings (environment variables)
+AIRFLOW__SMTP__SMTP_HOST: mailhog
+AIRFLOW__SMTP__SMTP_PORT: "1025"
+AIRFLOW__SMTP__SMTP_STARTTLS: "false"
+AIRFLOW__SMTP__SMTP_SSL: "false"
+AIRFLOW__SMTP__SMTP_MAIL_FROM: airflow@nutritrack.local
+\end{lstlisting}
+
+When a task fails after the configured number of retries, an email alert
+is sent to \texttt{admin@nutritrack.local} and can be verified in the
+MailHog web interface at port~8025. The alerting plugin also logs every
+alert, retry and SLA miss to the \texttt{app.etl\_activity\_log} table
+for persistent tracking.
+
+\subsection{Service Level Indicators (SLA)}
+
+\begin{table}[H]
+\centering
+\caption{Service level indicators}
+\label{tab:sla}
+\begin{tabularx}{\textwidth}{L{4cm} C{2cm} L{6.5cm}}
+\toprule
+\textbf{Indicator} & \textbf{Target} & \textbf{Measurement} \\
+\midrule
+ETL success rate & $>$~95\,\% & Airflow DAG run history \\
+Data freshness & $<$~24h & Last successful run timestamp \\
+DW query response time & $<$~5s & EXPLAIN ANALYZE on datamart views \\
+Backup success rate & 100\,\% & Backup log entries \\
+Data completeness & $>$~80\,\% & Cleaning report statistics \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Maintenance Task Prioritization (ITIL-Aligned)}
+
+Maintenance tasks follow a four-tier priority matrix inspired by
+ITIL\,v4 incident management.
+
+\begin{table}[H]
+\centering
+\caption{Maintenance priority matrix (P1--P4)}
+\label{tab:priority-matrix}
+\begin{tabularx}{\textwidth}{C{1.2cm} C{1.5cm} C{1.8cm} C{2cm} L{5cm}}
+\toprule
+\textbf{Priority} & \textbf{Severity} & \textbf{Response} & \textbf{Resolution} & \textbf{Examples} \\
+\midrule
+P1 & Critical & $<$~1h & $<$~4h & ETL failure blocking analytics; DB corruption; backup failure; security breach \\
+P2 & High & $<$~4h & $<$~8h & SLA breach (ETL $<$~95\,\%); data freshness $>$~24h; repeated DAG failure \\
+P3 & Medium & $<$~24h & $<$~3 days & Non-critical DAG failure; slow queries ($>$~5s); dashboard errors \\
+P4 & Low & Next sprint & Next release & Doc updates; cosmetic changes; new datamart requests \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Assignment rules:}
+\begin{itemize}[nosep]
+  \item \textbf{P1:} Assigned to on-call engineer immediately.
+        Escalate to project lead after 2\,h.
+  \item \textbf{P2:} Assigned during business hours.
+        Escalate after 4\,h.
+  \item \textbf{P3:} Triaged in daily standup, assigned to next
+        available engineer.
+  \item \textbf{P4:} Added to sprint backlog, prioritized during
+        sprint planning.
+\end{itemize}
+
+\textbf{Escalation path:}
+L1~(Engineer) $\to$ L2~(Senior Engineer, if unresolved within response
+time) $\to$ L3~(Project Lead, P1$>$2h or P2$>$4h).
+
+\subsection{SLA Compliance Dashboard (Grafana)}
+
+A dedicated Grafana dashboard (\texttt{monitoring/grafana/dashboards/sla-compliance.json})
+provides real-time visibility into all service level indicators:
+
+\begin{table}[H]
+\centering
+\caption{SLA dashboard panels (10 panels)}
+\label{tab:sla-dashboard}
+\begin{tabularx}{\textwidth}{L{4cm} C{2cm} L{6.5cm}}
+\toprule
+\textbf{Panel} & \textbf{Target} & \textbf{Prometheus Source} \\
+\midrule
+Overall SLA Compliance & $>$~95\,\% & Weighted composite of all indicators \\
+ETL Success Rate & $>$~95\,\% & \texttt{airflow\_dagrun\_duration\_*} \\
+Data Freshness & $<$~24h & \texttt{airflow\_dagrun\_start\_timestamp} \\
+Backup Completion & 100\,\% & \texttt{airflow\_ti\_successes} (7d) \\
+Query Response Time & $<$~5s & \texttt{pg\_stat\_activity\_max\_tx\_duration} \\
+Storage Usage & $<$~85\,\% & \texttt{pg\_database\_size\_bytes} \\
+ETL Success Rate (7d) & $>$~95\,\% & 7-day trend chart of DAG runs \\
+DAG Run Outcomes (7d) & --- & Stacked bar: success/failure/retry \\
+Active Alerts Count & 0 & Count of \texttt{CRITICAL} entries in activity log \\
+Data Quality Score & $>$~90\,\% & Cleaning report completeness metrics \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The dashboard enables proactive identification of degrading performance
+before SLA breaches occur, with 7-day trend charts for ETL success rate
+and DAG run outcomes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../assets/screenshots/grafana_airflow.png}
+\caption{Grafana monitoring dashboard --- Airflow scheduler heartbeat, DAG processing
+times, operator success rates, executor pool status (43\,798 total successful tasks,
+14 total tasks failed)}
+\label{fig:grafana-airflow}
+\end{figure}
+
+\subsection{Backup Procedures}
+
+\textbf{Full backup:} \texttt{make backup} (complete database)\\
+\textbf{Partial backup:} \texttt{make backup-dw} (DW schema only)\\
+Format: \texttt{pg\_dump --format=custom --compress=6}, optional upload
+to MinIO.
+
+\textbf{Scheduled backups:} The \texttt{etl\_backup\_maintenance} DAG
+runs weekly and includes tasks for DW schema backup, storage health
+checks, and cleanup of old backup files.
+
+
+\subsection{New Source Integration Procedure}
+
+When a new data source must be integrated into the platform, the following
+6-step procedure is applied:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Source assessment:} Document the new source in the data
+        topography --- format (JSON, CSV, Parquet, API), volume, update
+        frequency, access method, license, and \rgpd{} implications.
+  \item \textbf{Extraction script:} Create a new extraction script following
+        the standard structure (entry point, dependency init, connection
+        config, business logic, error handling, result saving). Add to
+        Git with documentation.
+  \item \textbf{Bronze ingestion:} Configure a new Airflow DAG (or add tasks
+        to an existing DAG) to upload raw data to MinIO bronze bucket under
+        a new prefix (\texttt{new\_source/\{ds\}/*.format}).
+  \item \textbf{Silver transformation:} Update the PySpark cleaning pipeline
+        to include the new source. Add source-specific cleaning rules if needed.
+        Update the schema mapping configuration.
+  \item \textbf{DW integration:} Add or update dimension and fact table
+        loading tasks in \texttt{etl\_load\_warehouse} DAG. If new dimensions
+        are required, create migration scripts and update the star schema.
+  \item \textbf{Validation and monitoring:} Add data quality checks for the
+        new source. Configure alerting for the new DAG tasks. Update the
+        data catalog metadata in MinIO. Run end-to-end test.
+\end{enumerate}
+
+\subsection{New Access Creation Procedure}
+
+To grant a new user or group access to the data warehouse or data lake:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Define access scope:} Identify which schemas (app, dw),
+        tables, and MinIO buckets the new user/group needs. Apply the
+        principle of least privilege. Document in the access rights matrix
+        (Table~\ref{tab:access-matrix}).
+  \item \textbf{Configure database access:} Create a PostgreSQL role with
+        appropriate permissions:
+        \begin{lstlisting}[language=SQL, numbers=none, frame=none, xleftmargin=0em, framexleftmargin=0em]
+-- Example: new analyst role
+CREATE ROLE new_analyst_role LOGIN PASSWORD 'secure_pwd';
+GRANT USAGE ON SCHEMA dw TO new_analyst_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA dw TO new_analyst_role;
+        \end{lstlisting}
+  \item \textbf{Configure data lake access:} Create a MinIO policy scoped
+        to the required buckets and apply it to the user/group:
+        \begin{lstlisting}[language=bash, numbers=none, frame=none, xleftmargin=0em, framexleftmargin=0em]
+# Example: read-only access to gold bucket
+mc admin policy create myminio gold-readonly gold-policy.json
+mc admin user add myminio new_analyst secure_pwd
+mc admin policy attach myminio gold-readonly --user new_analyst
+        \end{lstlisting}
+\end{enumerate}
+
+\subsection{Scalability Documentation}
+
+\begin{table}[H]
+\centering
+\caption{Scalability procedures for platform evolution}
+\label{tab:scalability}
+\begin{tabularx}{\textwidth}{L{3cm} L{3cm} L{6.5cm}}
+\toprule
+\textbf{Dimension} & \textbf{Current State} & \textbf{Scaling Procedure} \\
+\midrule
+Storage space & PostgreSQL: $\sim$2~GB; MinIO: $\sim$4~GB & PostgreSQL: add tablespaces on new volumes. MinIO: add storage nodes to the cluster (erasure coding supports 4--16 nodes). Docker volume resize via host filesystem. \\
+New datamarts & 6 analytical views & Create new SQL view in \texttt{dw} schema; grant SELECT to target role; add corresponding FastAPI endpoint and Streamlit page; document in data catalog. \\
+Compute capacity & Single Docker host & Migrate to Docker Swarm or Kubernetes for horizontal scaling. Airflow: switch from CeleryExecutor to KubernetesExecutor. PySpark: connect to a standalone or YARN cluster. \\
+New data sources & 3 sources & Follow the 6-step new source integration procedure above. \\
+Additional users & 4 role groups & Follow the 3-step new access creation procedure above. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{\rgpd{} Registry and Sorting Procedures (C16)}
+
+The personal data registry (Table~\ref{tab:rgpd}) is maintained and updated
+whenever new data categories are introduced. Sorting and deletion procedures
+are automated:
+
+\begin{itemize}[nosep]
+  \item \textbf{Automated sorting:} The \texttt{rgpd\_cleanup\_expired\_data()}
+        function runs monthly (scheduled via Airflow) and performs:
+        (1)~deletion of meal records older than 2 years,
+        (2)~deactivation of user accounts past 3-year retention,
+        (3)~logging of all deletions to the activity log.
+  \item \textbf{Manual right-to-deletion:} Upon user request, an admin can
+        execute \texttt{DELETE FROM app.users WHERE user\_id = \$UUID} which
+        cascades to all associated meals and meal items.
+  \item \textbf{Data lake compliance:} No personal data is stored in the data
+        lake. MinIO lifecycle rules enforce automatic deletion of bronze data
+        at 90 days and backups at 30 days.
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{SCD Dimension Variations (\competence{C17})}
+\label{sec:c17}
+{\small\evaluation{E6} | Kimball Type 1, 2, 3}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  scd/.style={
+    rectangle, rounded corners=5pt, draw=#1, fill=#1!10,
+    minimum width=4.5cm, minimum height=2.5cm,
+    font=\scriptsize, align=left, inner sep=8pt
+  },
+  title/.style={font=\small\bfseries\color{#1}},
+]
+
+% SCD Type 1
+\node[scd=ntorange] (scd1) at (0,0) {
+  \textbf{\color{ntorange}SCD Type 1: Overwrite}\\[3pt]
+  \textbf{Use case:} Brand name correction\\
+  \textbf{Table:} dim\_brand\\
+  \textbf{Action:} Direct UPDATE\\
+  \textbf{History:} Not preserved\\[2pt]
+  {\tiny \texttt{SET brand\_name = p\_new}}\\
+  {\tiny \texttt{SET last\_updated = NOW()}}
+};
+
+% SCD Type 2
+\node[scd=ntred, right=0.8cm of scd1] (scd2) {
+  \textbf{\color{ntred}SCD Type 2: History}\\[3pt]
+  \textbf{Use case:} Product reformulation\\
+  \textbf{Table:} dim\_product, dim\_user\\
+  \textbf{Action:} Close old + insert new\\
+  \textbf{History:} Complete\\[2pt]
+  {\tiny \texttt{end\_date, is\_current}}\\
+  {\tiny \texttt{effective\_date}}
+};
+
+% SCD Type 3
+\node[scd=ntblue, right=0.8cm of scd2] (scd3) {
+  \textbf{\color{ntblue}SCD Type 3: Column}\\[3pt]
+  \textbf{Use case:} Country expansion\\
+  \textbf{Table:} dim\_country\\
+  \textbf{Action:} Store previous value\\
+  \textbf{History:} 1 prior version\\[2pt]
+  {\tiny \texttt{previous\_country\_list}}\\
+  {\tiny \texttt{= old country\_name}}
+};
+
+\end{tikzpicture}%
+}
+\caption{Three Slowly Changing Dimension types implemented}
+\label{fig:scd-types}
+\end{figure}
+
+
+% =============================================================
+% BLOCK 4: DATA LAKE
+% =============================================================
+\chapter{Block 4 --- Data Lake}
+\label{ch:bloc4}
+
+% -----------------------------------------------------------
+\section{Data Lake Architecture (\competence{C18})}
+\label{sec:c18}
+{\small\evaluation{E7} | Architecture design}
+
+\subsection{Medallion Architecture}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  layer/.style={
+    rectangle, rounded corners=8pt, draw=#1!80!black, fill=#1!20,
+    minimum width=4cm, minimum height=3.5cm,
+    font=\small, align=center, inner sep=10pt
+  },
+  arr/.style={-{Stealth[length=6pt]}, very thick, color=ntgray},
+  content/.style={font=\tiny, align=left, text=ntgray},
+]
+
+% Bronze
+\node[layer=bronze] (br) {};
+\node[font=\bfseries\color{bronze!80!black}, anchor=north] at (br.north)
+  {BRONZE};
+\node[content, anchor=center] at (br.center) {
+  api/\{ds\}/*.json\\
+  parquet/\{ds\}/*.parquet\\
+  scraping/\{ds\}/*.json\\
+  duckdb/\{ds\}/*.parquet\\[3pt]
+  \_manifests/\{ds\}.json\\[3pt]
+  \textit{Raw data}\\
+  \textit{Retention: 90 days}
+};
+
+% Silver
+\node[layer=silver, right=1.5cm of br] (sv) {};
+\node[font=\bfseries\color{ntgray}, anchor=north] at (sv.north) {SILVER};
+\node[content, anchor=center] at (sv.center) {
+  products/\{ds\}/\\
+  \quad products\_cleaned.parquet\\[3pt]
+  \_reports/\\
+  \quad cleaning\_report.json\\[5pt]
+  \textit{Cleaned data}\\
+  \textit{Retention: 1 year}
+};
+
+% Gold
+\node[layer=gold, right=1.5cm of sv] (gd) {};
+\node[font=\bfseries\color{gold!80!black}, anchor=north] at (gd.north)
+  {GOLD};
+\node[content, anchor=center] at (gd.center) {
+  analytics/\{ds\}/\\
+  \quad nutrition\_patterns.parquet\\
+  \quad popular\_products.parquet\\
+  \quad brand\_rankings.parquet\\
+  \quad category\_stats.parquet\\[3pt]
+  \textit{Anonymized aggregates}\\
+  \textit{Retention: indefinite}
+};
+
+% Arrows
+\draw[arr] (br) -- (sv);
+\draw[arr] (sv) -- (gd);
+
+% Labels
+\node[font=\tiny\color{ntgray}, above=0.1cm of $(br)!0.5!(sv)$] {Cleaning};
+\node[font=\tiny\color{ntgray}, above=0.1cm of $(sv)!0.5!(gd)$] {Aggregation};
+
+% MinIO label
+\node[font=\footnotesize\bfseries\color{ntgray},
+      above=0.8cm of sv] {MinIO (S3-compatible) --- Medallion Architecture};
+
+\end{tikzpicture}%
+}
+\caption{Data lake medallion architecture (Bronze / Silver / Gold)}
+\label{fig:medallion}
+\end{figure}
+
+\subsection{Addressing the 3~V's}
+
+\begin{table}[H]
+\centering
+\caption{Volume, Velocity, Variety constraints and solutions}
+\label{tab:3v}
+\begin{tabularx}{\textwidth}{C{1.5cm} L{4cm} L{7.5cm}}
+\toprule
+\textbf{V} & \textbf{Challenge} & \textbf{Solution} \\
+\midrule
+Volume & 3M+ products ($\sim$5\,GB Parquet) & DuckDB reads Parquet without memory loading; MinIO scales to petabytes \\
+Variety & JSON, Parquet, CSV, SQL & Bronze stores raw formats; Silver normalizes to unified Parquet \\
+Velocity & Daily API updates, weekly bulk & Airflow DAGs on schedule; Bronze preserves snapshots by \{ds\}/ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Catalog Tool Comparison}
+
+\begin{table}[H]
+\centering
+\caption{Catalog tool comparison and selection}
+\label{tab:catalog-compare}
+\begin{tabularx}{\textwidth}{L{2.5cm} C{2.5cm} C{2.5cm} C{3.5cm}}
+\toprule
+\textbf{Criterion} & \textbf{Apache Atlas} & \textbf{DataHub} & \textbf{JSON Catalog} \\
+\midrule
+Complexity & High & Medium & \textbf{Low} \\
+Setup time & Days & Hours & \textbf{Minutes} \\
+Integration & Hadoop & REST API & \textbf{MinIO native} \\
+Resource cost & High (JVM) & Medium & \textbf{Minimal} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Selection:} Custom JSON catalog --- chosen for its minimal
+overhead, direct MinIO integration, and sufficiency at project scale.
+
+
+% -----------------------------------------------------------
+\section{Infrastructure Components (\competence{C19})}
+\label{sec:c19}
+{\small\evaluation{E7} | Installation and configuration}
+
+The entire infrastructure is deployable in a development environment
+via Docker Compose. The installation has been tested on macOS (Apple Silicon)
+and Linux (Ubuntu 22.04) without errors.
+
+\textbf{Prerequisites:} Docker Engine 24+, Docker Compose v2, 8~GB RAM minimum,
+10~GB free disk space.
+
+\begin{lstlisting}[language=bash, caption={Infrastructure deployment}]
+# Clone repository
+git clone https://github.com/Reetika12795/NutriTrack.git
+cd NutriTrack/nutritrack
+
+# Start all 15 services
+docker compose up -d
+
+# Wait ~60 seconds, then verify
+docker compose ps
+# Expected: 15 services running (healthy)
+\end{lstlisting}
+
+\textbf{Service inventory (15 services):}
+
+\begin{table}[H]
+\centering
+\caption{Docker Compose service inventory}
+\label{tab:services}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{3cm} L{2.5cm} C{1.5cm} L{4.5cm}}
+\toprule
+\textbf{\#} & \textbf{Service} & \textbf{Image} & \textbf{Port} & \textbf{Purpose} \\
+\midrule
+1 & PostgreSQL & postgres:16-alpine & 5432 & OLTP + OLAP database \\
+2 & Redis & redis:7-alpine & 6379 & Cache + Celery broker \\
+3 & MinIO & minio/minio:latest & 9000/9001 & S3-compatible object storage \\
+4 & Airflow Webserver & custom (Python 3.11) & 8080 & ETL web interface \\
+5 & Airflow Scheduler & custom (Python 3.11) & --- & DAG scheduling \\
+6 & Airflow Worker & custom (Python 3.11) & --- & Task execution (Celery) \\
+7 & Airflow Init & custom (Python 3.11) & --- & DB migration + user creation \\
+8 & FastAPI & custom (Python 3.11) & 8000 & REST API \\
+9 & Streamlit & custom (Python 3.11) & 8501 & Frontend UI \\
+10 & Prometheus & prom/prometheus & 9090 & Metrics collection \\
+11 & Grafana & grafana/grafana & 3000 & Dashboards + alerting \\
+12 & MailHog & mailhog/mailhog & 8025 & Dev email server \\
+13 & postgres-exporter & prometheuscommunity & 9187 & PostgreSQL metrics \\
+14 & MinIO createbuckets & minio/mc & --- & Bucket initialization \\
+15 & DuckDB sidecar & duckdb/duckdb & --- & Ad-hoc Parquet analytics \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Storage system configuration:}
+\begin{itemize}[nosep]
+  \item \textbf{PostgreSQL:} 4 schemas (\texttt{app}, \texttt{raw}, \texttt{staging},
+        \texttt{dw}), initialized via SQL migration scripts in \texttt{sql/init/}
+  \item \textbf{MinIO:} 4 buckets (\texttt{bronze}, \texttt{silver}, \texttt{gold},
+        \texttt{backups}), created automatically by the \texttt{createbuckets}
+        init container with lifecycle rules applied
+  \item \textbf{Redis:} In-memory cache for Airflow Celery broker and API
+        session management
+\end{itemize}
+
+\textbf{Batch and real-time tools:}
+\begin{itemize}[nosep]
+  \item \textbf{Batch:} Airflow DAGs (7 DAGs, 25 tasks) orchestrate all
+        ETL workflows on configurable schedules (daily, weekly)
+  \item \textbf{Real-time:} FastAPI provides synchronous query access to
+        the database; Streamlit provides real-time dashboard updates
+  \item \textbf{Catalog:} The JSON catalog in MinIO is connected to the
+        storage system and updated automatically by ETL pipelines
+\end{itemize}
+
+
+% -----------------------------------------------------------
+\section{Data Catalog Management (\competence{C20})}
+\label{sec:c20}
+{\small\evaluation{E7} | Catalog, lifecycle and monitoring}
+
+The data catalog is stored as \texttt{\_catalog/metadata.json} in each
+MinIO bucket, updated daily by the ETL pipeline. It documents for each
+dataset: description, format, update frequency, source, schema, owner,
+quality and lineage.
+
+\subsection{Feed Method per Source}
+
+\begin{table}[H]
+\centering
+\caption{Feed method selection per data source}
+\label{tab:feed-methods}
+\begin{tabularx}{\textwidth}{L{2.5cm} L{2cm} L{3cm} L{5cm}}
+\toprule
+\textbf{Source} & \textbf{Method} & \textbf{Frequency} & \textbf{Justification} \\
+\midrule
+OFF REST API & Batch (API pull) & Daily & Limited to category-based queries; rate-limited; suitable for incremental updates \\
+OFF Parquet & Batch (file download) & Weekly & Full dataset refresh; 4.2~GB file too large for frequent downloads \\
+ANSES/EFSA & Batch (scraping) & Monthly & Reference values change rarely; respectful crawling \\
+PostgreSQL (app) & Batch (SQL extract) & Daily & Extract new/modified records since last run via \texttt{updated\_at} timestamp \\
+DuckDB analytics & On-demand & As needed & Analytical queries triggered by user request or scheduled report \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Catalog Metadata Updates}
+
+The data catalog metadata is updated at each ETL run through the following process:
+\begin{enumerate}[nosep]
+  \item Each DAG task writes a manifest file (\texttt{\_manifests/\{ds\}.json})
+        containing: source, record count, file sizes, schema hash, and timestamp.
+  \item The catalog update task aggregates manifests and updates
+        \texttt{\_catalog/metadata.json} with: last update time, total records,
+        schema version, data lineage (source $\to$ bronze $\to$ silver $\to$ gold),
+        and quality metrics from the cleaning report.
+  \item The Streamlit data catalog browser provides a read-only UI for exploring
+        catalog metadata, dataset schemas, and lineage.
+\end{enumerate}
+
+\subsection{Lifecycle-Based Deletion and Update Procedures}
+
+\begin{table}[H]
+\centering
+\caption{Data lifecycle rules per bucket}
+\label{tab:lifecycle}
+\begin{tabularx}{\textwidth}{L{2cm} L{2cm} L{3cm} L{5.5cm}}
+\toprule
+\textbf{Bucket} & \textbf{Retention} & \textbf{Deletion Method} & \textbf{Procedure} \\
+\midrule
+Bronze & 90 days & MinIO lifecycle rule & Automatic expiration; old snapshots deleted after 90 days to free storage \\
+Silver & 1 year & Manual / lifecycle & Outdated cleaned datasets replaced by new runs; old versions expire after 1 year \\
+Gold & Indefinite & Manual only & Aggregated analytics retained indefinitely; deletion requires admin approval \\
+Backups & 30 days & MinIO lifecycle rule & Old backups automatically purged; most recent 4 weekly backups always retained \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Update procedures:}
+\begin{itemize}[nosep]
+  \item \textbf{Data refresh:} New ETL runs write to date-partitioned paths
+        (\texttt{\{ds\}/}), preserving previous versions until lifecycle expiration.
+  \item \textbf{Schema evolution:} If the source schema changes, the cleaning pipeline
+        is updated, a new schema version is recorded in the catalog, and old silver
+        data is marked as deprecated.
+  \item \textbf{Regulatory deletion:} For \rgpd{} compliance, any personal data
+        inadvertently ingested into bronze is immediately deleted and logged
+        as a CRITICAL event in the activity log.
+\end{itemize}
+
+\subsection{Monitoring with Alerts}
+
+The data lake is monitored through Prometheus metrics and Grafana dashboards
+with automated alerting:
+
+\begin{table}[H]
+\centering
+\caption{Data lake monitoring --- alerts and thresholds}
+\label{tab:lake-monitoring}
+\begin{tabularx}{\textwidth}{L{3.5cm} C{2cm} L{3cm} L{4cm}}
+\toprule
+\textbf{Metric} & \textbf{Threshold} & \textbf{Alert Channel} & \textbf{Action} \\
+\midrule
+MinIO disk usage & $>$~85\,\% & Grafana $\to$ MailHog & Trigger lifecycle cleanup; expand storage \\
+MinIO server status & DOWN & Grafana $\to$ MailHog & Restart container; escalate if persistent \\
+ETL feed failure & 2 consecutive & Airflow $\to$ MailHog & Retry; check source availability; log CRITICAL \\
+Catalog update age & $>$~48h & Grafana $\to$ MailHog & Investigate ETL pipeline; check DAG scheduler \\
+Bronze data volume & $>$~10~GB & Grafana panel & Review lifecycle rules; archive old snapshots \\
+Memory usage & $>$~90\,\% & Grafana $\to$ MailHog & Scale compute; optimize PySpark memory settings \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Grafana alert rules are defined in \texttt{monitoring/grafana/provisioning/alerting/}
+and configured to send notifications via MailHog SMTP for development
+and via email/Slack for production deployment.
+
+
+% -----------------------------------------------------------
+\section{Data Governance (\competence{C21})}
+\label{sec:c21}
+{\small\evaluation{E7} | Governance rules and access control}
+
+\begin{table}[H]
+\centering
+\caption{Access rights matrix by group}
+\label{tab:access-matrix}
+\arrayrulecolor{ntblue}
+\rowcolors{2}{ntlightblue!15}{white}
+\begin{tabularx}{\textwidth}{L{2.3cm} L{2.3cm} L{3.2cm} C{1.5cm} L{3.2cm}}
+\toprule
+\rowcolor{ntblue}
+\textcolor{white}{\textbf{Group}} & \textcolor{white}{\textbf{PG Role}} & \textcolor{white}{\textbf{MinIO Policy}} & \textcolor{white}{\textbf{API Role}} & \textcolor{white}{\textbf{Streamlit}} \\
+\midrule
+\textbf{Users} & app\_readonly & gold: read & user & 6 pages \\
+\textbf{Nutritionists} & nutritionist\_role & silver+gold: read & nutritionist & 7 pages (+patients) \\
+\textbf{Analysts} & analyst\_role & gold: read & analyst & 7 pages (+analytics) \\
+\textbf{Administrators} & admin\_role & all: read/write & admin & 8 pages (all) \\
+\textbf{ETL Service} & etl\_service & all: write & --- & --- \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+\textbf{Governance principles:}
+\begin{itemize}[nosep]
+  \item Rights applied to groups (not individuals) when possible
+  \item Access limited to necessary resources per group (least privilege)
+  \item No personal data in the data lake
+  \item Gold bucket publicly readable for anonymous analytics
+  \item All access changes documented and logged
+\end{itemize}
+
+\subsection{Groups and Rights Documentation}
+
+% Checkmark and cross symbols for access table
+\newcommand{\cmark}{\textcolor{ntgreen}{\faCheckCircle}}
+\newcommand{\xmark}{\textcolor{ntgray!40}{---}}
+
+\begin{table}[H]
+\centering
+\caption{Detailed access rights per group and resource}
+\label{tab:detailed-rights}
+\small
+\arrayrulecolor{ntgreen}
+\begin{tabularx}{\textwidth}{L{2cm} L{2.2cm} C{1cm} C{1cm} C{1cm} C{1cm} C{1cm}}
+\toprule
+\rowcolor{ntgreen}
+\textcolor{white}{\textbf{Resource}} & \textcolor{white}{\textbf{Permission}} & \textcolor{white}{\textbf{User}} & \textcolor{white}{\textbf{Nutri.}} & \textcolor{white}{\textbf{Analyst}} & \textcolor{white}{\textbf{Admin}} & \textcolor{white}{\textbf{ETL}} \\
+\midrule
+\rowcolor{ntlightblue!15}
+PG: app & SELECT & \cmark & \cmark & \cmark & \cmark & \cmark \\
+PG: app & INSERT & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightblue!15}
+PG: dw & SELECT & \xmark & \xmark & \cmark & \cmark & \cmark \\
+PG: dw & INSERT & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightblue!15}
+PG: staging & ALL & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\rowcolor{ntlightgreen!25}
+MinIO: bronze & READ & \xmark & \xmark & \xmark & \cmark & \cmark \\
+MinIO: silver & READ & \xmark & \cmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightgreen!25}
+MinIO: gold & READ & \cmark & \cmark & \cmark & \cmark & \cmark \\
+MinIO: all & WRITE & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\rowcolor{ntlightgreen!25}
+MinIO: backups & R/W & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\rowcolor{producerbody}
+API & /products, /meals & \cmark & \cmark & \cmark & \cmark & \xmark \\
+API & /nutritionist/* & \xmark & \cmark & \xmark & \cmark & \xmark \\
+\rowcolor{producerbody}
+API & /analytics/* & \xmark & \xmark & \cmark & \cmark & \xmark \\
+\midrule
+\rowcolor{consumerbody}
+Streamlit & User pages (6) & \cmark & \cmark & \cmark & \cmark & \xmark \\
+Streamlit & Nutritionist Dash & \xmark & \cmark & \xmark & \cmark & \xmark \\
+\rowcolor{consumerbody}
+Streamlit & Product Analytics & \xmark & \xmark & \cmark & \cmark & \xmark \\
+Streamlit & Data Catalog & \xmark & \xmark & \cmark & \cmark & \xmark \\
+\midrule
+\rowcolor{ntgray!10}
+Airflow UI & View DAGs & \xmark & \xmark & \xmark & \cmark & \cmark \\
+Grafana & Dashboards & \xmark & \xmark & \cmark & \cmark & \xmark \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\normalsize
+\end{table}
+
+\textbf{Access update procedures:}
+\begin{itemize}[nosep]
+  \item \textbf{Adding a user to a group:} Assign the appropriate PostgreSQL role
+        (\texttt{GRANT role\_name TO username}) and MinIO policy
+        (\texttt{mc admin policy attach}). Update the access matrix documentation.
+  \item \textbf{Removing access:} Revoke PostgreSQL role (\texttt{REVOKE role\_name
+        FROM username}) and detach MinIO policy. Log the change.
+  \item \textbf{Audit:} Quarterly review of all access grants against the access
+        matrix to ensure compliance with least-privilege principle and \rgpd{}
+        requirements.
+\end{itemize}
+
+
+
+% =============================================================
+% CONCLUSION (one page, before acknowledgements)
+% =============================================================
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+\nutritrack{} started with one sentence from Sophie Yang:
+\textit{``I need a platform where my patients log meals and I see the
+analytics.''} Twelve weeks later, that sentence is a running platform
+--- 798\,177 products cleaned with PySpark, a star-schema warehouse, a
+medallion data lake, a REST API and four role-based dashboards, all
+deployed with a single \texttt{docker compose} command.
+
+Building this project taught me that good data engineering starts from
+the client, not from the technology. Every tool choice, every schema
+decision and every access rule in this report traces back to something
+Sophie asked for during the discovery interviews. It also showed me
+that infrastructure and intelligence are two sides of the same coin:
+the pipelines, warehouses and governance layers I built here are
+exactly what sits beneath the Gen~AI products I work on every day at
+Publicis. I now see the full picture, and that makes all the
+difference.
+
+The code is public, the report explains every choice, and the oral
+defense will show the platform running in real time. Thank you for
+reading.
+
+
+% =============================================================
+% ACKNOWLEDGEMENTS (one page)
+% =============================================================
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+\noindent\textbf{To Simplon.} Thank you for eighteen months of
+hands-on learning. Simplon's pedagogic model --- implement, deploy,
+break, fix, present --- is the reason this project is a running
+system and not a slide deck. The referential gave me the structure;
+the instructors pushed me to justify every choice.
+
+\vspace{0.4cm}
+
+\noindent\textbf{To Publicis Resources.} My daily work is on Gen~AI
+products, far from data infrastructure. Yet Publicis gave me the
+space and time to build pipelines, warehouses and governance layers
+from scratch. That experience showed me the infrastructure beneath
+every AI product I work on. I now see the full picture --- from
+raw data to model --- and that makes me a stronger engineer.
+
+\vspace{0.4cm}
+
+\noindent This project has grown my ability to think beyond my
+immediate role. Having built both the data infrastructure and the
+analytical layer from scratch, I now carry a mental model that
+connects ingestion, transformation, storage, governance and
+serving into one coherent system. Combined with my daily work in
+AI, I believe this dual expertise --- infrastructure and
+intelligence --- will make me a stronger engineer and a more
+effective contributor to the teams I work with.
+
+\vspace{0.3cm}
+
+\noindent Sophie Yang may be a fictional client, but the problems
+she represents are real, the technical stack is real, the code
+runs, and every line of this report reflects something I learned
+by building. Thank you, Simplon and Publicis, for making that
+possible.
+
+\vspace{0.8cm}
+
+\begin{center}
+\textit{Reetika Gautam} \\
+April 2026
+\end{center}
+
+\clearpage
+
+
+% =============================================================
+% BIBLIOGRAPHY
+% =============================================================
+\begin{thebibliography}{99}
+
+\bibitem{off}
+Open Food Facts.
+\textit{Open Food Facts --- The free food products database}.
+\url{https://world.openfoodfacts.org/}, 2024.
+
+\bibitem{kimball}
+R.~Kimball and M.~Ross.
+\textit{The Data Warehouse Toolkit: The Definitive Guide to Dimensional
+Modeling}. 3rd edition, Wiley, 2013.
+
+\bibitem{eu1169}
+Regulation (EU) No~1169/2011.
+\textit{Provision of food information to consumers}.
+Official Journal of the European Union, 2011.
+
+\bibitem{gdpr}
+Regulation (EU) 2016/679.
+\textit{General Data Protection Regulation (GDPR)}.
+Official Journal of the European Union, 2016.
+
+\bibitem{rgesn}
+Direction interministerielle du numerique.
+\textit{Referentiel general d'ecoconception de services numeriques
+(RGESN)}.
+\url{https://ecoresponsable.numerique.gouv.fr/publications/referentiel-general-ecoconception/}, 2024.
+
+\bibitem{airflow}
+Apache Software Foundation.
+\textit{Apache Airflow Documentation}.
+\url{https://airflow.apache.org/docs/}, 2024.
+
+\bibitem{fastapi}
+S.~Ramirez.
+\textit{FastAPI --- Modern, fast web framework for building APIs with Python}.
+\url{https://fastapi.tiangolo.com/}, 2024.
+
+\bibitem{duckdb}
+M.~Raasveldt and H.~Muhleisen.
+\textit{DuckDB: An Embeddable Analytical Database}.
+Proc. SIGMOD, 2019.
+
+\bibitem{minio}
+MinIO, Inc.
+\textit{MinIO --- High Performance Object Storage}.
+\url{https://min.io/}, 2024.
+
+\bibitem{anses}
+ANSES.
+\textit{Nutritional reference values}.
+\url{https://www.anses.fr/fr/content/les-references-nutritionnelles-en-vitamines-et-mineraux}, 2024.
+
+\end{thebibliography}
+
+
+\end{document}
