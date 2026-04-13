@@ -240,10 +240,16 @@ def meal_logger_page():
     with st.expander("📸 AI Meal Scanner (upload a photo)", expanded=False):
         st.caption("Upload a meal photo and let GPT-4o identify foods and estimate nutrition automatically.")
 
+        env_key = os.getenv("OPENAI_API_KEY", "")
         col_key, col_upload = st.columns([1, 1])
         with col_key:
-            openai_key = st.text_input("OpenAI API Key", type="password", key="openai_key",
-                                       help="Your key is not stored — it's used only for this request.")
+            openai_key = st.text_input(
+                "OpenAI API Key",
+                type="password",
+                key="openai_key",
+                value=env_key,
+                help="Set OPENAI_API_KEY in .env or enter here. Used only for this request.",
+            )
         with col_upload:
             uploaded_file = st.file_uploader("Meal photo", type=["jpg", "jpeg", "png"], key="meal_photo")
 
