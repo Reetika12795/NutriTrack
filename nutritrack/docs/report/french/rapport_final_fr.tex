@@ -235,6 +235,10 @@
 \newcommand{\rgpd}{RGPD}
 \newcommand{\scd}{SCD}
 
+% ---- Global table styling: more readable with spacing and lines ----
+\renewcommand{\arraystretch}{1.4}
+\setlength{\tabcolsep}{6pt}
+
 % =============================================================
 \begin{document}
 
@@ -1257,20 +1261,25 @@ informations sous forme visuelle.
 \centering
 \caption{Matrice de flux --- Source, format, cible, script, frequence}
 \label{tab:flux-matrix}
-\begin{tabularx}{\textwidth}{L{0.5cm} L{3.3cm} L{1.6cm} L{3cm} L{3.6cm} L{1.5cm}}
+\small
+\arrayrulecolor{ntblue}
+\rowcolors{2}{ntlightblue!15}{white}
+\begin{tabularx}{\textwidth}{C{0.5cm} L{2.5cm} C{1.3cm} L{2.5cm} L{3.5cm} C{1.2cm}}
 \toprule
-\textbf{\#} & \textbf{Source} & \textbf{Format} & \textbf{Cible} & \textbf{Script / tache} & \textbf{Freq.} \\
+\rowcolor{ntblue}
+\textcolor{white}{\textbf{\#}} & \textcolor{white}{\textbf{Source}} & \textcolor{white}{\textbf{Format}} & \textcolor{white}{\textbf{Cible}} & \textcolor{white}{\textbf{Script}} & \textcolor{white}{\textbf{Freq.}} \\
 \midrule
-1 & API REST OFF (5 categories) & JSON & \texttt{data/raw/api/} & \texttt{extract\_off\_api.py} & Quotid. \\
-2 & Parquet OFF (HuggingFace) & Parquet & \texttt{data/raw/parquet/} & \texttt{extract\_off\_parquet.py} + DuckDB & Hebdo. \\
-3 & Portail ANSES / EFSA & HTML/CSV & \texttt{data/raw/scraping/} & \texttt{extract\_scraping.py} & Mensuel \\
-4 & raw/* (3 sources) & Mixte & \texttt{data/cleaned/} & \texttt{aggregate\_clean.py} (PySpark) & Quotid. \\
-5 & Produits nettoyes & Parquet & app.products (PostgreSQL) & \texttt{import\_to\_db.py} & Quotid. \\
-6 & app.* & SQL & dw.* (schema en etoile) & \texttt{etl\_warehouse.py} & Quotid. \\
-7 & Parquet nettoye & Parquet & MinIO bronze/silver/gold & \texttt{etl\_datalake\_ingest.py} & Quotid. \\
-8 & dw.fact\_* & SQL & gold/*.parquet (agregats) & \texttt{publish\_anonymized\_aggregates} & Quotid. \\
+1 & API REST OFF & JSON & data/raw/api/ & extract\_off\_api.py & Quotid. \\ \hline
+2 & Parquet OFF & Parquet & data/raw/parquet/ & extract\_off\_parquet.py & Hebdo. \\ \hline
+3 & ANSES / EFSA & HTML & data/raw/scraping/ & extract\_scraping.py & Mensuel \\ \hline
+4 & raw/* (3 sources) & Mixte & data/cleaned/ & aggregate\_clean.py & Quotid. \\ \hline
+5 & Produits nettoyes & Parquet & app.products & import\_to\_db.py & Quotid. \\ \hline
+6 & app.* & SQL & dw.* (etoile) & etl\_warehouse.py & Quotid. \\ \hline
+7 & Parquet nettoye & Parquet & MinIO b/s/g & etl\_datalake\_ingest.py & Quotid. \\ \hline
+8 & dw.fact\_* & SQL & gold/*.parquet & publish\_aggregates & Quotid. \\
 \bottomrule
 \end{tabularx}
+\arrayrulecolor{black}
 \end{table}
 
 \begin{figure}[H]
