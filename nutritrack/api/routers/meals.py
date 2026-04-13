@@ -33,25 +33,38 @@ async def create_meal(
     await db.flush()
 
     for item_data in meal_data.items:
-        # Verify product exists
-        result = await db.execute(select(Product).where(Product.product_id == item_data.product_id))
-        product = result.scalar_one_or_none()
-        if not product:
-            raise HTTPException(status_code=404, detail=f"Product {item_data.product_id} not found")
+        if item_data.product_id is not None:
+            # Standard flow: lookup product from database
+            result = await db.execute(select(Product).where(Product.product_id == item_data.product_id))
+            product = result.scalar_one_or_none()
+            if not product:
+                raise HTTPException(status_code=404, detail=f"Product {item_data.product_id} not found")
 
-        # Compute nutrition for quantity
-        ratio = float(item_data.quantity_g) / 100.0
-        meal_item = MealItem(
-            meal_id=meal.meal_id,
-            product_id=item_data.product_id,
-            quantity_g=item_data.quantity_g,
-            energy_kcal=float(product.energy_kcal) * ratio if product.energy_kcal else None,
-            fat_g=float(product.fat_g) * ratio if product.fat_g else None,
-            carbohydrates_g=float(product.carbohydrates_g) * ratio if product.carbohydrates_g else None,
-            proteins_g=float(product.proteins_g) * ratio if product.proteins_g else None,
-            fiber_g=float(product.fiber_g) * ratio if product.fiber_g else None,
-            salt_g=float(product.salt_g) * ratio if product.salt_g else None,
-        )
+            ratio = float(item_data.quantity_g) / 100.0
+            meal_item = MealItem(
+                meal_id=meal.meal_id,
+                product_id=item_data.product_id,
+                quantity_g=item_data.quantity_g,
+                energy_kcal=float(product.energy_kcal) * ratio if product.energy_kcal else None,
+                fat_g=float(product.fat_g) * ratio if product.fat_g else None,
+                carbohydrates_g=float(product.carbohydrates_g) * ratio if product.carbohydrates_g else None,
+                proteins_g=float(product.proteins_g) * ratio if product.proteins_g else None,
+                fiber_g=float(product.fiber_g) * ratio if product.fiber_g else None,
+                salt_g=float(product.salt_g) * ratio if product.salt_g else None,
+            )
+        else:
+            # AI scanner flow: custom food with nutrition provided directly
+            meal_item = MealItem(
+                meal_id=meal.meal_id,
+                product_id=None,
+                quantity_g=item_data.quantity_g,
+                energy_kcal=item_data.custom_energy_kcal,
+                proteins_g=item_data.custom_proteins_g,
+                fat_g=item_data.custom_fat_g,
+                carbohydrates_g=item_data.custom_carbohydrates_g,
+                fiber_g=item_data.custom_fiber_g,
+                salt_g=item_data.custom_salt_g,
+            )
         db.add(meal_item)
 
     await db.commit()

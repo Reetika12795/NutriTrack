@@ -10,6 +10,8 @@ Roles:
   - admin:         Everything (all pages)
 """
 
+import base64
+import json
 import os
 from datetime import date
 
@@ -182,9 +184,136 @@ def product_search_page():
             st.warning("Product not found")
 
 
+def _analyze_meal_image(image_bytes, api_key):
+    """Send meal photo to OpenAI Vision API and get food items with nutrition."""
+    b64_image = base64.b64encode(image_bytes).decode("utf-8")
+
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload = {
+        "model": "gpt-4o",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Analyze this meal photo. For each food item visible, return a JSON array:\n"
+                            "[\n"
+                            '  {"food_name": "grilled chicken breast", "estimated_quantity_g": 150, '
+                            '"energy_kcal": 248, "proteins_g": 46.5, "fat_g": 5.4, '
+                            '"carbohydrates_g": 0, "fiber_g": 0, "salt_g": 0.8}\n'
+                            "]\n"
+                            "Return ONLY the JSON array, no other text. "
+                            "Estimate nutrition values for the estimated quantity (not per 100g). "
+                            "If unsure about quantity, use a reasonable default portion size."
+                        ),
+                    },
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_image}"}},
+                ],
+            }
+        ],
+        "max_tokens": 1000,
+    }
+
+    resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload, timeout=30)
+    if resp.status_code != 200:
+        return None, f"OpenAI API error: {resp.status_code} — {resp.text[:200]}"
+
+    content = resp.json()["choices"][0]["message"]["content"].strip()
+    # Strip markdown code fences if present
+    if content.startswith("```"):
+        content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+    try:
+        items = json.loads(content)
+        return items, None
+    except json.JSONDecodeError:
+        return None, f"Could not parse AI response: {content[:200]}"
+
+
 def meal_logger_page():
-    """Log daily meals."""
+    """Log daily meals — manual entry or AI photo scanner."""
     st.header("🍽️ Meal Logger")
+
+    # ── AI Meal Scanner ──────────────────────────────────────────
+    with st.expander("📸 AI Meal Scanner (upload a photo)", expanded=False):
+        st.caption("Upload a meal photo and let GPT-4o identify foods and estimate nutrition automatically.")
+
+        col_key, col_upload = st.columns([1, 1])
+        with col_key:
+            openai_key = st.text_input("OpenAI API Key", type="password", key="openai_key",
+                                       help="Your key is not stored — it's used only for this request.")
+        with col_upload:
+            uploaded_file = st.file_uploader("Meal photo", type=["jpg", "jpeg", "png"], key="meal_photo")
+
+        if uploaded_file and openai_key:
+            st.image(uploaded_file, caption="Uploaded meal", width=300)
+            if st.button("🔍 Analyze Photo", key="analyze_btn"):
+                with st.spinner("Asking GPT-4o to analyze your meal..."):
+                    items, error = _analyze_meal_image(uploaded_file.getvalue(), openai_key)
+
+                if error:
+                    st.error(error)
+                elif items:
+                    st.session_state["ai_meal_items"] = items
+                    st.success(f"Detected {len(items)} food item(s)!")
+                else:
+                    st.warning("No food items detected in the image.")
+
+        # Show AI results if available
+        if "ai_meal_items" in st.session_state and st.session_state["ai_meal_items"]:
+            ai_items = st.session_state["ai_meal_items"]
+            st.subheader(f"AI detected {len(ai_items)} item(s):")
+
+            df = pd.DataFrame(ai_items)
+            edited_df = st.data_editor(df, use_container_width=True, num_rows="dynamic", key="ai_editor")
+
+            col_add, col_clear = st.columns(2)
+            with col_add:
+                meal_type_ai = st.selectbox("Meal Type", ["breakfast", "lunch", "dinner", "snack"], key="ai_meal_type")
+            with col_clear:
+                meal_date_ai = st.date_input("Date", value=date.today(), key="ai_meal_date")
+
+            if st.button("✅ Log AI Meal", key="log_ai_meal", type="primary"):
+                api_items = []
+                for _, row in edited_df.iterrows():
+                    api_items.append({
+                        "product_id": None,
+                        "quantity_g": float(row.get("estimated_quantity_g", 100)),
+                        "custom_name": str(row.get("food_name", "Unknown")),
+                        "custom_energy_kcal": float(row.get("energy_kcal", 0)),
+                        "custom_proteins_g": float(row.get("proteins_g", 0)),
+                        "custom_fat_g": float(row.get("fat_g", 0)),
+                        "custom_carbohydrates_g": float(row.get("carbohydrates_g", 0)),
+                        "custom_fiber_g": float(row.get("fiber_g", 0)),
+                        "custom_salt_g": float(row.get("salt_g", 0)),
+                    })
+
+                resp = api_request(
+                    "POST", "/api/v1/meals",
+                    json={
+                        "meal_type": meal_type_ai,
+                        "meal_date": str(meal_date_ai),
+                        "notes": "Logged via AI Meal Scanner (GPT-4o Vision)",
+                        "items": api_items,
+                    },
+                )
+                if resp and resp.status_code == 201:
+                    st.success(f"Meal logged with {len(api_items)} AI-detected items!")
+                    st.session_state.pop("ai_meal_items", None)
+                    st.rerun()
+                elif resp:
+                    st.error(f"Error: {resp.json().get('detail', 'Unknown error')}")
+
+            if st.button("❌ Clear AI results", key="clear_ai"):
+                st.session_state.pop("ai_meal_items", None)
+                st.rerun()
+
+    st.divider()
+
+    # ── Manual Entry ─────────────────────────────────────────────
+    st.subheader("Manual Entry")
 
     with st.form("meal_form"):
         meal_type = st.selectbox("Meal Type", ["breakfast", "lunch", "dinner", "snack"])
@@ -198,8 +327,7 @@ def meal_logger_page():
         submitted = st.form_submit_button("Log Meal")
         if submitted:
             resp = api_request(
-                "POST",
-                "/api/v1/meals",
+                "POST", "/api/v1/meals",
                 json={
                     "meal_type": meal_type,
                     "meal_date": str(meal_date),
@@ -220,8 +348,12 @@ def meal_logger_page():
         for meal in meals:
             with st.expander(f"{meal['meal_type'].title()} - {meal['meal_date']}"):
                 for item in meal.get("items", []):
-                    product_name = item.get("product", {}).get("product_name", "Unknown")
-                    st.write(f"- {product_name}: {item['quantity_g']}g ({item.get('energy_kcal', 0):.0f} kcal)")
+                    product = item.get("product")
+                    if product:
+                        name = product.get("product_name", "Unknown")
+                    else:
+                        name = item.get("custom_name", "Custom food (AI)")
+                    st.write(f"- {name}: {item['quantity_g']}g ({item.get('energy_kcal', 0):.0f} kcal)")
 
 
 def daily_dashboard_page():

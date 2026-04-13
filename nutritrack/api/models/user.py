@@ -67,7 +67,7 @@ class MealItem(Base):
 
     meal_item_id = Column(Integer, primary_key=True)
     meal_id = Column(Integer, ForeignKey("app.meals.meal_id", ondelete="CASCADE"), nullable=False)
-    product_id = Column(Integer, ForeignKey("app.products.product_id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("app.products.product_id"), nullable=True)
     quantity_g = Column(Numeric(8, 2), nullable=False, default=100)
 
     energy_kcal = Column(Numeric(8, 2))

@@ -10,8 +10,16 @@ from api.schemas.product import ProductOut
 
 
 class MealItemCreate(BaseModel):
-    product_id: int
+    product_id: int | None = None  # Optional: None for AI-detected custom foods
     quantity_g: float = 100.0
+    # Custom food fields (used when product_id is None — AI meal scanner)
+    custom_name: str | None = None
+    custom_energy_kcal: float | None = None
+    custom_proteins_g: float | None = None
+    custom_fat_g: float | None = None
+    custom_carbohydrates_g: float | None = None
+    custom_fiber_g: float | None = None
+    custom_salt_g: float | None = None
 
 
 class MealCreate(BaseModel):
@@ -23,8 +31,9 @@ class MealCreate(BaseModel):
 
 class MealItemOut(BaseModel):
     meal_item_id: int
-    product_id: int
+    product_id: int | None = None
     quantity_g: float
+    custom_name: str | None = None
     energy_kcal: float | None = None
     fat_g: float | None = None
     carbohydrates_g: float | None = None
